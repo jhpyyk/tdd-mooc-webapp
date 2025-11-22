@@ -3,6 +3,8 @@ services:
         container_name: api
         restart: unless-stopped
         build: ./backend
+        environment:
+            - PORT=3000
         ports:
             - 3000:3000
         # depends_on:
