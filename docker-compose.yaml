@@ -1,13 +1,29 @@
 services:
-    api:
-        container_name: api
-        restart: unless-stopped
-        build: ./backend
-        environment:
-            - PORT=3000
-        ports:
-            - 3000:3000
-        # depends_on:
-        # - db
-        volumes:
-            - ./backend:/usr/src/app
+  api:
+    container_name: api
+    restart: unless-stopped
+    build: ./backend
+    environment:
+      - PORT=3000
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    volumes:
+      - .:/backend:/usr/src/app
+
+  db:
+    container_name: postgres
+    image: postgres
+    ports:
+      - 5431:5431
+    volumes:
+      - data:/data/db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_DB=db
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_PORT=5431
+
+volumes:
+  data: {}
