@@ -1,0 +1,11 @@
+services:
+    api:
+        container_name: api
+        restart: unless-stopped
+        build: ./backend
+        ports:
+            - 3000:3000
+        # depends_on:
+        # - db
+        volumes:
+            - ./backend:/usr/src/app
