@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 
 app.get("/test", (req: Request, res: Response) => {
-    res.json({ message: "hello from backend" });
+    res.json({ message: "Hello from backend" });
 });
 
 app.listen(port, () => {
