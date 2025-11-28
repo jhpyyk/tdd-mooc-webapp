@@ -5,8 +5,13 @@ services:
     build: ./frontend
     ports:
       - 5173:5173
-    volumes:
-      - .:/frontend:/usr/src/frontend
+    # volumes:
+    # - .:/frontend:/usr/src/frontend
+    develop:
+      watch:
+        - path: ./frontend/src
+          action: sync
+          target: /usr/src/frontend/src
   api:
     container_name: api
     restart: unless-stopped
@@ -17,9 +22,13 @@ services:
       - 3001:3001
     depends_on:
       - db
-    volumes:
-      - .:/backend:/usr/src/backend
-
+    # volumes:
+    # - .:/backend:/usr/src/backend
+    develop:
+      watch:
+        - path: ./backend/src
+          action: sync
+          target: /usr/src/backend/src
   db:
     container_name: postgres
     image: postgres
