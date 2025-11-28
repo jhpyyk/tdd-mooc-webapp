@@ -8,5 +8,5 @@ test("has title", async ({ page }) => {
 
 test("frontend fetches text from backend", async ({ page }) => {
     await page.goto("http://localhost:5173/");
-    expect(page.getByText("hello from backend")).toBeVisible();
+    await expect(page.getByText("hello from backend")).toBeVisible();
 });
