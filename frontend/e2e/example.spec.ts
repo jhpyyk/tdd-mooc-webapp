@@ -13,5 +13,5 @@ test("frontend fetches text from backend", async ({ page }) => {
 
 test("frontend-backend-db connection works", async ({ page }) => {
     await page.goto("http://localhost:5173/");
-    await expect(page.getByText("Hello from DB")).toBeVisible();
+    await expect(page.getByText("DB connection is healthy")).toBeVisible();
 });

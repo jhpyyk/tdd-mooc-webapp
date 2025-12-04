@@ -18,6 +18,10 @@ services:
     build: ./backend
     environment:
       - PORT=3001
+      - POSTGRES_USER=user
+      - POSTGRES_DB=db
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_PORT=5432
     ports:
       - 3001:3001
     depends_on:
@@ -33,14 +37,14 @@ services:
     container_name: postgres
     image: postgres
     ports:
-      - 5431:5431
+      - 5432:5432
     volumes:
       - data:/data/db
     environment:
       - POSTGRES_USER=user
       - POSTGRES_DB=db
       - POSTGRES_PASSWORD=password
-      - POSTGRES_PORT=5431
+      - POSTGRES_PORT=5432
 
 volumes:
   data: {}
