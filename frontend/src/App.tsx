@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-const api_url = "http://localhost:3001";
+// const api_url = "http://localhost:3001";
+const api_host = import.meta.env.VITE_API_HOST;
+const api_port = import.meta.env.VITE_API_PORT;
+const api_url = `http://${api_host}:${api_port}`;
 console.log("API_URL", api_url);
 
 interface TestResponse {
@@ -14,7 +17,6 @@ const fetchTest = async (): Promise<TestResponse> => {
 
 const fetchDbHealth = async (): Promise<TestResponse> => {
     console.log("fetching db-health");
-
     const res = await fetch(`${api_url}/db-health`);
     console.log(res);
     const data = await res.json();
@@ -33,7 +35,7 @@ const App = () => {
             setBackendTestResponse(testResponse.message);
         };
         fetchBackendResponse();
-    });
+    }, []);
 
     useEffect(() => {
         const fetchDbHealthResponse = async () => {
@@ -43,7 +45,7 @@ const App = () => {
             setDbHealthResponse(testResponse.message);
         };
         fetchDbHealthResponse();
-    });
+    }, []);
 
     return (
         <>

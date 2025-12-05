@@ -4,5 +4,5 @@ WORKDIR /usr/src/backend
 COPY ["package.json", "package-lock.json", "tsconfig.json", "./"]
 COPY ./src ./src
 
-RUN npm ci
+RUN npm i
 CMD npm run dev

@@ -7,6 +7,9 @@ services:
       - 5173:5173
     # volumes:
     # - .:/frontend:/usr/src/frontend
+    environment:
+      - VITE_API_HOST=127.0.0.1
+      - VITE_API_PORT=3001
     develop:
       watch:
         - path: ./frontend/src

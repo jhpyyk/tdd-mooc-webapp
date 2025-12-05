@@ -14,7 +14,6 @@ app.get("/test", (req: Request, res: Response) => {
 });
 
 app.get("/db-health", async (req: Request, res: Response) => {
-    // res.json({ message: "wtf" });
     const dbStatus = await db.healthCheck();
     if (dbStatus) {
         res.json({ message: "DB connection is healthy" });
