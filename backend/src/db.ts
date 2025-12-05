@@ -4,12 +4,18 @@ export class DB {
     pool: Pool;
 
     constructor() {
-        if (process.env.DATABASE_URL === undefined) {
-            throw Error(`DATABASE_URL not set ${process.env}`);
+        const isTest = process.env.TEST === "true";
+        const dbUrl = isTest
+            ? process.env.TEST_DATABASE_URL
+            : process.env.DEV_DATABASE_URL;
+        if (dbUrl === undefined) {
+            throw Error(
+                `DEV_DATABASE_URL nor TEST_DATABASE_URL is set ${process.env}`
+            );
         }
 
         this.pool = new Pool({
-            connectionString: process.env.DATABASE_URL,
+            connectionString: dbUrl,
         });
     }
 
