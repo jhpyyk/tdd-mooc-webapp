@@ -5,8 +5,9 @@ services:
     build: ./frontend
     ports:
       - 5173:5173
-    # volumes:
-    # - .:/frontend:/usr/src/frontend
+    volumes:
+      - ./frontend/src:/usr/src/frontend/src:ro
+
     environment:
       - VITE_API_HOST=127.0.0.1
       - VITE_API_PORT=3001
@@ -30,6 +31,8 @@ services:
       - 3001:3001
     depends_on:
       - db
+    volumes:
+      - ./backend/src:/usr/src/backend/src:ro
     # volumes:
     # - .:/backend:/usr/src/backend
     # develop:
