@@ -11,35 +11,21 @@ services:
     environment:
       - VITE_API_HOST=127.0.0.1
       - VITE_API_PORT=3001
-    # develop:
-    # watch:
-    # - path: ./frontend/src
-    # action: sync
-    # target: /usr/src/frontend/src
+
   api:
     container_name: api
     restart: unless-stopped
     build: ./backend
     environment:
+      - DATABASE_URL=postgres://db:5432/db_name?user=user&password=password
       - PORT=3001
-      - POSTGRES_USER=user
-      - POSTGRES_DB=db
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_PORT=5432
     ports:
       - 3001:3001
     depends_on:
       - db
     volumes:
       - ./backend/src:/usr/src/backend/src:ro
-    # volumes:
-    # - .:/backend:/usr/src/backend
-    # develop:
-    # watch:
-    # - path: ./backend/src
-    # action: sync
-    # target: /usr/src/backend/src
+
   db:
     container_name: postgres
     image: postgres
@@ -49,7 +35,7 @@ services:
       - data:/data/db
     environment:
       - POSTGRES_USER=user
-      - POSTGRES_DB=db
+      - POSTGRES_DB=db_name
       - POSTGRES_PASSWORD=password
       - POSTGRES_PORT=5432
 

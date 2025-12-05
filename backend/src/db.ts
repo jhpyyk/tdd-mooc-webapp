@@ -4,26 +4,16 @@ export class DB {
     pool: Pool;
 
     constructor() {
-        if (process.env.POSTGRES_PORT === undefined) {
-            throw Error(`POSTGRES_PORT not set ${process.env}`);
+        if (process.env.DATABASE_URL === undefined) {
+            throw Error(`DATABASE_URL not set ${process.env}`);
         }
 
         this.pool = new Pool({
-            user: process.env.POSTGRES_USER,
-            database: process.env.POSTGRES_DB,
-            host: process.env.POSTGRES_HOST,
-            password: process.env.POSTGRES_PASSWORD,
-            port: parseInt(process.env.POSTGRES_PORT),
+            connectionString: process.env.DATABASE_URL,
         });
     }
 
     healthCheck = async () => {
-        console.log("Using postgres env variables:");
-        console.log(process.env.POSTGRES_USER);
-        console.log(process.env.POSTGRES_PORT);
-        console.log(process.env.POSTGRES_PASSWORD);
-        console.log(process.env.POSTGRES_DB);
-
         try {
             await this.pool.query(
                 `
