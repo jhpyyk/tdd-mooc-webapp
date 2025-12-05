@@ -13,6 +13,8 @@ const fetchTest = async (): Promise<TestResponse> => {
 };
 
 const fetchDbHealth = async (): Promise<TestResponse> => {
+    console.log("fetching db-health");
+
     const res = await fetch(`${api_url}/db-health`);
     console.log(res);
     const data = await res.json();

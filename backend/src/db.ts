@@ -11,6 +11,7 @@ export class DB {
         this.pool = new Pool({
             user: process.env.POSTGRES_USER,
             database: process.env.POSTGRES_DB,
+            host: process.env.POSTGRES_HOST,
             password: process.env.POSTGRES_PASSWORD,
             port: parseInt(process.env.POSTGRES_PORT),
         });
@@ -20,6 +21,8 @@ export class DB {
         console.log("Using postgres env variables:");
         console.log(process.env.POSTGRES_USER);
         console.log(process.env.POSTGRES_PORT);
+        console.log(process.env.POSTGRES_PASSWORD);
+        console.log(process.env.POSTGRES_DB);
 
         try {
             await this.pool.query(
