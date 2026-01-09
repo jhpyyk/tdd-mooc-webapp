@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import TodoItem from "./components/TodoItem/TodoItem";
+import AddItemForm from "./components/AddItemForm/AddItemForm";
 // const api_url = "http://localhost:3001";
 const api_host = import.meta.env.VITE_API_HOST;
 const api_port = import.meta.env.VITE_API_PORT;
@@ -50,6 +51,7 @@ const App = () => {
 
     return (
         <>
+            <AddItemForm />
             <TodoItem title="item1"></TodoItem>
             <p>Hello from frontend</p>
             <p>{backendTestResponse}</p>
