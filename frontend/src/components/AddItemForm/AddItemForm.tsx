@@ -5,11 +5,14 @@ const AddItemForm = () => {
 
     return (
         <form>
-            <input
-                placeholder="Title for an item"
-                value={titleText}
-                onChange={(event) => setTitleText(event.target.value)}
-            />
+            <label>
+                <h3>Add an item</h3>
+                <input
+                    placeholder="Title for an item"
+                    value={titleText}
+                    onChange={(event) => setTitleText(event.target.value)}
+                />
+            </label>
         </form>
     );
 };
