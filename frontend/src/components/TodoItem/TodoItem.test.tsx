@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import { within } from "@testing-library/dom";
 import "@testing-library/jest-dom";
 import TodoItem from "./TodoItem";
 import { act } from "react";
@@ -16,8 +15,7 @@ describe("TodoItem ", () => {
 
     test("checkbox can be checked", () => {
         render(<TodoItem title={title} />);
-        const item = screen.getByText(title);
-        const checkbox = within(item).getByRole("checkbox");
+        const checkbox = screen.getByLabelText(title);
         act(() => checkbox.click());
         expect(checkbox).toBeChecked();
     });
