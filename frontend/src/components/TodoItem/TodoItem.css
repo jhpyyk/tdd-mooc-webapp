@@ -1,0 +1,10 @@
+.todo-item-container {
+    display: flex;
+    flex-direction: row;
+}
+.todo-item-label {
+    display: flex;
+    flex-direction: row;
+    font-size: large;
+    gap: 10px;
+}

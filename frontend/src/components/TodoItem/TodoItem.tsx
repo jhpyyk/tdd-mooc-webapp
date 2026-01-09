@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Checkbox from "./Checkbox/Checkbox";
+import "./TodoItem.css";
 
 interface TodoItemProps {
     title: string;
@@ -8,13 +9,15 @@ interface TodoItemProps {
 const TodoItem = ({ title, initiallyChecked = false }: TodoItemProps) => {
     const [checked, setChecked] = useState(initiallyChecked);
     return (
-        <label>
-            <Checkbox
-                checked={checked}
-                setChecked={() => setChecked(!checked)}
-            />
-            {title}
-        </label>
+        <div className="todo-item-container">
+            <label className="todo-item-label">
+                <Checkbox
+                    checked={checked}
+                    setChecked={() => setChecked(!checked)}
+                />
+                <span>{title}</span>
+            </label>
+        </div>
     );
 };
 
