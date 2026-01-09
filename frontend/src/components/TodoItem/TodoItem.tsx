@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Checkbox from "./Checkbox/Checkbox";
 
 interface TodoItemProps {
     title: string;
@@ -7,15 +8,13 @@ interface TodoItemProps {
 const TodoItem = ({ title, initiallyChecked = false }: TodoItemProps) => {
     const [checked, setChecked] = useState(initiallyChecked);
     return (
-        <div>
-            <input
-                type="checkbox"
-                aria-label={`checkbox-${title}`}
+        <label>
+            <Checkbox
                 checked={checked}
-                onChange={() => setChecked(!checked)}
+                setChecked={() => setChecked(!checked)}
             />
-            <p>{title}</p>
-        </div>
+            {title}
+        </label>
     );
 };
 
