@@ -19,4 +19,11 @@ describe("TodoItem ", () => {
         act(() => checkbox.click());
         expect(checkbox).toBeChecked();
     });
+
+    test("checkbox can be unchecked", () => {
+        render(<TodoItem title={title} initiallyChecked />);
+        const checkbox = screen.getByLabelText(title);
+        act(() => checkbox.click());
+        expect(checkbox).not.toBeChecked();
+    });
 });
