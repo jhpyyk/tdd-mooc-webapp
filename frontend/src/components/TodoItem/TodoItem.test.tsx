@@ -3,8 +3,8 @@ import "@testing-library/jest-dom";
 import TodoItem from "./TodoItem";
 
 describe("TodoItem ", () => {
+    const title = "test title";
     test("item has a title", () => {
-        const title = "test title";
         render(<TodoItem title={title} />);
 
         const item = screen.getByText(title);
@@ -13,7 +13,6 @@ describe("TodoItem ", () => {
     });
 
     test("checkbox can be checked", () => {
-        const title = "test title";
         render(<TodoItem title={title} />);
 
         const checkbox = screen.getByRole("checkbox", {
