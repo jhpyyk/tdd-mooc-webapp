@@ -2,7 +2,12 @@ interface TodoItemProps {
     title: string;
 }
 const TodoItem = (props: TodoItemProps) => {
-    return <p>{props.title}</p>;
+    return (
+        <div>
+            <input type="checkbox" aria-label={`checkbox-${props.title}`} />
+            <p>{props.title}</p>
+        </div>
+    );
 };
 
 export default TodoItem;
