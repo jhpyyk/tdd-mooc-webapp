@@ -39,6 +39,8 @@ const App = () => {
     const [backendTestResponse, setBackendTestResponse] = useState<string>();
     const [dbHealthResponse, setDbHealthResponse] = useState<string>();
 
+    const [itemData, setItemData] = useState<TodoItemData[]>(items);
+
     useEffect(() => {
         const fetchBackendResponse = async () => {
             const testResponse = await fetchTest();
@@ -59,10 +61,15 @@ const App = () => {
         fetchDbHealthResponse();
     }, []);
 
+    const addItem = (newItem: TodoItemData) => {
+        const newItems = [...itemData, newItem];
+        setItemData(newItems);
+    };
+
     return (
         <>
-            <AddItemForm titleInitialValue="" submitOnClick={() => {}} />
-            <ItemList itemData={items} />
+            <AddItemForm titleInitialValue="" submitOnClick={addItem} />
+            <ItemList itemData={itemData} />
             <p>Hello from frontend</p>
             <p>{backendTestResponse}</p>
             <p>{dbHealthResponse}</p>

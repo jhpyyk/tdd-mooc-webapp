@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import type { TodoItemData } from "../../types";
 
 interface AddItemFormProps {
     titleInitialValue: string;
-    submitOnClick: () => void;
+    submitOnClick: (item: TodoItemData) => void;
 }
 
 const AddItemForm = ({
@@ -11,6 +12,13 @@ const AddItemForm = ({
 }: AddItemFormProps) => {
     const [titleText, setTitleText] = useState(titleInitialValue);
 
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        const item: TodoItemData = {
+            title: titleText,
+        };
+        submitOnClick(item);
+    };
     return (
         <form>
             <label>
@@ -21,7 +29,7 @@ const AddItemForm = ({
                     onChange={(event) => setTitleText(event.target.value)}
                 />
             </label>
-            <button type="submit" onClick={submitOnClick}>
+            <button type="submit" onClick={(e) => handleSubmit(e)}>
                 Add item
             </button>
         </form>

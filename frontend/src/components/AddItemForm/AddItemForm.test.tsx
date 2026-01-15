@@ -2,6 +2,7 @@ import { act, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import AddItemForm from "./AddItemForm";
+import { vi } from "vitest";
 
 describe("AddItemForm ", () => {
     const user = userEvent.setup();
@@ -19,10 +20,11 @@ describe("AddItemForm ", () => {
     describe("submit button ", async () => {
         test("should add the item with the title in the input field", async () => {
             const title = "added item title";
+            const mockOnClick = vi.fn();
             render(
                 <AddItemForm
                     titleInitialValue={title}
-                    submitOnClick={() => {}}
+                    submitOnClick={mockOnClick}
                 />
             );
 
@@ -33,9 +35,9 @@ describe("AddItemForm ", () => {
                 submitButton.click();
             });
 
-            const addedItem = screen.getByLabelText(title);
-
-            expect(addedItem).toBeVisible();
+            expect(mockOnClick).toHaveBeenCalledWith({
+                title: title,
+            });
         });
     });
 });
