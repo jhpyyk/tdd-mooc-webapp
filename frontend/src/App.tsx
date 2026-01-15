@@ -51,7 +51,7 @@ const App = () => {
 
     return (
         <>
-            <AddItemForm />
+            <AddItemForm titleInitialValue="" />
             <TodoItem title="item1"></TodoItem>
             <p>Hello from frontend</p>
             <p>{backendTestResponse}</p>

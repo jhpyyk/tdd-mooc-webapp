@@ -1,7 +1,11 @@
 import { useState } from "react";
 
-const AddItemForm = () => {
-    const [titleText, setTitleText] = useState("");
+interface AddItemFormProps {
+    titleInitialValue: string;
+}
+
+const AddItemForm = ({ titleInitialValue }: AddItemFormProps) => {
+    const [titleText, setTitleText] = useState(titleInitialValue);
 
     return (
         <form>
