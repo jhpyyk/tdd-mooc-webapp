@@ -52,7 +52,8 @@ const App = () => {
     return (
         <>
             <AddItemForm titleInitialValue="" submitOnClick={() => {}} />
-            <TodoItem title="item1"></TodoItem>
+            <TodoItem data={{ title: "item1" }}></TodoItem>
+            <TodoItem data={{ title: "item1" }}></TodoItem>
             <p>Hello from frontend</p>
             <p>{backendTestResponse}</p>
             <p>{dbHealthResponse}</p>
