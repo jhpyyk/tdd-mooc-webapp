@@ -5,7 +5,7 @@ import AddItemForm from "./AddItemForm";
 
 describe("AddItemForm ", () => {
     const title = "test title";
-    test("title input can be filled", async () => {
+    test("title field should update it's value when user types into the field", async () => {
         const user = userEvent.setup();
         render(<AddItemForm />);
         const titleInput = screen.getByLabelText(/add/i);
