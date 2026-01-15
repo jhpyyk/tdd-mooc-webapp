@@ -7,7 +7,7 @@ describe("AddItemForm ", () => {
     const user = userEvent.setup();
     test("title field should update it's value when user types into the field", async () => {
         const title = "test title";
-        render(<AddItemForm titleInitialValue="" />);
+        render(<AddItemForm titleInitialValue="" submitOnClick={() => {}} />);
         const titleInput = screen.getByLabelText(/add/i);
 
         await act(async () => {
@@ -19,7 +19,12 @@ describe("AddItemForm ", () => {
     describe.skip("submit button ", async () => {
         test("should add the item with the title in the input field", async () => {
             const title = "added item title";
-            render(<AddItemForm titleInitialValue={title} />);
+            render(
+                <AddItemForm
+                    titleInitialValue={title}
+                    submitOnClick={() => {}}
+                />
+            );
 
             const submitButton = screen.getByRole("button", {
                 name: /add item/i,

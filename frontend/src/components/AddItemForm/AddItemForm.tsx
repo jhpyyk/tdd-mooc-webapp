@@ -2,9 +2,13 @@ import { useState } from "react";
 
 interface AddItemFormProps {
     titleInitialValue: string;
+    submitOnClick: () => void;
 }
 
-const AddItemForm = ({ titleInitialValue }: AddItemFormProps) => {
+const AddItemForm = ({
+    titleInitialValue,
+    submitOnClick,
+}: AddItemFormProps) => {
     const [titleText, setTitleText] = useState(titleInitialValue);
 
     return (
@@ -17,6 +21,9 @@ const AddItemForm = ({ titleInitialValue }: AddItemFormProps) => {
                     onChange={(event) => setTitleText(event.target.value)}
                 />
             </label>
+            <button type="submit" onClick={submitOnClick}>
+                Add item
+            </button>
         </form>
     );
 };
