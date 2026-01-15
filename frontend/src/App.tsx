@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
-import TodoItem from "./components/TodoItem/TodoItem";
 import AddItemForm from "./components/AddItemForm/AddItemForm";
+import ItemList from "./components/ItemList/ItemList";
+import type { TodoItemData } from "./types";
 // const api_url = "http://localhost:3001";
 const api_host = import.meta.env.VITE_API_HOST;
 const api_port = import.meta.env.VITE_API_PORT;
 const api_url = `http://${api_host}:${api_port}`;
 console.log("API_URL", api_url);
+
+const items: TodoItemData[] = [
+    {
+        title: "item title",
+    },
+    {
+        title: "item title",
+    },
+];
 
 interface TestResponse {
     message: string;
@@ -52,8 +62,7 @@ const App = () => {
     return (
         <>
             <AddItemForm titleInitialValue="" submitOnClick={() => {}} />
-            <TodoItem data={{ title: "item1" }}></TodoItem>
-            <TodoItem data={{ title: "item1" }}></TodoItem>
+            <ItemList itemData={items} />
             <p>Hello from frontend</p>
             <p>{backendTestResponse}</p>
             <p>{dbHealthResponse}</p>

@@ -1,5 +1,6 @@
 import type { TodoItemData } from "../../types";
 import TodoItem from "../TodoItem/TodoItem";
+import "./ItemList.css";
 
 interface ItemListProps {
     itemData: TodoItemData[];
@@ -8,14 +9,14 @@ interface ItemListProps {
 const ItemList = ({ itemData }: ItemListProps) => {
     const listItems = itemData.map((item) => {
         return (
-            <li>
+            <li className="list-item">
                 <TodoItem data={item} />
             </li>
         );
     });
     return (
         <>
-            <ul>{listItems}</ul>
+            <ul className="list">{listItems}</ul>
         </>
     );
 };

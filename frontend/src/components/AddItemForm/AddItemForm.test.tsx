@@ -16,7 +16,7 @@ describe("AddItemForm ", () => {
         expect(titleInput).toHaveValue(title);
     });
 
-    describe.skip("submit button ", async () => {
+    describe("submit button ", async () => {
         test("should add the item with the title in the input field", async () => {
             const title = "added item title";
             render(
