@@ -39,5 +39,21 @@ describe("AddItemForm ", () => {
                 title: title,
             });
         });
+
+        test("should be disabled when the input is empty", () => {
+            const mockOnClick = vi.fn();
+            render(
+                <AddItemForm
+                    titleInitialValue={""}
+                    submitOnClick={mockOnClick}
+                />
+            );
+
+            const submitButton = screen.getByRole("button", {
+                name: /add item/i,
+            });
+
+            expect(submitButton).toBeDisabled();
+        });
     });
 });

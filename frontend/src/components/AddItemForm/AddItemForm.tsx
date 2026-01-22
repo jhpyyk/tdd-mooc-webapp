@@ -29,7 +29,11 @@ const AddItemForm = ({
                     onChange={(event) => setTitleText(event.target.value)}
                 />
             </label>
-            <button type="submit" onClick={(e) => handleSubmit(e)}>
+            <button
+                type="submit"
+                onClick={(e) => handleSubmit(e)}
+                disabled={titleText ? false : true}
+            >
                 Add item
             </button>
         </form>
