@@ -39,13 +39,7 @@ describe("TodoItem ", () => {
         describe("when clicked ", () => {
             describe("while not editing ", () => {
                 test("should clear the item title", () => {
-                    render(
-                        <TodoItem
-                            data={itemData}
-                            editItem={() => {}}
-                            initiallyChecked
-                        />
-                    );
+                    render(<TodoItem data={itemData} editItem={() => {}} />);
                     const item = screen.getByRole("listitem", {
                         name: itemData.title,
                     });
@@ -86,6 +80,21 @@ describe("TodoItem ", () => {
             });
 
             describe("while editing ", () => {
+                test("should be disabled when title input is empty", () => {
+                    render(
+                        <TodoItem
+                            data={{ ...itemData, title: "" }}
+                            editItem={() => {}}
+                            initiallyEditing
+                        />
+                    );
+                    const item = screen.getByRole("listitem", {
+                        name: "",
+                    });
+                    const editButton = within(item).getByRole("button");
+
+                    expect(editButton).toBeDisabled();
+                });
                 test("should call editItem with new title", async () => {
                     const editItemMock = vi.fn();
                     const newTitle = "new title";
@@ -93,7 +102,6 @@ describe("TodoItem ", () => {
                         <TodoItem
                             data={{ ...itemData, title: "" }}
                             editItem={editItemMock}
-                            initiallyChecked
                             initiallyEditing
                         />
                     );
@@ -113,14 +121,9 @@ describe("TodoItem ", () => {
                     };
                     expect(editItemMock).toHaveBeenCalledWith(newItem);
                 });
+
                 test("should change the button title ", () => {
-                    render(
-                        <TodoItem
-                            data={itemData}
-                            editItem={() => {}}
-                            initiallyChecked
-                        />
-                    );
+                    render(<TodoItem data={itemData} editItem={() => {}} />);
                     const item = screen.getByRole("listitem", {
                         name: itemData.title,
                     });

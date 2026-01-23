@@ -54,7 +54,9 @@ const TodoItem = ({
                 checked={checked}
                 setChecked={() => setChecked(!checked)}
             />
-            <button onClick={() => toggleEditing()}>{editButtonText}</button>
+            <button onClick={() => toggleEditing()} disabled={!title}>
+                {editButtonText}
+            </button>
 
             {titleDisplay}
         </div>
