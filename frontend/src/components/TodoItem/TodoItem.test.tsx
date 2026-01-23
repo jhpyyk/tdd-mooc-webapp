@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import TodoItem from "./TodoItem";
 import { act } from "react";
@@ -16,14 +16,16 @@ describe("TodoItem ", () => {
 
     test("checkbox can be checked", () => {
         render(<TodoItem data={itemData} />);
-        const checkbox = screen.getByLabelText(itemData.title);
+        const item = screen.getByRole("listitem", { name: itemData.title });
+        const checkbox = within(item).getByRole("checkbox");
         act(() => checkbox.click());
         expect(checkbox).toBeChecked();
     });
 
     test("checkbox can be unchecked", () => {
         render(<TodoItem data={itemData} initiallyChecked />);
-        const checkbox = screen.getByLabelText(itemData.title);
+        const item = screen.getByRole("listitem", { name: itemData.title });
+        const checkbox = within(item).getByRole("checkbox");
         act(() => checkbox.click());
         expect(checkbox).not.toBeChecked();
     });

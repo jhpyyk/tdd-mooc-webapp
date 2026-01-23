@@ -10,14 +10,16 @@ interface TodoItemProps {
 const TodoItem = ({ data, initiallyChecked = false }: TodoItemProps) => {
     const [checked, setChecked] = useState(initiallyChecked);
     return (
-        <div className="todo-item-container">
-            <label className="todo-item-label">
-                <Checkbox
-                    checked={checked}
-                    setChecked={() => setChecked(!checked)}
-                />
-                <span>{data.title}</span>
-            </label>
+        <div
+            className="todo-item-container"
+            role="listitem"
+            aria-label={data.title}
+        >
+            <Checkbox
+                checked={checked}
+                setChecked={() => setChecked(!checked)}
+            />
+            <span>{data.title}</span>
         </div>
     );
 };
