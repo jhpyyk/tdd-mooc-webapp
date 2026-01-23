@@ -37,54 +37,58 @@ describe("TodoItem ", () => {
 
     describe("edit button ", () => {
         describe("clicked ", () => {
-            test("when not editing should clear the item title", () => {
-                render(
-                    <TodoItem
-                        data={itemData}
-                        editItem={() => {}}
-                        initiallyChecked
-                    />
-                );
-                const item = screen.getByRole("listitem", {
-                    name: itemData.title,
-                });
-                const editButton = within(item).getByRole("button");
+            describe("when not editing ", () => {
+                test("should clear the item title", () => {
+                    render(
+                        <TodoItem
+                            data={itemData}
+                            editItem={() => {}}
+                            initiallyChecked
+                        />
+                    );
+                    const item = screen.getByRole("listitem", {
+                        name: itemData.title,
+                    });
+                    const editButton = within(item).getByRole("button");
 
-                const titleBefore = within(item).getByText(itemData.title);
-                expect(titleBefore).toBeDefined();
-                act(() => {
-                    editButton.click();
+                    const titleBefore = within(item).getByText(itemData.title);
+                    expect(titleBefore).toBeDefined();
+                    act(() => {
+                        editButton.click();
+                    });
+                    const titleAfter = within(item).getByRole("textbox");
+                    expect(titleAfter).toHaveValue("");
                 });
-                const titleAfter = within(item).getByRole("textbox");
-                expect(titleAfter).toHaveValue("");
             });
 
-            test("when editing should call editItem with new title", async () => {
-                const editItemMock = vi.fn();
-                const newTitle = "new title";
-                render(
-                    <TodoItem
-                        data={{ ...itemData, title: "" }}
-                        editItem={editItemMock}
-                        initiallyChecked
-                        initiallyEditing
-                    />
-                );
-                const item = screen.getByRole("listitem", {
-                    name: "",
-                });
-                const titleEditInput = within(item).getByRole("textbox");
-                const editButton = within(item).getByRole("button");
+            describe("when editing ", () => {
+                test("should call editItem with new title", async () => {
+                    const editItemMock = vi.fn();
+                    const newTitle = "new title";
+                    render(
+                        <TodoItem
+                            data={{ ...itemData, title: "" }}
+                            editItem={editItemMock}
+                            initiallyChecked
+                            initiallyEditing
+                        />
+                    );
+                    const item = screen.getByRole("listitem", {
+                        name: "",
+                    });
+                    const titleEditInput = within(item).getByRole("textbox");
+                    const editButton = within(item).getByRole("button");
 
-                await act(async () => {
-                    await user.type(titleEditInput, newTitle);
-                    editButton.click();
+                    await act(async () => {
+                        await user.type(titleEditInput, newTitle);
+                        editButton.click();
+                    });
+                    const newItem = {
+                        ...itemData,
+                        title: newTitle,
+                    };
+                    expect(editItemMock).toHaveBeenCalledWith(newItem);
                 });
-                const newItem = {
-                    ...itemData,
-                    title: newTitle,
-                };
-                expect(editItemMock).toHaveBeenCalledWith(newItem);
             });
         });
     });
