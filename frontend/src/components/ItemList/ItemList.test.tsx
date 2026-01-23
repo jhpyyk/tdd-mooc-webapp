@@ -4,12 +4,12 @@ import type { TodoItemData } from "../../types";
 
 describe("ItemList ", () => {
     test("should display multiple items", () => {
-        const item1 = { title: "item 1" };
-        const item2 = { title: "item 2" };
+        const item1 = { id: 1, title: "item 1" };
+        const item2 = { id: 2, title: "item 2" };
 
         const items: TodoItemData[] = [item1, item2];
 
-        render(<ItemList itemData={items} />);
+        render(<ItemList itemData={items} editItem={() => {}} />);
 
         const renderedItem1 = screen.getByLabelText(item1.title);
         const renderedItem2 = screen.getByLabelText(item2.title);

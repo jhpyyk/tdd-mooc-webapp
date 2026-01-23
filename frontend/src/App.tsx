@@ -10,9 +10,11 @@ console.log("API_URL", api_url);
 
 const items: TodoItemData[] = [
     {
+        id: 1,
         title: "item title",
     },
     {
+        id: 2,
         title: "item title",
     },
 ];
@@ -66,10 +68,12 @@ const App = () => {
         setItemData(newItems);
     };
 
+    const editItem = (newItem: TodoItemData) => {};
+
     return (
         <>
             <AddItemForm titleInitialValue="" submitOnClick={addItem} />
-            <ItemList itemData={itemData} />
+            <ItemList itemData={itemData} editItem={editItem} />
             <p>Hello from frontend</p>
             <p>{backendTestResponse}</p>
             <p>{dbHealthResponse}</p>

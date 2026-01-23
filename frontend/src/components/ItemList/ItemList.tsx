@@ -4,13 +4,14 @@ import "./ItemList.css";
 
 interface ItemListProps {
     itemData: TodoItemData[];
+    editItem: (newItem: TodoItemData) => void;
 }
 
-const ItemList = ({ itemData }: ItemListProps) => {
+const ItemList = ({ itemData, editItem }: ItemListProps) => {
     const listItems = itemData.map((item) => {
         return (
             <li className="list-item">
-                <TodoItem data={item} />
+                <TodoItem data={item} editItem={editItem} />
             </li>
         );
     });
