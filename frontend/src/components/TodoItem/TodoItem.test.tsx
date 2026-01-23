@@ -3,8 +3,11 @@ import "@testing-library/jest-dom";
 import TodoItem from "./TodoItem";
 import { act } from "react";
 import type { TodoItemData } from "../../types";
+import { vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 
 describe("TodoItem ", () => {
+    const user = userEvent.setup();
     const itemData: TodoItemData = { id: 1, title: "test title" };
     test("item has a title", () => {
         render(<TodoItem data={itemData} editItem={() => {}} />);
@@ -34,7 +37,7 @@ describe("TodoItem ", () => {
 
     describe("edit button ", () => {
         describe("clicked ", () => {
-            test("should clear the item title", () => {
+            test("when not editing should clear the item title", () => {
                 render(
                     <TodoItem
                         data={itemData}
@@ -54,6 +57,34 @@ describe("TodoItem ", () => {
                 });
                 const titleAfter = within(item).getByRole("textbox");
                 expect(titleAfter).toHaveValue("");
+            });
+
+            test("when editing should call editItem with new title", async () => {
+                const editItemMock = vi.fn();
+                const newTitle = "new title";
+                render(
+                    <TodoItem
+                        data={{ ...itemData, title: "" }}
+                        editItem={editItemMock}
+                        initiallyChecked
+                        initiallyEditing
+                    />
+                );
+                const item = screen.getByRole("listitem", {
+                    name: "",
+                });
+                const titleEditInput = within(item).getByRole("textbox");
+                const editButton = within(item).getByRole("button");
+
+                await act(async () => {
+                    await user.type(titleEditInput, newTitle);
+                    editButton.click();
+                });
+                const newItem = {
+                    ...itemData,
+                    title: newTitle,
+                };
+                expect(editItemMock).toHaveBeenCalledWith(newItem);
             });
         });
     });

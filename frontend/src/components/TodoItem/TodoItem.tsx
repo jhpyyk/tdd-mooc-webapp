@@ -7,15 +7,17 @@ interface TodoItemProps {
     data: TodoItemData;
     editItem: (newItem: TodoItemData) => void;
     initiallyChecked?: boolean;
+    initiallyEditing?: boolean;
 }
 const TodoItem = ({
     data,
     editItem,
     initiallyChecked = false,
+    initiallyEditing = false,
 }: TodoItemProps) => {
     const [checked, setChecked] = useState(initiallyChecked);
     const [title, setTitle] = useState(data.title);
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(initiallyEditing);
 
     const toggleEditing = () => {
         if (!isEditing) {
@@ -23,6 +25,10 @@ const TodoItem = ({
         }
 
         setIsEditing(!isEditing);
+        editItem({
+            ...data,
+            title: title,
+        });
     };
 
     const titleEdit = (
