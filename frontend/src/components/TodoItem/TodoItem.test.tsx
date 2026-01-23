@@ -113,6 +113,29 @@ describe("TodoItem ", () => {
                     };
                     expect(editItemMock).toHaveBeenCalledWith(newItem);
                 });
+                test("should change the button title ", () => {
+                    render(
+                        <TodoItem
+                            data={itemData}
+                            editItem={() => {}}
+                            initiallyChecked
+                        />
+                    );
+                    const item = screen.getByRole("listitem", {
+                        name: itemData.title,
+                    });
+                    const editButton = within(item).getByRole("button");
+
+                    const editButtonTitleBefore = editButton.textContent;
+                    expect(editButtonTitleBefore).toBeDefined();
+                    act(() => {
+                        editButton.click();
+                    });
+                    const editButtonTitleAfter = editButton.textContent;
+                    expect(editButtonTitleAfter).not.toEqual(
+                        editButtonTitleBefore
+                    );
+                });
             });
         });
     });
