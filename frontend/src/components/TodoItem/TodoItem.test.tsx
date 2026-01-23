@@ -36,8 +36,8 @@ describe("TodoItem ", () => {
     });
 
     describe("edit button ", () => {
-        describe("clicked ", () => {
-            describe("when not editing ", () => {
+        describe("when clicked ", () => {
+            describe("while not editing ", () => {
                 test("should clear the item title", () => {
                     render(
                         <TodoItem
@@ -59,9 +59,33 @@ describe("TodoItem ", () => {
                     const titleAfter = within(item).getByRole("textbox");
                     expect(titleAfter).toHaveValue("");
                 });
+
+                test("should change the button title ", () => {
+                    render(
+                        <TodoItem
+                            data={itemData}
+                            editItem={() => {}}
+                            initiallyChecked
+                        />
+                    );
+                    const item = screen.getByRole("listitem", {
+                        name: itemData.title,
+                    });
+                    const editButton = within(item).getByRole("button");
+
+                    const editButtonTitleBefore = editButton.textContent;
+                    expect(editButtonTitleBefore).toBeDefined();
+                    act(() => {
+                        editButton.click();
+                    });
+                    const editButtonTitleAfter = editButton.textContent;
+                    expect(editButtonTitleAfter).not.toEqual(
+                        editButtonTitleBefore
+                    );
+                });
             });
 
-            describe("when editing ", () => {
+            describe("while editing ", () => {
                 test("should call editItem with new title", async () => {
                     const editItemMock = vi.fn();
                     const newTitle = "new title";

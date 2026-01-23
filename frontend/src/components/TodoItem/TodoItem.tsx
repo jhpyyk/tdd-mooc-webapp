@@ -42,6 +42,8 @@ const TodoItem = ({
     const titleText = <span>{title}</span>;
     const titleDisplay = isEditing ? titleEdit : titleText;
 
+    const editButtonText = isEditing ? "Save" : "Edit";
+
     return (
         <div
             className="todo-item-container"
@@ -52,7 +54,8 @@ const TodoItem = ({
                 checked={checked}
                 setChecked={() => setChecked(!checked)}
             />
-            <button onClick={() => toggleEditing()}>Edit</button>
+            <button onClick={() => toggleEditing()}>{editButtonText}</button>
+
             {titleDisplay}
         </div>
     );
