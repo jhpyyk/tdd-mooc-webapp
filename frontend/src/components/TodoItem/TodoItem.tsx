@@ -25,6 +25,17 @@ const TodoItem = ({
         setIsEditing(!isEditing);
     };
 
+    const titleEdit = (
+        <input
+            aria-label="Todo title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+        />
+    );
+
+    const titleText = <span>{title}</span>;
+    const titleDisplay = isEditing ? titleEdit : titleText;
+
     return (
         <div
             className="todo-item-container"
@@ -36,15 +47,7 @@ const TodoItem = ({
                 setChecked={() => setChecked(!checked)}
             />
             <button onClick={() => toggleEditing()}>Edit</button>
-            {isEditing ? (
-                <input
-                    aria-label="Todo title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-            ) : (
-                <span>{title}</span>
-            )}
+            {titleDisplay}
         </div>
     );
 };
