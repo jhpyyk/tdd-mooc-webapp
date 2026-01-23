@@ -18,6 +18,7 @@ const AddItemForm = ({
             title: titleText,
         };
         submitOnClick(item);
+        setTitleText("");
     };
     return (
         <form>
