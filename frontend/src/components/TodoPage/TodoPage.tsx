@@ -1,10 +1,10 @@
 import { useState } from "react";
 import AddItemForm from "../AddItemForm/AddItemForm";
 import ItemList from "../ItemList/ItemList";
-import type { TodoItemData } from "../../types";
+import type { TodoItemData, TodoItemDataNoId } from "../../types";
 import "./TodoPage.css";
 
-const items: TodoItemData[] = [
+const itemData: TodoItemData[] = [
     {
         id: 1,
         title: "item title",
@@ -15,11 +15,27 @@ const items: TodoItemData[] = [
     },
 ];
 
-const TodoPage = () => {
-    const [itemData, setItemData] = useState<TodoItemData[]>(items);
+let id = itemData.length;
+const getId = () => {
+    id += 1;
+    console.log(id);
+    return id;
+};
 
-    const addItem = (newItem: TodoItemData) => {
-        const newItems = [...itemData, newItem];
+interface TodoPageProps {
+    initialItems?: TodoItemData[];
+}
+
+const TodoPage = ({ initialItems = itemData }: TodoPageProps) => {
+    const [itemData, setItemData] = useState<TodoItemData[]>(initialItems);
+
+    const addItem = (newItem: TodoItemDataNoId) => {
+        const id = getId();
+        const itemWithId: TodoItemData = {
+            ...newItem,
+            id: id,
+        };
+        const newItems = [...itemData, itemWithId];
         setItemData(newItems);
     };
 

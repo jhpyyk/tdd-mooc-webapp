@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from "react";
-import type { TodoItemData } from "../../types";
+import type { TodoItemData, TodoItemDataNoId } from "../../types";
 
 interface AddItemFormProps {
     titleInitialValue: string;
-    submitOnClick: (item: TodoItemData) => void;
+    submitOnClick: (item: TodoItemDataNoId) => void;
 }
 
 const AddItemForm = ({
@@ -14,7 +14,7 @@ const AddItemForm = ({
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        const item: TodoItemData = {
+        const item: TodoItemDataNoId = {
             title: titleText,
         };
         submitOnClick(item);
