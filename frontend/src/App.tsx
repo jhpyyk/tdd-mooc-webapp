@@ -1,23 +1,10 @@
 import { useEffect, useState } from "react";
-import AddItemForm from "./components/AddItemForm/AddItemForm";
-import ItemList from "./components/ItemList/ItemList";
-import type { TodoItemData } from "./types";
-// const api_url = "http://localhost:3001";
+import TodoPage from "./components/TodoPage/TodoPage";
+
 const api_host = import.meta.env.VITE_API_HOST;
 const api_port = import.meta.env.VITE_API_PORT;
 const api_url = `http://${api_host}:${api_port}`;
 console.log("API_URL", api_url);
-
-const items: TodoItemData[] = [
-    {
-        id: 1,
-        title: "item title",
-    },
-    {
-        id: 2,
-        title: "item title",
-    },
-];
 
 interface TestResponse {
     message: string;
@@ -41,8 +28,6 @@ const App = () => {
     const [backendTestResponse, setBackendTestResponse] = useState<string>();
     const [dbHealthResponse, setDbHealthResponse] = useState<string>();
 
-    const [itemData, setItemData] = useState<TodoItemData[]>(items);
-
     useEffect(() => {
         const fetchBackendResponse = async () => {
             const testResponse = await fetchTest();
@@ -63,17 +48,9 @@ const App = () => {
         fetchDbHealthResponse();
     }, []);
 
-    const addItem = (newItem: TodoItemData) => {
-        const newItems = [...itemData, newItem];
-        setItemData(newItems);
-    };
-
-    const editItem = (newItem: TodoItemData) => {};
-
     return (
         <>
-            <AddItemForm titleInitialValue="" submitOnClick={addItem} />
-            <ItemList itemData={itemData} editItem={editItem} />
+            <TodoPage />
             <p>Hello from frontend</p>
             <p>{backendTestResponse}</p>
             <p>{dbHealthResponse}</p>

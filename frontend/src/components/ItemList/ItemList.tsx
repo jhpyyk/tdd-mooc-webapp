@@ -10,7 +10,7 @@ interface ItemListProps {
 const ItemList = ({ itemData, editItem }: ItemListProps) => {
     const listItems = itemData.map((item) => {
         return (
-            <li className="list-item">
+            <li className="list-item" key={item.id}>
                 <TodoItem data={item} editItem={editItem} />
             </li>
         );
