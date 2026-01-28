@@ -1,0 +1,11 @@
+.todo-page-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 25vw;
+
+    background: linear-gradient(180deg, #f1f8f6, #e9f3f1);
+    padding: 26px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 14px;
+}

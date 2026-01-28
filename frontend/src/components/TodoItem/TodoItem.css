@@ -1,5 +1,69 @@
 .todo-item-container {
     display: flex;
-    flex-direction: row;
-    gap: 8px;
+    gap: 10px;
+    align-items: flex-start;
+
+    padding: 12px 14px;
+
+    background-color: #ffffff;
+    border-radius: 10px;
+
+    border: 1px solid rgba(0, 0, 0, 0.05);
+
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.06),
+        0 8px 16px rgba(0, 0, 0, 0.08);
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.todo-item-container {
+    position: relative;
+}
+
+.todo-item-container::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 4px;
+    border-radius: 2px;
+    background-color: #5fb3a2;
+}
+
+.todo-item-container:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.08),
+        0 14px 28px rgba(0, 0, 0, 0.12);
+}
+.item-title {
+    flex: 1;
+    min-width: 0;
+
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: #1f2f2c;
+
+    overflow-wrap: anywhere;
+}
+button {
+    background-color: #e6f3f0;
+    border: 1px solid #bcded8;
+    border-radius: 6px;
+    padding: 4px 8px;
+
+    font-size: 0.8rem;
+    color: #2f3e3b;
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+button:hover {
+    background-color: #d9eeea;
 }

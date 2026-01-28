@@ -2,6 +2,7 @@ import { useState } from "react";
 import AddItemForm from "../AddItemForm/AddItemForm";
 import ItemList from "../ItemList/ItemList";
 import type { TodoItemData } from "../../types";
+import "./TodoPage.css";
 
 const items: TodoItemData[] = [
     {
@@ -25,7 +26,7 @@ const TodoPage = () => {
     const editItem = (newItem: TodoItemData) => {};
 
     return (
-        <div>
+        <div className="todo-page-container">
             <AddItemForm titleInitialValue="" submitOnClick={addItem} />
             <ItemList itemData={itemData} editItem={editItem} />
         </div>

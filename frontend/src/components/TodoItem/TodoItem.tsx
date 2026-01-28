@@ -57,8 +57,7 @@ const TodoItem = ({
             <button onClick={() => toggleEditing()} disabled={!title}>
                 {editButtonText}
             </button>
-
-            {titleDisplay}
+            <div className="item-title">{titleDisplay}</div>
         </div>
     );
 };

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import TodoPage from "./components/TodoPage/TodoPage";
+import "./App.css";
 
 const api_host = import.meta.env.VITE_API_HOST;
 const api_port = import.meta.env.VITE_API_PORT;
@@ -49,12 +50,13 @@ const App = () => {
     }, []);
 
     return (
-        <>
+        <div className="app-container">
             <TodoPage />
+            <h2>e2e stuff:</h2>
             <p>Hello from frontend</p>
             <p>{backendTestResponse}</p>
             <p>{dbHealthResponse}</p>
-        </>
+        </div>
     );
 };
 

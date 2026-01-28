@@ -16,9 +16,9 @@ const ItemList = ({ itemData, editItem }: ItemListProps) => {
         );
     });
     return (
-        <>
+        <div className="item-list-container">
             <ul className="list">{listItems}</ul>
-        </>
+        </div>
     );
 };
 
