@@ -13,7 +13,6 @@ const TodoItem = ({
     editItem,
     initiallyEditing = false,
 }: TodoItemProps) => {
-    const [checked, setChecked] = useState(data.done);
     const [title, setTitle] = useState(data.title);
     const [isEditing, setIsEditing] = useState(initiallyEditing);
 
@@ -22,6 +21,13 @@ const TodoItem = ({
         editItem({
             ...data,
             title: title,
+        });
+    };
+
+    const handleCheckboxEvent = (newDone: boolean) => {
+        editItem({
+            ...data,
+            done: newDone,
         });
     };
 
@@ -44,10 +50,7 @@ const TodoItem = ({
             role="listitem"
             aria-label={data.title}
         >
-            <Checkbox
-                checked={checked}
-                setChecked={() => setChecked(!checked)}
-            />
+            <Checkbox checked={data.done} setChecked={handleCheckboxEvent} />
             <button onClick={() => toggleEditing()} disabled={!title}>
                 {editButtonText}
             </button>

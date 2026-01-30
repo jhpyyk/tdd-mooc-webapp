@@ -41,10 +41,18 @@ const TodoPage = ({ initialItems = itemData }: TodoPageProps) => {
         setItemData(newItems);
     };
 
-    const editItem = (newItem: TodoItemData) => {};
+    const editItem = (newItem: TodoItemData) => {
+        const newItems = itemData.map((item) => {
+            if (item.id === newItem.id) {
+                return newItem;
+            }
+            return item;
+        });
+        setItemData(newItems);
+    };
 
     const archiveDoneItems = () => {
-        const filtered = itemData.filter((item) => item.done);
+        const filtered = itemData.filter((item) => !item.done);
         setItemData(filtered);
     };
 

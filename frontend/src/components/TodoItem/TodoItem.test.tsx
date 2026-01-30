@@ -35,22 +35,18 @@ describe("TodoItem ", () => {
         expect(item).toBeDefined();
     });
 
-    test("checkbox can be checked", () => {
-        render(<TodoItem data={itemData} editItem={() => {}} />);
-        const item = screen.getByRole("listitem", { name: itemData.title });
-        const checkbox = within(item).getByRole("checkbox");
-        act(() => checkbox.click());
-        expect(checkbox).toBeChecked();
-    });
+    test("should render title from props", () => {
+        const { rerender } = render(
+            <TodoItem data={itemData} editItem={() => {}} />
+        );
 
-    test("checkbox can be unchecked", () => {
-        render(
+        rerender(
             <TodoItem data={{ ...itemData, done: true }} editItem={() => {}} />
         );
+
         const item = screen.getByRole("listitem", { name: itemData.title });
         const checkbox = within(item).getByRole("checkbox");
-        act(() => checkbox.click());
-        expect(checkbox).not.toBeChecked();
+        expect(checkbox).toBeChecked();
     });
 
     describe("edit button ", () => {
