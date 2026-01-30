@@ -40,6 +40,22 @@ describe("TodoPage ", () => {
         });
     });
 
+    test("when there are no checked items Archive button should be disabled", () => {
+        const testItems: TodoItemData[] = [
+            {
+                id: 1,
+                title: itemTitle,
+                done: false,
+            },
+        ];
+        render(<TodoPage initialItems={testItems} />);
+
+        const archiveButton = screen.getByRole("button", {
+            name: /archive/i,
+        });
+        expect(archiveButton).toBeDisabled();
+    });
+
     describe("after pressing the Archive button", () => {
         const testItems: TodoItemData[] = [
             {
