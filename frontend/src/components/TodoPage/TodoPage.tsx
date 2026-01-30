@@ -43,10 +43,18 @@ const TodoPage = ({ initialItems = itemData }: TodoPageProps) => {
 
     const editItem = (newItem: TodoItemData) => {};
 
+    const archiveDoneItems = () => {
+        const filtered = itemData.filter((item) => {
+            return item.done;
+        });
+        setItemData(filtered);
+    };
+
     return (
         <div className="todo-page-container">
             <AddItemForm titleInitialValue="" submitOnClick={addItem} />
             <ItemList itemData={itemData} editItem={editItem} />
+            <button onClick={archiveDoneItems}>Archive done item</button>
         </div>
     );
 };
