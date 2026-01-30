@@ -17,6 +17,24 @@ describe("TodoItem ", () => {
         expect(item).toBeDefined();
     });
 
+    test("should render title from props", () => {
+        const { rerender } = render(
+            <TodoItem data={itemData} editItem={() => {}} />
+        );
+
+        const newTitle = "new title";
+
+        rerender(
+            <TodoItem
+                data={{ ...itemData, title: newTitle }}
+                editItem={() => {}}
+            />
+        );
+
+        const item = screen.getByText(newTitle);
+        expect(item).toBeDefined();
+    });
+
     test("checkbox can be checked", () => {
         render(<TodoItem data={itemData} editItem={() => {}} />);
         const item = screen.getByRole("listitem", { name: itemData.title });

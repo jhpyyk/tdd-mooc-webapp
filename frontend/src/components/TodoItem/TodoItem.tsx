@@ -33,7 +33,7 @@ const TodoItem = ({
         />
     );
 
-    const titleText = <span>{title}</span>;
+    const titleText = <span>{data.title}</span>;
     const titleDisplay = isEditing ? titleEdit : titleText;
 
     const editButtonText = isEditing ? "Save" : "Edit";

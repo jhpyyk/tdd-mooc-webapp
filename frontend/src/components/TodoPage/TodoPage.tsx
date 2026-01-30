@@ -52,7 +52,7 @@ const TodoPage = ({ initialItems = itemData }: TodoPageProps) => {
         <div className="todo-page-container">
             <AddItemForm titleInitialValue="" submitOnClick={addItem} />
             <ItemList itemData={itemData} editItem={editItem} />
-            <button onClick={archiveDoneItems}>Archive done item</button>
+            <button onClick={archiveDoneItems}>Archive done items</button>
         </div>
     );
 };
