@@ -1,4 +1,4 @@
-import type { TodoItemData } from "./types";
+import type { TodoItemData, TodoItemDataNoId } from "./types";
 
 const itemData: TodoItemData[] = [
     {
@@ -22,10 +22,19 @@ const nextId = () => {
 
 export interface ItemDAO {
     getItems: () => TodoItemData[];
+    addItem: (itemNoId: TodoItemDataNoId) => TodoItemData;
 }
 
 export class LocalItemDAO implements ItemDAO {
     getItems = () => {
         return itemData;
+    };
+    addItem = (newItem: TodoItemDataNoId) => {
+        const id = nextId();
+        const itemWithId: TodoItemData = {
+            ...newItem,
+            id: id,
+        };
+        return itemWithId;
     };
 }

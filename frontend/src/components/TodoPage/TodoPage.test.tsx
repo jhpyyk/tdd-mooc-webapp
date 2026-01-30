@@ -7,6 +7,7 @@ import { vi } from "vitest";
 const createItemDaoMock = () => {
     const itemDaoMock: ItemDAO = {
         getItems: vi.fn(),
+        addItem: vi.fn(),
     };
     return itemDaoMock;
 };

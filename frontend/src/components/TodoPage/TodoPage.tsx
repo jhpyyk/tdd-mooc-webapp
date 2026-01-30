@@ -37,11 +37,7 @@ const TodoPage = ({ itemDAO = localItemDAO }: TodoPageProps) => {
     );
 
     const addItem = (newItem: TodoItemDataNoId) => {
-        const id = getId();
-        const itemWithId: TodoItemData = {
-            ...newItem,
-            id: id,
-        };
+        const itemWithId = itemDAO.addItem(newItem);
         const newItems = [...itemData, itemWithId];
         setItemData(newItems);
     };
