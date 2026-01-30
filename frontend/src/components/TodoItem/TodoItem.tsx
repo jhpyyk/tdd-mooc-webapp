@@ -20,10 +20,6 @@ const TodoItem = ({
     const [isEditing, setIsEditing] = useState(initiallyEditing);
 
     const toggleEditing = () => {
-        if (!isEditing) {
-            setTitle("");
-        }
-
         setIsEditing(!isEditing);
         editItem({
             ...data,

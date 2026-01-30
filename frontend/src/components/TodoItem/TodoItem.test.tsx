@@ -38,7 +38,7 @@ describe("TodoItem ", () => {
     describe("edit button ", () => {
         describe("when clicked ", () => {
             describe("while not editing ", () => {
-                test("should clear the item title", () => {
+                test("should not clear the item title", () => {
                     render(<TodoItem data={itemData} editItem={() => {}} />);
                     const item = screen.getByRole("listitem", {
                         name: itemData.title,
@@ -51,7 +51,7 @@ describe("TodoItem ", () => {
                         editButton.click();
                     });
                     const titleAfter = within(item).getByRole("textbox");
-                    expect(titleAfter).toHaveValue("");
+                    expect(titleAfter).toHaveValue(itemData.title);
                 });
 
                 test("should change the button title ", () => {
