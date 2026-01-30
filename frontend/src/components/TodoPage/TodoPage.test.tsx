@@ -1,6 +1,15 @@
 import { act, render, screen, within } from "@testing-library/react";
 import TodoPage from "./TodoPage";
 import type { TodoItemData } from "../../types";
+import type { ItemDAO } from "../../ItemDAO";
+import { vi } from "vitest";
+
+const createItemDaoMock = () => {
+    const itemDaoMock: ItemDAO = {
+        getItems: vi.fn(),
+    };
+    return itemDaoMock;
+};
 
 describe("TodoPage ", () => {
     const itemTitle = "item title";
@@ -13,7 +22,11 @@ describe("TodoPage ", () => {
                     done: false,
                 },
             ];
-            render(<TodoPage initialItems={testItems} />);
+
+            const itemDaoMock = createItemDaoMock();
+            itemDaoMock.getItems = vi.fn().mockReturnValue(testItems);
+
+            render(<TodoPage itemDAO={itemDaoMock} />);
             const item = screen.getByRole("listitem", {
                 name: testItems[0].title,
             });
@@ -30,7 +43,11 @@ describe("TodoPage ", () => {
                     done: true,
                 },
             ];
-            render(<TodoPage initialItems={testItems} />);
+
+            const itemDaoMock = createItemDaoMock();
+            itemDaoMock.getItems = vi.fn().mockReturnValue(testItems);
+
+            render(<TodoPage itemDAO={itemDaoMock} />);
             const item = screen.getByRole("listitem", {
                 name: testItems[0].title,
             });
@@ -48,7 +65,11 @@ describe("TodoPage ", () => {
                 done: false,
             },
         ];
-        render(<TodoPage initialItems={testItems} />);
+
+        const itemDaoMock = createItemDaoMock();
+        itemDaoMock.getItems = vi.fn().mockReturnValue(testItems);
+
+        render(<TodoPage itemDAO={itemDaoMock} />);
 
         const archiveButton = screen.getByRole("button", {
             name: /archive/i,
@@ -70,7 +91,9 @@ describe("TodoPage ", () => {
             },
         ];
         test("should not have any items that have their checkbox checked", () => {
-            render(<TodoPage initialItems={testItems} />);
+            const itemDaoMock = createItemDaoMock();
+            itemDaoMock.getItems = vi.fn().mockReturnValue(testItems);
+            render(<TodoPage itemDAO={itemDaoMock} />);
 
             const archiveButton = screen.getByRole("button", {
                 name: /archive/i,

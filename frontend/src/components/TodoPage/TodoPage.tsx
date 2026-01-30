@@ -3,6 +3,7 @@ import AddItemForm from "../AddItemForm/AddItemForm";
 import ItemList from "../ItemList/ItemList";
 import type { TodoItemData, TodoItemDataNoId } from "../../types";
 import "./TodoPage.css";
+import { LocalItemDAO, type ItemDAO } from "../../ItemDAO";
 
 const itemData: TodoItemData[] = [
     {
@@ -25,11 +26,15 @@ const getId = () => {
 };
 
 interface TodoPageProps {
-    initialItems?: TodoItemData[];
+    itemDAO: ItemDAO;
 }
 
-const TodoPage = ({ initialItems = itemData }: TodoPageProps) => {
-    const [itemData, setItemData] = useState<TodoItemData[]>(initialItems);
+const localItemDAO = new LocalItemDAO();
+
+const TodoPage = ({ itemDAO = localItemDAO }: TodoPageProps) => {
+    const [itemData, setItemData] = useState<TodoItemData[]>(
+        itemDAO.getItems()
+    );
 
     const addItem = (newItem: TodoItemDataNoId) => {
         const id = getId();
