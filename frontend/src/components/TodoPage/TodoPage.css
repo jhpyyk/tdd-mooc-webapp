@@ -2,10 +2,37 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
+    width: 100%;
     max-width: 25vw;
 
     background: linear-gradient(180deg, #f1f8f6, #e9f3f1);
     padding: 26px;
     border: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 14px;
+}
+
+button {
+    background-color: #e6f3f0;
+    border: 1px solid #bcded8;
+    border-radius: 6px;
+    padding: 4px 8px;
+
+    font-size: 0.8rem;
+    color: #2f3e3b;
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+button:not(:disabled):hover {
+    background-color: #d9eeea;
+}
+
+button:disabled {
+    background-color: #f0f7f6;
+    border: 1px solid #d1e3e0;
+    color: #8fa5a1;
+    cursor: auto;
+
+    opacity: 0.7;
 }

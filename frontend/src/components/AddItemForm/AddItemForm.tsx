@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import type { TodoItemData, TodoItemDataNoId } from "../../types";
+import type { TodoItemDataNoId } from "../../types";
 
 interface AddItemFormProps {
     titleInitialValue: string;

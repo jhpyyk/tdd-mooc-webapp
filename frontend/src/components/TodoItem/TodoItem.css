@@ -51,19 +51,3 @@
 
     overflow-wrap: anywhere;
 }
-button {
-    background-color: #e6f3f0;
-    border: 1px solid #bcded8;
-    border-radius: 6px;
-    padding: 4px 8px;
-
-    font-size: 0.8rem;
-    color: #2f3e3b;
-    cursor: pointer;
-
-    white-space: nowrap;
-}
-
-button:hover {
-    background-color: #d9eeea;
-}
