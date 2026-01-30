@@ -44,9 +44,7 @@ const TodoPage = ({ initialItems = itemData }: TodoPageProps) => {
     const editItem = (newItem: TodoItemData) => {};
 
     const archiveDoneItems = () => {
-        const filtered = itemData.filter((item) => {
-            return item.done;
-        });
+        const filtered = itemData.filter((item) => item.done);
         setItemData(filtered);
     };
 
