@@ -5,26 +5,6 @@ import type { TodoItemData, TodoItemDataNoId } from "../../types";
 import "./TodoPage.css";
 import { LocalItemDAO, type ItemDAO } from "../../ItemDAO";
 
-const itemData: TodoItemData[] = [
-    {
-        id: 1,
-        title: "item title",
-        done: false,
-    },
-    {
-        id: 2,
-        title: "item title",
-        done: false,
-    },
-];
-
-let id = itemData.length;
-const getId = () => {
-    id += 1;
-    console.log(id);
-    return id;
-};
-
 interface TodoPageProps {
     itemDAO: ItemDAO;
 }
@@ -36,13 +16,14 @@ const TodoPage = ({ itemDAO = localItemDAO }: TodoPageProps) => {
         itemDAO.getItems()
     );
 
-    const addItem = (newItem: TodoItemDataNoId) => {
-        const itemWithId = itemDAO.addItem(newItem);
+    const addItem = (itemToAdd: TodoItemDataNoId) => {
+        const itemWithId = itemDAO.addItem(itemToAdd);
         const newItems = [...itemData, itemWithId];
         setItemData(newItems);
     };
 
-    const editItem = (newItem: TodoItemData) => {
+    const editItem = (itemToEdit: TodoItemData) => {
+        const newItem = itemDAO.editItem(itemToEdit);
         const newItems = itemData.map((item) => {
             if (item.id === newItem.id) {
                 return newItem;
@@ -53,6 +34,7 @@ const TodoPage = ({ itemDAO = localItemDAO }: TodoPageProps) => {
     };
 
     const archiveDoneItems = () => {
+        itemDAO.archiveDoneItems();
         const filtered = itemData.filter((item) => !item.done);
         setItemData(filtered);
     };

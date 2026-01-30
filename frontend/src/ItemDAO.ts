@@ -1,6 +1,6 @@
 import type { TodoItemData, TodoItemDataNoId } from "./types";
 
-const itemData: TodoItemData[] = [
+let itemData: TodoItemData[] = [
     {
         id: 1,
         title: "item title",
@@ -23,18 +23,42 @@ const nextId = () => {
 export interface ItemDAO {
     getItems: () => TodoItemData[];
     addItem: (itemNoId: TodoItemDataNoId) => TodoItemData;
+    editItem: (item: TodoItemData) => TodoItemData;
+    archiveDoneItems: () => void;
 }
 
 export class LocalItemDAO implements ItemDAO {
+    itemData: TodoItemData[];
+
+    constructor(initialItems: TodoItemData[] = itemData) {
+        this.itemData = initialItems;
+    }
     getItems = () => {
-        return itemData;
+        return this.itemData;
     };
-    addItem = (newItem: TodoItemDataNoId) => {
+    addItem = (newItem: TodoItemDataNoId): TodoItemData => {
         const id = nextId();
         const itemWithId: TodoItemData = {
             ...newItem,
             id: id,
         };
+        this.itemData = this.itemData.concat(itemWithId);
         return itemWithId;
+    };
+
+    editItem = (itemToEdit: TodoItemData): TodoItemData => {
+        const newItems = this.itemData.map((item) => {
+            if (item.id === itemToEdit.id) {
+                return itemToEdit;
+            }
+            return item;
+        });
+        this.itemData = newItems;
+
+        return itemToEdit;
+    };
+    archiveDoneItems = () => {
+        const filtered = this.itemData.filter((item) => !item.done);
+        this.itemData = filtered;
     };
 }
