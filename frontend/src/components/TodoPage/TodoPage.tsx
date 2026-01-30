@@ -8,10 +8,12 @@ const itemData: TodoItemData[] = [
     {
         id: 1,
         title: "item title",
+        done: false,
     },
     {
         id: 2,
         title: "item title",
+        done: false,
     },
 ];
 

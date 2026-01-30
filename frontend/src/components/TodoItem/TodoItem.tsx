@@ -6,16 +6,14 @@ import type { TodoItemData } from "../../types";
 interface TodoItemProps {
     data: TodoItemData;
     editItem: (newItem: TodoItemData) => void;
-    initiallyChecked?: boolean;
     initiallyEditing?: boolean;
 }
 const TodoItem = ({
     data,
     editItem,
-    initiallyChecked = false,
     initiallyEditing = false,
 }: TodoItemProps) => {
-    const [checked, setChecked] = useState(initiallyChecked);
+    const [checked, setChecked] = useState(data.done);
     const [title, setTitle] = useState(data.title);
     const [isEditing, setIsEditing] = useState(initiallyEditing);
 

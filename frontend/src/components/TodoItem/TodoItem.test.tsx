@@ -8,7 +8,7 @@ import userEvent from "@testing-library/user-event";
 
 describe("TodoItem ", () => {
     const user = userEvent.setup();
-    const itemData: TodoItemData = { id: 1, title: "test title" };
+    const itemData: TodoItemData = { id: 1, title: "test title", done: false };
     test("item has a title", () => {
         render(<TodoItem data={itemData} editItem={() => {}} />);
 
@@ -27,7 +27,7 @@ describe("TodoItem ", () => {
 
     test("checkbox can be unchecked", () => {
         render(
-            <TodoItem data={itemData} editItem={() => {}} initiallyChecked />
+            <TodoItem data={{ ...itemData, done: true }} editItem={() => {}} />
         );
         const item = screen.getByRole("listitem", { name: itemData.title });
         const checkbox = within(item).getByRole("checkbox");
@@ -55,13 +55,7 @@ describe("TodoItem ", () => {
                 });
 
                 test("should change the button title ", () => {
-                    render(
-                        <TodoItem
-                            data={itemData}
-                            editItem={() => {}}
-                            initiallyChecked
-                        />
-                    );
+                    render(<TodoItem data={itemData} editItem={() => {}} />);
                     const item = screen.getByRole("listitem", {
                         name: itemData.title,
                     });
