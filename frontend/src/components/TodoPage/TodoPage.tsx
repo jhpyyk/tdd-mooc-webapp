@@ -13,7 +13,7 @@ const localItemDAO = new LocalItemDAO();
 
 const TodoPage = ({ itemDAO = localItemDAO }: TodoPageProps) => {
     const [itemData, setItemData] = useState<TodoItemData[]>(
-        itemDAO.getItems()
+        itemDAO.getActiveItems()
     );
 
     const addItem = (itemToAdd: TodoItemDataNoId) => {

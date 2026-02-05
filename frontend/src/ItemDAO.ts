@@ -23,7 +23,7 @@ const nextId = () => {
 };
 
 export interface ItemDAO {
-    getItems: () => TodoItemData[];
+    getActiveItems: () => TodoItemData[];
     addItem: (itemNoId: TodoItemDataNoId) => TodoItemData;
     editItem: (item: TodoItemData) => TodoItemData;
     archiveDoneItems: () => void;
@@ -35,8 +35,11 @@ export class LocalItemDAO implements ItemDAO {
     constructor(initialItems: TodoItemData[] = itemData) {
         this.itemData = initialItems;
     }
-    getItems = () => {
-        return this.itemData;
+    getActiveItems = () => {
+        const items = this.itemData.filter((item) => {
+            return !item.archived;
+        });
+        return items;
     };
     addItem = (newItem: TodoItemDataNoId): TodoItemData => {
         const id = nextId();
