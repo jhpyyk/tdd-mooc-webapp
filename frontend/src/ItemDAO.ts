@@ -41,6 +41,13 @@ export class LocalItemDAO implements ItemDAO {
         });
         return items;
     };
+    getArchivedItems = () => {
+        const items = this.itemData.filter((item) => {
+            return item.archived;
+        });
+        return items;
+    };
+
     addItem = (newItem: TodoItemDataNoId): TodoItemData => {
         const id = nextId();
         const itemWithId: TodoItemData = {

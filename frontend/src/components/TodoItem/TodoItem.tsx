@@ -51,9 +51,11 @@ const TodoItem = ({
             aria-label={data.title}
         >
             <Checkbox checked={data.done} setChecked={handleCheckboxEvent} />
-            <button onClick={() => toggleEditing()} disabled={!title}>
-                {editButtonText}
-            </button>
+            {!data.archived && (
+                <button onClick={() => toggleEditing()} disabled={!title}>
+                    {editButtonText}
+                </button>
+            )}
             <div className="item-title">{titleDisplay}</div>
         </div>
     );

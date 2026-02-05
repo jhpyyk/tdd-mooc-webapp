@@ -1,11 +1,14 @@
-import type { TodoItemData } from "../../types";
+import { useState } from "react";
+import type { ItemDAO } from "../../ItemDAO";
 import ItemList from "../ItemList/ItemList";
+import type { TodoItemData } from "../../types";
 
 interface ArchivePageProps {
-    itemData: TodoItemData[];
+    itemDAO: ItemDAO;
 }
-const ArchivePage = ({ itemData }: ArchivePageProps) => {
-    return;
+const ArchivePage = ({ itemDAO }: ArchivePageProps) => {
+    const [itemData, _] = useState<TodoItemData[]>(itemDAO.getArchivedItems());
+    return <ItemList itemData={itemData} editItem={() => {}} />;
 };
 
 export default ArchivePage;

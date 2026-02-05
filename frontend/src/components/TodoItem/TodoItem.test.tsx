@@ -90,6 +90,21 @@ describe("TodoItem ", () => {
                         editButtonTitleBefore
                     );
                 });
+                test("should not be visible for archived item", () => {
+                    render(
+                        <TodoItem
+                            data={{ ...itemData, archived: true }}
+                            editItem={() => {}}
+                            initiallyEditing
+                        />
+                    );
+                    const item = screen.getByRole("listitem", {
+                        name: itemData.title,
+                    });
+                    expect(
+                        within(item).queryByRole("button")
+                    ).not.toBeInTheDocument();
+                });
             });
 
             describe("while editing ", () => {
