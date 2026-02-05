@@ -1,15 +1,17 @@
 import type { TodoItemData, TodoItemDataNoId } from "./types";
 
-let itemData: TodoItemData[] = [
+const itemData: TodoItemData[] = [
     {
         id: 1,
         title: "item title",
         done: false,
+        archived: false,
     },
     {
         id: 2,
         title: "item title",
         done: false,
+        archived: false,
     },
 ];
 
