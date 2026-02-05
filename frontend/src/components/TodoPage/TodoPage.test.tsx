@@ -92,4 +92,25 @@ describe("TodoPage ", () => {
             expect(itemsAfter).toHaveLength(1);
         });
     });
+    test("should not display archived items", () => {
+        const testItems: TodoItemData[] = [
+            {
+                id: 1,
+                title: itemTitle,
+                done: false,
+                archived: false,
+            },
+            {
+                id: 2,
+                title: itemTitle,
+                done: false,
+                archived: true,
+            },
+        ];
+
+        render(<TodoPage itemDAO={new LocalItemDAO(testItems)} />);
+
+        const items = screen.getAllByText(itemTitle);
+        expect(items).toHaveLength(1);
+    });
 });
