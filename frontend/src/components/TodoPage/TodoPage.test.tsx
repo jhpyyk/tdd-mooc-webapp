@@ -12,6 +12,7 @@ describe("TodoPage ", () => {
                     id: 1,
                     title: itemTitle,
                     done: false,
+                    archived: false,
                 },
             ];
 
@@ -30,6 +31,7 @@ describe("TodoPage ", () => {
                     id: 1,
                     title: itemTitle,
                     done: true,
+                    archived: false,
                 },
             ];
 
@@ -49,6 +51,7 @@ describe("TodoPage ", () => {
                 id: 1,
                 title: itemTitle,
                 done: false,
+                archived: false,
             },
         ];
 
@@ -66,11 +69,13 @@ describe("TodoPage ", () => {
                 id: 1,
                 title: itemTitle,
                 done: false,
+                archived: false,
             },
             {
                 id: 2,
                 title: itemTitle,
                 done: true,
+                archived: false,
             },
         ];
         test("should not have any items that have their checkbox checked", () => {

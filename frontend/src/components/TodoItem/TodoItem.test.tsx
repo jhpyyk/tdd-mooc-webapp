@@ -8,7 +8,12 @@ import userEvent from "@testing-library/user-event";
 
 describe("TodoItem ", () => {
     const user = userEvent.setup();
-    const itemData: TodoItemData = { id: 1, title: "test title", done: false };
+    const itemData: TodoItemData = {
+        id: 1,
+        title: "test title",
+        done: false,
+        archived: false,
+    };
     test("item has a title", () => {
         render(<TodoItem data={itemData} editItem={() => {}} />);
 
