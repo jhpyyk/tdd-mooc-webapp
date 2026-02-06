@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import TodoPage from "./components/TodoPage/TodoPage";
 import "./App.css";
+import { LocalItemDAO } from "./ItemDAO";
 
 const api_host = import.meta.env.VITE_API_HOST;
 const api_port = import.meta.env.VITE_API_PORT;
@@ -24,6 +25,8 @@ const fetchDbHealth = async (): Promise<TestResponse> => {
     const data = await res.json();
     return data;
 };
+
+const localItemDAO = new LocalItemDAO();
 
 const App = () => {
     const [backendTestResponse, setBackendTestResponse] = useState<string>();
@@ -51,7 +54,7 @@ const App = () => {
 
     return (
         <div className="app-container">
-            <TodoPage />
+            <TodoPage itemDAO={localItemDAO} />
             <h2>e2e stuff:</h2>
             <p>Hello from frontend</p>
             <p>{backendTestResponse}</p>
