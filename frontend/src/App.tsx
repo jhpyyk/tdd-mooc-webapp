@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import TodoPage from "./components/TodoPage/TodoPage";
 import "./App.css";
 import { LocalItemDAO, type ItemDAO } from "./ItemDAO";
 import ArchivePage from "./components/Archive/ArchivePage";
 import { Route, Router, type BaseLocationHook } from "wouter";
+import E2EPage from "./components/E2EPage";
 
 const localItemDAO = new LocalItemDAO();
 
@@ -21,6 +21,9 @@ const App = ({ itemDAO = localItemDAO, routerHook }: AppProps) => {
                 </Route>
                 <Route path={"/archive"}>
                     <ArchivePage itemDAO={itemDAO} />
+                </Route>
+                <Route path={"/e2e"}>
+                    <E2EPage />
                 </Route>
             </Router>
         </div>

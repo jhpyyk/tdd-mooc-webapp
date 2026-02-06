@@ -23,7 +23,7 @@ const fetchDbHealth = async (): Promise<TestResponse> => {
     return data;
 };
 
-const TestPage = () => {
+const E2EPage = () => {
     const [backendTestResponse, setBackendTestResponse] = useState<string>();
     const [dbHealthResponse, setDbHealthResponse] = useState<string>();
 
@@ -56,4 +56,4 @@ const TestPage = () => {
         </div>
     );
 };
-export default TestPage;
+export default E2EPage;
