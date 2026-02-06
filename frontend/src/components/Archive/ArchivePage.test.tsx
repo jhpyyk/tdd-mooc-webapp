@@ -1,9 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import ArchivePage from "./ArchivePage";
 import { LocalItemDAO } from "../../ItemDAO";
 import type { TodoItemData } from "../../types";
+import userEvent from "@testing-library/user-event";
 
 describe("ArchivePage ", () => {
+    const user = userEvent.setup();
     test("should display only archived items", () => {
         const itemTitle = "test item";
         const testItems: TodoItemData[] = [
@@ -24,5 +26,28 @@ describe("ArchivePage ", () => {
 
         const items = screen.getAllByText(itemTitle);
         expect(items).toHaveLength(1);
+    });
+
+    test("should not display an item after it's deleted", () => {
+        const itemTitle = "test item";
+        const testItems: TodoItemData[] = [
+            {
+                id: 1,
+                title: itemTitle,
+                done: true,
+                archived: true,
+            },
+        ];
+        render(<ArchivePage itemDAO={new LocalItemDAO(testItems)} />);
+        const item = screen.getByRole("listitem", {
+            name: testItems[0].title,
+        });
+        const deleteButton = within(item).getByRole("button");
+
+        act(() => {
+            deleteButton.click();
+        });
+
+        expect(screen.queryAllByText(itemTitle)).toHaveLength(0);
     });
 });
