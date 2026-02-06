@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddItemForm from "../AddItemForm/AddItemForm";
 import ItemList from "../items/ItemList/ItemList";
 import type { TodoItemData, TodoItemDataNoId } from "../../types";
@@ -10,18 +10,24 @@ interface TodoPageProps {
 }
 
 const TodoPage = ({ itemDAO }: TodoPageProps) => {
-    const [itemData, setItemData] = useState<TodoItemData[]>(
-        itemDAO.getActiveItems()
-    );
+    const [itemData, setItemData] = useState<TodoItemData[]>([]);
 
-    const addItem = (itemToAdd: TodoItemDataNoId) => {
-        const itemWithId = itemDAO.addItem(itemToAdd);
+    useEffect(() => {
+        const fetchData = async () => {
+            const items = await itemDAO.getActiveItems();
+            setItemData(items);
+        };
+        fetchData();
+    }, [itemDAO]);
+
+    const addItem = async (itemToAdd: TodoItemDataNoId) => {
+        const itemWithId = await itemDAO.addItem(itemToAdd);
         const newItems = [...itemData, itemWithId];
         setItemData(newItems);
     };
 
-    const editItem = (itemToEdit: TodoItemData) => {
-        const newItem = itemDAO.editItem(itemToEdit);
+    const editItem = async (itemToEdit: TodoItemData) => {
+        const newItem = await itemDAO.editItem(itemToEdit);
         const newItems = itemData.map((item) => {
             if (item.id === newItem.id) {
                 return newItem;
@@ -31,8 +37,8 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
         setItemData(newItems);
     };
 
-    const archiveDoneItems = () => {
-        itemDAO.archiveDoneItems();
+    const archiveDoneItems = async () => {
+        await itemDAO.archiveDoneItems();
         const filtered = itemData.filter((item) => !item.done);
         setItemData(filtered);
     };

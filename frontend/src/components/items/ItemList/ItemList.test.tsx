@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import ItemList from "./ItemList";
-import type { TodoItemData } from "../../types";
+import type { TodoItemData } from "../../../types";
 
 describe("ItemList ", () => {
     test("should display multiple items", () => {

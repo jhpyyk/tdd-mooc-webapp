@@ -8,7 +8,7 @@ import E2EPage from "./components/E2EPage";
 const localItemDAO = new LocalItemDAO();
 
 interface AppProps {
-    itemDAO: ItemDAO;
+    itemDAO?: ItemDAO;
     routerHook?: BaseLocationHook;
 }
 

@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import AddItemForm from "./AddItemForm";
@@ -56,9 +56,15 @@ describe("AddItemForm ", () => {
                 submitButton.click();
             });
 
-            expect(mockOnClick).toHaveBeenCalledWith({
-                title: title,
-            });
+            await waitFor(
+                () =>
+                    expect(mockOnClick).toHaveBeenCalledWith({
+                        title: title,
+                        done: false,
+                        archived: false,
+                    }),
+                { timeout: 100 }
+            );
         });
 
         test("should be disabled when the input is empty", () => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Checkbox from "./Checkbox/Checkbox";
 import "../Item.css";
 import type { TodoItemData } from "../../../types";
@@ -13,14 +13,17 @@ const TodoItem = ({
     buttonOnClick,
     initiallyEditing = false,
 }: TodoItemProps) => {
+    const [isPending, startTransition] = useTransition();
     const [title, setTitle] = useState(data.title);
     const [isEditing, setIsEditing] = useState(initiallyEditing);
 
     const handleSaveClick = () => {
         setIsEditing(false);
-        buttonOnClick({
-            ...data,
-            title: title,
+        startTransition(() => {
+            buttonOnClick({
+                ...data,
+                title: title,
+            });
         });
     };
 
@@ -59,7 +62,10 @@ const TodoItem = ({
                 initiallyChecked={data.done}
                 onCheckedChange={handleCheckboxEvent}
             />
-            <button onClick={() => buttonAction()} disabled={!title}>
+            <button
+                onClick={() => buttonAction()}
+                disabled={!title || isPending}
+            >
                 {editButtonText}
             </button>
             <div className="item-title">{titleDisplay}</div>

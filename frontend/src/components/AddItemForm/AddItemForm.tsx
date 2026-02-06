@@ -16,6 +16,8 @@ const AddItemForm = ({
         e.preventDefault();
         const item: TodoItemDataNoId = {
             title: titleText,
+            done: false,
+            archived: false,
         };
         submitOnClick(item);
         setTitleText("");

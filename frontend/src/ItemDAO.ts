@@ -23,12 +23,12 @@ const nextId = () => {
 };
 
 export interface ItemDAO {
-    getActiveItems: () => TodoItemData[];
-    getArchivedItems: () => TodoItemData[];
-    addItem: (itemNoId: TodoItemDataNoId) => TodoItemData;
-    editItem: (item: TodoItemData) => TodoItemData;
-    archiveDoneItems: () => void;
-    deleteItem: (item: TodoItemData) => void;
+    getActiveItems: () => Promise<TodoItemData[]>;
+    getArchivedItems: () => Promise<TodoItemData[]>;
+    addItem: (itemNoId: TodoItemDataNoId) => Promise<TodoItemData>;
+    editItem: (item: TodoItemData) => Promise<TodoItemData>;
+    archiveDoneItems: () => Promise<void>;
+    deleteItem: (item: TodoItemData) => Promise<void>;
 }
 
 export class LocalItemDAO implements ItemDAO {
@@ -37,20 +37,20 @@ export class LocalItemDAO implements ItemDAO {
     constructor(initialItems: TodoItemData[] = itemData) {
         this.itemData = initialItems;
     }
-    getActiveItems = () => {
+    getActiveItems = async () => {
         const items = this.itemData.filter((item) => {
             return !item.archived;
         });
         return items;
     };
-    getArchivedItems = () => {
+    getArchivedItems = async () => {
         const items = this.itemData.filter((item) => {
             return item.archived;
         });
         return items;
     };
 
-    addItem = (newItem: TodoItemDataNoId): TodoItemData => {
+    addItem = async (newItem: TodoItemDataNoId) => {
         const id = nextId();
         const itemWithId: TodoItemData = {
             ...newItem,
@@ -60,7 +60,7 @@ export class LocalItemDAO implements ItemDAO {
         return itemWithId;
     };
 
-    editItem = (itemToEdit: TodoItemData): TodoItemData => {
+    editItem = async (itemToEdit: TodoItemData) => {
         const newItems = this.itemData.map((item) => {
             if (item.id === itemToEdit.id) {
                 return itemToEdit;
@@ -71,7 +71,7 @@ export class LocalItemDAO implements ItemDAO {
 
         return itemToEdit;
     };
-    archiveDoneItems = () => {
+    archiveDoneItems = async () => {
         const newItems = this.itemData.map((item) => {
             if (item.done) {
                 const archivedItem = { ...item, archived: true };
@@ -83,7 +83,7 @@ export class LocalItemDAO implements ItemDAO {
         this.itemData = newItems;
     };
 
-    deleteItem = (itemToDelete: TodoItemData) => {
+    deleteItem = async (itemToDelete: TodoItemData) => {
         const newItems = this.itemData.filter((item) => {
             return item.id !== itemToDelete.id;
         });

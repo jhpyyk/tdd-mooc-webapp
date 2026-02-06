@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ItemDAO } from "../../ItemDAO";
 import ItemList from "../items/ItemList/ItemList";
 import type { TodoItemData } from "../../types";
@@ -8,9 +8,16 @@ interface ArchivePageProps {
     itemDAO: ItemDAO;
 }
 const ArchivePage = ({ itemDAO }: ArchivePageProps) => {
-    const [itemData, setItemData] = useState<TodoItemData[]>(
-        itemDAO.getArchivedItems()
-    );
+    const [itemData, setItemData] = useState<TodoItemData[]>([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const items = await itemDAO.getArchivedItems();
+            setItemData(items);
+        };
+        fetchData();
+    }, [itemDAO]);
+
     const deleteItem = (itemToDelete: TodoItemData) => {
         itemDAO.deleteItem(itemToDelete);
         const filtered = itemData.filter((item) => {

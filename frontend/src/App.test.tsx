@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import type { TodoItemData } from "./types";
 import App from "./App";
 import { LocalItemDAO } from "./ItemDAO";
@@ -6,7 +6,7 @@ import { memoryLocation } from "wouter/memory-location";
 
 describe("App ", () => {
     describe("when pressing archive link on todo page", () => {
-        test("should go to archive page", () => {
+        test("should go to archive page", async () => {
             const itemTitle = "test title";
             const testItems: TodoItemData[] = [
                 {
@@ -37,13 +37,15 @@ describe("App ", () => {
                 archiveLink.click();
             });
 
-            const archivedItem = screen.getByText(itemTitle);
+            const archivedItem = await waitFor(() =>
+                screen.getByText(itemTitle)
+            );
 
             expect(archivedItem).toBeVisible();
         });
     });
     describe("when pressing todo link on archive page", () => {
-        test("should go to todo page", () => {
+        test("should go to todo page", async () => {
             const itemTitle = "test title";
             const testItems: TodoItemData[] = [
                 {
@@ -74,7 +76,7 @@ describe("App ", () => {
                 todoLink.click();
             });
 
-            const activeItem = screen.getByText(itemTitle);
+            const activeItem = await waitFor(() => screen.getByText(itemTitle));
 
             expect(activeItem).toBeVisible();
         });
