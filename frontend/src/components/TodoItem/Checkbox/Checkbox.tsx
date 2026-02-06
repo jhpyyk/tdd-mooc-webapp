@@ -6,7 +6,7 @@ interface CheckboxProps {
 }
 
 const Checkbox = ({ initiallyChecked, onCheckedChange }: CheckboxProps) => {
-    const [checked, setChecked] = useState(initiallyChecked);
+    const [checked, setChecked] = useState(initiallyChecked ?? false);
 
     const handleCheckedChange = (newChecked: boolean) => {
         onCheckedChange(newChecked);
