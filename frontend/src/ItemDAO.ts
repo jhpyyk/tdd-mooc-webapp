@@ -28,6 +28,7 @@ export interface ItemDAO {
     addItem: (itemNoId: TodoItemDataNoId) => TodoItemData;
     editItem: (item: TodoItemData) => TodoItemData;
     archiveDoneItems: () => void;
+    deleteItem: (item: TodoItemData) => void;
 }
 
 export class LocalItemDAO implements ItemDAO {
@@ -79,6 +80,13 @@ export class LocalItemDAO implements ItemDAO {
             return item;
         });
 
+        this.itemData = newItems;
+    };
+
+    deleteItem = (itemToDelete: TodoItemData) => {
+        const newItems = this.itemData.filter((item) => {
+            return item.id !== itemToDelete.id;
+        });
         this.itemData = newItems;
     };
 }

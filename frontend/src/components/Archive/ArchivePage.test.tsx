@@ -2,10 +2,8 @@ import { act, render, screen, within } from "@testing-library/react";
 import ArchivePage from "./ArchivePage";
 import { LocalItemDAO } from "../../ItemDAO";
 import type { TodoItemData } from "../../types";
-import userEvent from "@testing-library/user-event";
 
 describe("ArchivePage ", () => {
-    const user = userEvent.setup();
     test("should display only archived items", () => {
         const itemTitle = "test item";
         const testItems: TodoItemData[] = [

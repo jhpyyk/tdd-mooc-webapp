@@ -8,12 +8,21 @@ interface ArchivePageProps {
     itemDAO: ItemDAO;
 }
 const ArchivePage = ({ itemDAO }: ArchivePageProps) => {
-    const [itemData, _] = useState<TodoItemData[]>(itemDAO.getArchivedItems());
+    const [itemData, setItemData] = useState<TodoItemData[]>(
+        itemDAO.getArchivedItems()
+    );
+    const deleteItem = (itemToDelete: TodoItemData) => {
+        itemDAO.deleteItem(itemToDelete);
+        const filtered = itemData.filter((item) => {
+            return item.id !== itemToDelete.id;
+        });
+        setItemData(filtered);
+    };
     return (
         <div>
             <Link href="/todo">Todo</Link>
             <h2>Archive</h2>
-            <ItemList itemData={itemData} buttonOnClick={() => {}} archived />
+            <ItemList itemData={itemData} buttonOnClick={deleteItem} archived />
         </div>
     );
 };
