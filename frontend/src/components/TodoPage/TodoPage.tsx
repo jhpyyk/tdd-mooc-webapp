@@ -2,7 +2,6 @@ import { useState } from "react";
 import AddItemForm from "../AddItemForm/AddItemForm";
 import ItemList from "../ItemList/ItemList";
 import type { TodoItemData, TodoItemDataNoId } from "../../types";
-import "./TodoPage.css";
 import { type ItemDAO } from "../../ItemDAO";
 import { Link } from "wouter";
 
@@ -39,7 +38,7 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
     };
 
     return (
-        <div className="todo-page-container">
+        <div>
             <Link href="/archive">Archive</Link>
             <AddItemForm titleInitialValue="" submitOnClick={addItem} />
             <ItemList itemData={itemData} editItem={editItem} />

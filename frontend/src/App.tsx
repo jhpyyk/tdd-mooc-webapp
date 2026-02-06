@@ -15,17 +15,19 @@ interface AppProps {
 const App = ({ itemDAO = localItemDAO, routerHook }: AppProps) => {
     return (
         <div className="app-container">
-            <Router hook={routerHook}>
-                <Route path={"/todo"}>
-                    <TodoPage itemDAO={itemDAO} />
-                </Route>
-                <Route path={"/archive"}>
-                    <ArchivePage itemDAO={itemDAO} />
-                </Route>
-                <Route path={"/e2e"}>
-                    <E2EPage />
-                </Route>
-            </Router>
+            <div className="page-container">
+                <Router hook={routerHook}>
+                    <Route path={"/todo"}>
+                        <TodoPage itemDAO={itemDAO} />
+                    </Route>
+                    <Route path={"/archive"}>
+                        <ArchivePage itemDAO={itemDAO} />
+                    </Route>
+                    <Route path={"/e2e"}>
+                        <E2EPage />
+                    </Route>
+                </Router>
+            </div>
         </div>
     );
 };
