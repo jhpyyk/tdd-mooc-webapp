@@ -3,9 +3,14 @@ import { useState } from "react";
 interface CheckboxProps {
     initiallyChecked: boolean;
     onCheckedChange: (newCheckedStatus: boolean) => void;
+    disabled?: boolean;
 }
 
-const Checkbox = ({ initiallyChecked, onCheckedChange }: CheckboxProps) => {
+const Checkbox = ({
+    initiallyChecked,
+    onCheckedChange,
+    disabled = false,
+}: CheckboxProps) => {
     const [checked, setChecked] = useState(initiallyChecked ?? false);
 
     const handleCheckedChange = (newChecked: boolean) => {
@@ -17,6 +22,7 @@ const Checkbox = ({ initiallyChecked, onCheckedChange }: CheckboxProps) => {
             <input
                 type="checkbox"
                 checked={checked}
+                disabled={disabled}
                 onChange={(e) => handleCheckedChange(e.target.checked)}
             />
         </div>

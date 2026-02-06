@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import TodoItem from "./TodoItem";
 import { act } from "react";
-import type { TodoItemData } from "../../types";
+import type { TodoItemData } from "../../../types";
 import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 

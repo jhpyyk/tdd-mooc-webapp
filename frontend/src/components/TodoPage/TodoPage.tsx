@@ -1,6 +1,6 @@
 import { useState } from "react";
 import AddItemForm from "../AddItemForm/AddItemForm";
-import ItemList from "../ItemList/ItemList";
+import ItemList from "../items/ItemList/ItemList";
 import type { TodoItemData, TodoItemDataNoId } from "../../types";
 import { type ItemDAO } from "../../ItemDAO";
 import { Link } from "wouter";

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Checkbox from "./Checkbox/Checkbox";
-import "./TodoItem.css";
-import type { TodoItemData } from "../../types";
+import "../Item.css";
+import type { TodoItemData } from "../../../types";
 
 interface TodoItemProps {
     data: TodoItemData;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ItemDAO } from "../../ItemDAO";
-import ItemList from "../ItemList/ItemList";
+import ItemList from "../items/ItemList/ItemList";
 import type { TodoItemData } from "../../types";
 import { Link } from "wouter";
 
@@ -13,7 +13,7 @@ const ArchivePage = ({ itemDAO }: ArchivePageProps) => {
         <div>
             <Link href="/todo">Todo</Link>
             <h2>Archive</h2>
-            <ItemList itemData={itemData} buttonOnClick={() => {}} />
+            <ItemList itemData={itemData} buttonOnClick={() => {}} archived />
         </div>
     );
 };
