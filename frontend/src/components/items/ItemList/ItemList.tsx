@@ -5,7 +5,7 @@ import "./ItemList.css";
 
 interface ItemListProps {
     itemData: TodoItemData[];
-    buttonOnClick: (newItem: TodoItemData) => void;
+    buttonOnClick: (newItem: TodoItemData) => Promise<void>;
     archived?: boolean;
 }
 

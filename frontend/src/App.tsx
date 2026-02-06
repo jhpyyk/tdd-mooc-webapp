@@ -5,7 +5,7 @@ import ArchivePage from "./components/Archive/ArchivePage";
 import { Route, Router, type BaseLocationHook } from "wouter";
 import E2EPage from "./components/E2EPage";
 
-const localItemDAO = new LocalItemDAO();
+const localItemDAO = new LocalItemDAO(undefined, 1000);
 
 interface AppProps {
     itemDAO?: ItemDAO;

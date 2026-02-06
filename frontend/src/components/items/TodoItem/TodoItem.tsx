@@ -5,7 +5,7 @@ import type { TodoItemData } from "../../../types";
 
 interface TodoItemProps {
     data: TodoItemData;
-    buttonOnClick: (newItem: TodoItemData) => void;
+    buttonOnClick: (newItem: TodoItemData) => Promise<void>;
     initiallyEditing?: boolean;
 }
 const TodoItem = ({
@@ -18,12 +18,12 @@ const TodoItem = ({
     const [isEditing, setIsEditing] = useState(initiallyEditing);
 
     const handleSaveClick = () => {
-        setIsEditing(false);
-        startTransition(() => {
-            buttonOnClick({
+        startTransition(async () => {
+            await buttonOnClick({
                 ...data,
                 title: title,
             });
+            setIsEditing(false);
         });
     };
 
@@ -50,7 +50,7 @@ const TodoItem = ({
     const titleDisplay = isEditing ? titleEdit : titleText;
 
     const editButtonText = isEditing ? "Save" : "Edit";
-    const buttonAction = isEditing ? handleSaveClick : handleEditClick;
+    const buttonHandler = isEditing ? handleSaveClick : handleEditClick;
 
     return (
         <div
@@ -63,7 +63,7 @@ const TodoItem = ({
                 onCheckedChange={handleCheckboxEvent}
             />
             <button
-                onClick={() => buttonAction()}
+                onClick={() => buttonHandler()}
                 disabled={!title || isPending}
             >
                 {editButtonText}

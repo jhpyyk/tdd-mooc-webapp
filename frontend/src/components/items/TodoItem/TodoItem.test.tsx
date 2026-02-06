@@ -15,7 +15,7 @@ describe("TodoItem ", () => {
         archived: false,
     };
     test("item has a title", () => {
-        render(<TodoItem data={itemData} buttonOnClick={() => {}} />);
+        render(<TodoItem data={itemData} buttonOnClick={async () => {}} />);
 
         const item = screen.getByText(itemData.title);
 
@@ -27,7 +27,10 @@ describe("TodoItem ", () => {
             describe("while not editing ", () => {
                 test("should not clear the item title", () => {
                     render(
-                        <TodoItem data={itemData} buttonOnClick={() => {}} />
+                        <TodoItem
+                            data={itemData}
+                            buttonOnClick={async () => {}}
+                        />
                     );
                     const item = screen.getByRole("listitem", {
                         name: itemData.title,
@@ -45,7 +48,10 @@ describe("TodoItem ", () => {
 
                 test("should change the button title ", () => {
                     render(
-                        <TodoItem data={itemData} buttonOnClick={() => {}} />
+                        <TodoItem
+                            data={itemData}
+                            buttonOnClick={async () => {}}
+                        />
                     );
                     const item = screen.getByRole("listitem", {
                         name: itemData.title,
@@ -69,7 +75,7 @@ describe("TodoItem ", () => {
                     render(
                         <TodoItem
                             data={{ ...itemData, title: "" }}
-                            buttonOnClick={() => {}}
+                            buttonOnClick={async () => {}}
                             initiallyEditing
                         />
                     );
@@ -77,6 +83,28 @@ describe("TodoItem ", () => {
                         name: "",
                     });
                     const editButton = within(item).getByRole("button");
+
+                    expect(editButton).toBeDisabled();
+                });
+
+                test("should be disabled when waiting for a response", () => {
+                    render(
+                        <TodoItem
+                            data={{ ...itemData }}
+                            buttonOnClick={async () => {
+                                setTimeout(() => {}, 5);
+                            }}
+                            initiallyEditing
+                        />
+                    );
+                    const item = screen.getByRole("listitem", {
+                        name: itemData.title,
+                    });
+                    const editButton = within(item).getByRole("button");
+
+                    act(() => {
+                        editButton.click();
+                    });
 
                     expect(editButton).toBeDisabled();
                 });
@@ -109,7 +137,10 @@ describe("TodoItem ", () => {
 
                 test("should change the button title ", () => {
                     render(
-                        <TodoItem data={itemData} buttonOnClick={() => {}} />
+                        <TodoItem
+                            data={itemData}
+                            buttonOnClick={async () => {}}
+                        />
                     );
                     const item = screen.getByRole("listitem", {
                         name: itemData.title,

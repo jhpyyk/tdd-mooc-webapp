@@ -33,17 +33,21 @@ export interface ItemDAO {
 
 export class LocalItemDAO implements ItemDAO {
     itemData: TodoItemData[];
+    delay: number;
 
-    constructor(initialItems: TodoItemData[] = itemData) {
+    constructor(initialItems: TodoItemData[] = itemData, delay = 0) {
         this.itemData = initialItems;
+        this.delay = delay;
     }
     getActiveItems = async () => {
+        await new Promise((r) => setTimeout(r, this.delay));
         const items = this.itemData.filter((item) => {
             return !item.archived;
         });
         return items;
     };
     getArchivedItems = async () => {
+        await new Promise((r) => setTimeout(r, this.delay));
         const items = this.itemData.filter((item) => {
             return item.archived;
         });
@@ -51,6 +55,7 @@ export class LocalItemDAO implements ItemDAO {
     };
 
     addItem = async (newItem: TodoItemDataNoId) => {
+        await new Promise((r) => setTimeout(r, this.delay));
         const id = nextId();
         const itemWithId: TodoItemData = {
             ...newItem,
@@ -61,6 +66,7 @@ export class LocalItemDAO implements ItemDAO {
     };
 
     editItem = async (itemToEdit: TodoItemData) => {
+        await new Promise((r) => setTimeout(r, this.delay));
         const newItems = this.itemData.map((item) => {
             if (item.id === itemToEdit.id) {
                 return itemToEdit;
@@ -72,6 +78,7 @@ export class LocalItemDAO implements ItemDAO {
         return itemToEdit;
     };
     archiveDoneItems = async () => {
+        await new Promise((r) => setTimeout(r, this.delay));
         const newItems = this.itemData.map((item) => {
             if (item.done) {
                 const archivedItem = { ...item, archived: true };
@@ -84,6 +91,7 @@ export class LocalItemDAO implements ItemDAO {
     };
 
     deleteItem = async (itemToDelete: TodoItemData) => {
+        await new Promise((r) => setTimeout(r, this.delay));
         const newItems = this.itemData.filter((item) => {
             return item.id !== itemToDelete.id;
         });
