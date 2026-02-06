@@ -4,14 +4,14 @@ import "./ItemList.css";
 
 interface ItemListProps {
     itemData: TodoItemData[];
-    editItem: (newItem: TodoItemData) => void;
+    buttonOnClick: (newItem: TodoItemData) => void;
 }
 
-const ItemList = ({ itemData, editItem }: ItemListProps) => {
+const ItemList = ({ itemData, buttonOnClick }: ItemListProps) => {
     const listItems = itemData.map((item) => {
         return (
             <li className="list-item" key={item.id}>
-                <TodoItem data={item} editItem={editItem} />
+                <TodoItem data={item} buttonOnClick={buttonOnClick} />
             </li>
         );
     });

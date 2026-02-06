@@ -9,7 +9,7 @@ describe("ItemList ", () => {
 
         const items: TodoItemData[] = [item1, item2];
 
-        render(<ItemList itemData={items} editItem={() => {}} />);
+        render(<ItemList itemData={items} buttonOnClick={() => {}} />);
 
         const renderedItem1 = screen.getByLabelText(item1.title);
         const renderedItem2 = screen.getByLabelText(item2.title);

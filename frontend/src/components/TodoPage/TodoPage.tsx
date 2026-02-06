@@ -41,7 +41,7 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
         <div>
             <Link href="/archive">Archive</Link>
             <AddItemForm titleInitialValue="" submitOnClick={addItem} />
-            <ItemList itemData={itemData} editItem={editItem} />
+            <ItemList itemData={itemData} buttonOnClick={editItem} />
             <button
                 disabled={!itemData.some((item) => item.done)}
                 onClick={archiveDoneItems}

@@ -13,7 +13,7 @@ const ArchivePage = ({ itemDAO }: ArchivePageProps) => {
         <div>
             <Link href="/todo">Todo</Link>
             <h2>Archive</h2>
-            <ItemList itemData={itemData} editItem={() => {}} />
+            <ItemList itemData={itemData} buttonOnClick={() => {}} />
         </div>
     );
 };

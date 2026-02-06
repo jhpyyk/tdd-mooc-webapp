@@ -5,12 +5,12 @@ import type { TodoItemData } from "../../types";
 
 interface TodoItemProps {
     data: TodoItemData;
-    editItem: (newItem: TodoItemData) => void;
+    buttonOnClick: (newItem: TodoItemData) => void;
     initiallyEditing?: boolean;
 }
 const TodoItem = ({
     data,
-    editItem,
+    buttonOnClick: editItem,
     initiallyEditing = false,
 }: TodoItemProps) => {
     const [title, setTitle] = useState(data.title);

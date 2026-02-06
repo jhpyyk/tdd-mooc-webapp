@@ -15,7 +15,7 @@ describe("TodoItem ", () => {
         archived: false,
     };
     test("item has a title", () => {
-        render(<TodoItem data={itemData} editItem={() => {}} />);
+        render(<TodoItem data={itemData} buttonOnClick={() => {}} />);
 
         const item = screen.getByText(itemData.title);
 
@@ -24,7 +24,7 @@ describe("TodoItem ", () => {
 
     test("should render title from props", () => {
         const { rerender } = render(
-            <TodoItem data={itemData} editItem={() => {}} />
+            <TodoItem data={itemData} buttonOnClick={() => {}} />
         );
 
         const newTitle = "new title";
@@ -32,7 +32,7 @@ describe("TodoItem ", () => {
         rerender(
             <TodoItem
                 data={{ ...itemData, title: newTitle }}
-                editItem={() => {}}
+                buttonOnClick={() => {}}
             />
         );
 
@@ -42,11 +42,14 @@ describe("TodoItem ", () => {
 
     test("should render title from props", () => {
         const { rerender } = render(
-            <TodoItem data={itemData} editItem={() => {}} />
+            <TodoItem data={itemData} buttonOnClick={() => {}} />
         );
 
         rerender(
-            <TodoItem data={{ ...itemData, done: true }} editItem={() => {}} />
+            <TodoItem
+                data={{ ...itemData, done: true }}
+                buttonOnClick={() => {}}
+            />
         );
 
         const item = screen.getByRole("listitem", { name: itemData.title });
@@ -58,7 +61,9 @@ describe("TodoItem ", () => {
         describe("when clicked ", () => {
             describe("while not editing ", () => {
                 test("should not clear the item title", () => {
-                    render(<TodoItem data={itemData} editItem={() => {}} />);
+                    render(
+                        <TodoItem data={itemData} buttonOnClick={() => {}} />
+                    );
                     const item = screen.getByRole("listitem", {
                         name: itemData.title,
                     });
@@ -74,7 +79,9 @@ describe("TodoItem ", () => {
                 });
 
                 test("should change the button title ", () => {
-                    render(<TodoItem data={itemData} editItem={() => {}} />);
+                    render(
+                        <TodoItem data={itemData} buttonOnClick={() => {}} />
+                    );
                     const item = screen.getByRole("listitem", {
                         name: itemData.title,
                     });
@@ -94,7 +101,7 @@ describe("TodoItem ", () => {
                     render(
                         <TodoItem
                             data={{ ...itemData, archived: true }}
-                            editItem={() => {}}
+                            buttonOnClick={() => {}}
                             initiallyEditing
                         />
                     );
@@ -112,7 +119,7 @@ describe("TodoItem ", () => {
                     render(
                         <TodoItem
                             data={{ ...itemData, title: "" }}
-                            editItem={() => {}}
+                            buttonOnClick={() => {}}
                             initiallyEditing
                         />
                     );
@@ -129,7 +136,7 @@ describe("TodoItem ", () => {
                     render(
                         <TodoItem
                             data={{ ...itemData, title: "" }}
-                            editItem={editItemMock}
+                            buttonOnClick={editItemMock}
                             initiallyEditing
                         />
                     );
@@ -151,7 +158,9 @@ describe("TodoItem ", () => {
                 });
 
                 test("should change the button title ", () => {
-                    render(<TodoItem data={itemData} editItem={() => {}} />);
+                    render(
+                        <TodoItem data={itemData} buttonOnClick={() => {}} />
+                    );
                     const item = screen.getByRole("listitem", {
                         name: itemData.title,
                     });
