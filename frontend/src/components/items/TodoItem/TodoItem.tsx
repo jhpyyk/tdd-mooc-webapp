@@ -16,12 +16,16 @@ const TodoItem = ({
     const [title, setTitle] = useState(data.title);
     const [isEditing, setIsEditing] = useState(initiallyEditing);
 
-    const toggleEditing = () => {
-        setIsEditing(!isEditing);
+    const handleSaveClick = () => {
+        setIsEditing(false);
         buttonOnClick({
             ...data,
             title: title,
         });
+    };
+
+    const handleEditClick = () => {
+        setIsEditing(true);
     };
 
     const handleCheckboxEvent = (newDone: boolean) => {
@@ -43,6 +47,7 @@ const TodoItem = ({
     const titleDisplay = isEditing ? titleEdit : titleText;
 
     const editButtonText = isEditing ? "Save" : "Edit";
+    const buttonAction = isEditing ? handleSaveClick : handleEditClick;
 
     return (
         <div
@@ -54,11 +59,9 @@ const TodoItem = ({
                 initiallyChecked={data.done}
                 onCheckedChange={handleCheckboxEvent}
             />
-            {!data.archived && (
-                <button onClick={() => toggleEditing()} disabled={!title}>
-                    {editButtonText}
-                </button>
-            )}
+            <button onClick={() => buttonAction()} disabled={!title}>
+                {editButtonText}
+            </button>
             <div className="item-title">{titleDisplay}</div>
         </div>
     );
