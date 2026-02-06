@@ -10,7 +10,7 @@ interface TodoItemProps {
 }
 const TodoItem = ({
     data,
-    buttonOnClick: editItem,
+    buttonOnClick,
     initiallyEditing = false,
 }: TodoItemProps) => {
     const [title, setTitle] = useState(data.title);
@@ -18,14 +18,14 @@ const TodoItem = ({
 
     const toggleEditing = () => {
         setIsEditing(!isEditing);
-        editItem({
+        buttonOnClick({
             ...data,
             title: title,
         });
     };
 
     const handleCheckboxEvent = (newDone: boolean) => {
-        editItem({
+        buttonOnClick({
             ...data,
             done: newDone,
         });
@@ -39,7 +39,7 @@ const TodoItem = ({
         />
     );
 
-    const titleText = <span>{data.title}</span>;
+    const titleText = <span>{title}</span>;
     const titleDisplay = isEditing ? titleEdit : titleText;
 
     const editButtonText = isEditing ? "Save" : "Edit";
@@ -50,7 +50,10 @@ const TodoItem = ({
             role="listitem"
             aria-label={data.title}
         >
-            <Checkbox checked={data.done} setChecked={handleCheckboxEvent} />
+            <Checkbox
+                initiallyChecked={data.done}
+                onCheckedChange={handleCheckboxEvent}
+            />
             {!data.archived && (
                 <button onClick={() => toggleEditing()} disabled={!title}>
                     {editButtonText}

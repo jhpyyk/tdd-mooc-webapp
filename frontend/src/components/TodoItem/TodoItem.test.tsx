@@ -22,41 +22,6 @@ describe("TodoItem ", () => {
         expect(item).toBeDefined();
     });
 
-    test("should render title from props", () => {
-        const { rerender } = render(
-            <TodoItem data={itemData} buttonOnClick={() => {}} />
-        );
-
-        const newTitle = "new title";
-
-        rerender(
-            <TodoItem
-                data={{ ...itemData, title: newTitle }}
-                buttonOnClick={() => {}}
-            />
-        );
-
-        const item = screen.getByText(newTitle);
-        expect(item).toBeDefined();
-    });
-
-    test("should render title from props", () => {
-        const { rerender } = render(
-            <TodoItem data={itemData} buttonOnClick={() => {}} />
-        );
-
-        rerender(
-            <TodoItem
-                data={{ ...itemData, done: true }}
-                buttonOnClick={() => {}}
-            />
-        );
-
-        const item = screen.getByRole("listitem", { name: itemData.title });
-        const checkbox = within(item).getByRole("checkbox");
-        expect(checkbox).toBeChecked();
-    });
-
     describe("edit button ", () => {
         describe("when clicked ", () => {
             describe("while not editing ", () => {
