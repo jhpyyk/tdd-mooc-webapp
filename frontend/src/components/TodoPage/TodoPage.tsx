@@ -4,6 +4,7 @@ import ItemList from "../ItemList/ItemList";
 import type { TodoItemData, TodoItemDataNoId } from "../../types";
 import "./TodoPage.css";
 import { type ItemDAO } from "../../ItemDAO";
+import { Link } from "wouter";
 
 interface TodoPageProps {
     itemDAO: ItemDAO;
@@ -39,6 +40,7 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
 
     return (
         <div className="todo-page-container">
+            <Link href="/archive">Archive</Link>
             <AddItemForm titleInitialValue="" submitOnClick={addItem} />
             <ItemList itemData={itemData} editItem={editItem} />
             <button

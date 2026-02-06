@@ -24,6 +24,7 @@ const nextId = () => {
 
 export interface ItemDAO {
     getActiveItems: () => TodoItemData[];
+    getArchivedItems: () => TodoItemData[];
     addItem: (itemNoId: TodoItemDataNoId) => TodoItemData;
     editItem: (item: TodoItemData) => TodoItemData;
     archiveDoneItems: () => void;
@@ -70,7 +71,14 @@ export class LocalItemDAO implements ItemDAO {
         return itemToEdit;
     };
     archiveDoneItems = () => {
-        const filtered = this.itemData.filter((item) => !item.done);
-        this.itemData = filtered;
+        const newItems = this.itemData.map((item) => {
+            if (item.done) {
+                const archivedItem = { ...item, archived: true };
+                return archivedItem;
+            }
+            return item;
+        });
+
+        this.itemData = newItems;
     };
 }
