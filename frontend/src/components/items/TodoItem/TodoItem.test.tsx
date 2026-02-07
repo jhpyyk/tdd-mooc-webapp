@@ -1,4 +1,4 @@
-import { render, screen, within, act } from "@testing-library/react";
+import { render, screen, within, act, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import TodoItem from "./TodoItem";
 import type { TodoItemData } from "../../../types";
@@ -23,141 +23,151 @@ describe("TodoItem ", () => {
 
     describe("edit button ", () => {
         describe("when clicked ", () => {
-            describe("while not editing ", () => {
-                test("should not clear the item title", () => {
-                    render(
-                        <TodoItem
-                            data={itemData}
-                            buttonOnClick={async () => {}}
-                        />
-                    );
-                    const item = screen.getByRole("listitem", {
-                        name: itemData.title,
-                    });
-                    const editButton = within(item).getByRole("button");
-
-                    const titleBefore = within(item).getByText(itemData.title);
-                    expect(titleBefore).toBeDefined();
-                    act(() => {
-                        editButton.click();
-                    });
-                    const titleAfter = within(item).getByRole("textbox");
-                    expect(titleAfter).toHaveValue(itemData.title);
+            test("should not clear the item title", () => {
+                render(
+                    <TodoItem data={itemData} buttonOnClick={async () => {}} />
+                );
+                const item = screen.getByRole("listitem", {
+                    name: itemData.title,
                 });
+                const editButton = within(item).getByRole("button");
 
-                test("should change the button title ", () => {
-                    render(
-                        <TodoItem
-                            data={itemData}
-                            buttonOnClick={async () => {}}
-                        />
-                    );
-                    const item = screen.getByRole("listitem", {
-                        name: itemData.title,
-                    });
-                    const editButton = within(item).getByRole("button");
-
-                    const editButtonTitleBefore = editButton.textContent;
-                    expect(editButtonTitleBefore).toBeDefined();
-                    act(() => {
-                        editButton.click();
-                    });
-                    const editButtonTitleAfter = editButton.textContent;
-                    expect(editButtonTitleAfter).not.toEqual(
-                        editButtonTitleBefore
-                    );
+                const titleBefore = within(item).getByText(itemData.title);
+                expect(titleBefore).toBeDefined();
+                act(() => {
+                    editButton.click();
                 });
+                const titleAfter = within(item).getByRole("textbox");
+                expect(titleAfter).toHaveValue(itemData.title);
             });
 
-            describe("while editing ", () => {
-                test("should be disabled when title input is empty", () => {
-                    render(
-                        <TodoItem
-                            data={{ ...itemData, title: "" }}
-                            buttonOnClick={async () => {}}
-                            initiallyEditing
-                        />
-                    );
-                    const item = screen.getByRole("listitem", {
-                        name: "",
-                    });
-                    const editButton = within(item).getByRole("button");
-
-                    expect(editButton).toBeDisabled();
+            test("should change the button text ", () => {
+                render(
+                    <TodoItem data={itemData} buttonOnClick={async () => {}} />
+                );
+                const item = screen.getByRole("listitem", {
+                    name: itemData.title,
                 });
+                const editButton = within(item).getByRole("button");
 
-                test("should be disabled when waiting for a response", () => {
-                    const onClick = async () => {
-                        await new Promise((r) => setTimeout(r, 5));
-                    };
-                    render(
-                        <TodoItem
-                            data={{ ...itemData }}
-                            buttonOnClick={onClick}
-                            initiallyEditing
-                        />
-                    );
-                    const item = screen.getByRole("listitem", {
-                        name: itemData.title,
-                    });
-                    const editButton = within(item).getByRole("button");
-
-                    act(() => {
-                        editButton.click();
-                    });
-
-                    expect(editButton).toBeDisabled();
+                const editButtonTitleBefore = editButton.textContent;
+                expect(editButtonTitleBefore).toBeDefined();
+                act(() => {
+                    editButton.click();
                 });
-                test("should call editItem with new title", async () => {
-                    const editItemMock = vi.fn();
-                    const newTitle = "new title";
-                    render(
-                        <TodoItem
-                            data={{ ...itemData, title: "" }}
-                            buttonOnClick={editItemMock}
-                            initiallyEditing
-                        />
-                    );
-                    const item = screen.getByRole("listitem", {
-                        name: "",
-                    });
-                    const titleEditInput = within(item).getByRole("textbox");
-                    const editButton = within(item).getByRole("button");
-
-                    await user.type(titleEditInput, newTitle);
-                    await act(async () => {
-                        editButton.click();
-                    });
-                    const newItem = {
-                        ...itemData,
-                        title: newTitle,
-                    };
-                    expect(editItemMock).toHaveBeenCalledWith(newItem);
-                });
-
-                test("should change the button title ", () => {
-                    render(
-                        <TodoItem
-                            data={itemData}
-                            buttonOnClick={async () => {}}
-                        />
-                    );
-                    const item = screen.getByRole("listitem", {
-                        name: itemData.title,
-                    });
-                    const editButton = within(item).getByRole("button");
-
-                    const editButtonTitleBefore = editButton.textContent;
-                    expect(editButtonTitleBefore).toBeDefined();
-                    act(() => {
-                        editButton.click();
-                    });
-                    const editButtonTitleAfter = editButton.textContent;
-                    expect(editButtonTitleAfter).not.toEqual(
-                        editButtonTitleBefore
-                    );
-                });
+                const editButtonTitleAfter = editButton.textContent;
+                expect(editButtonTitleAfter).not.toEqual(editButtonTitleBefore);
             });
+        });
+    });
+
+    describe("save button", () => {
+        test("should be disabled when title input is empty", () => {
+            render(
+                <TodoItem
+                    data={{ ...itemData, title: "" }}
+                    buttonOnClick={async () => {}}
+                    initiallyEditing
+                />
+            );
+            const item = screen.getByRole("listitem", {
+                name: "",
+            });
+            const editButton = within(item).getByRole("button");
+
+            expect(editButton).toBeDisabled();
+        });
+
+        test("should be disabled when waiting for a response", () => {
+            const onClick = async () => {
+                await new Promise((r) => setTimeout(r, 5));
+            };
+            render(
+                <TodoItem
+                    data={{ ...itemData }}
+                    buttonOnClick={onClick}
+                    initiallyEditing
+                />
+            );
+            const item = screen.getByRole("listitem", {
+                name: itemData.title,
+            });
+            const editButton = within(item).getByRole("button");
+
+            act(() => {
+                editButton.click();
+            });
+
+            expect(editButton).toBeDisabled();
+        });
+        test("should call editItem with new title", async () => {
+            const editItemMock = vi.fn();
+            const oldTitle = "title";
+            const userTypes = "new";
+            const newTitle = oldTitle + userTypes;
+            render(
+                <TodoItem
+                    data={{ ...itemData, title: oldTitle }}
+                    buttonOnClick={editItemMock}
+                    initiallyEditing
+                />
+            );
+            const item = screen.getByRole("listitem", {
+                name: oldTitle,
+            });
+            const titleEditInput = within(item).getByRole("textbox");
+            const editButton = within(item).getByRole("button");
+
+            await user.type(titleEditInput, userTypes);
+            await act(async () => {
+                editButton.click();
+            });
+            const newItem = {
+                ...itemData,
+                title: newTitle,
+            };
+            expect(editItemMock).toHaveBeenCalledWith(newItem);
+        });
+
+        test("should change the item title optimistically", async () => {
+            const editItemMock = vi.fn();
+            const oldTitle = "title";
+            const userTypes = "new";
+            const newTitle = oldTitle + userTypes;
+            render(
+                <TodoItem
+                    data={{ ...itemData, title: oldTitle }}
+                    buttonOnClick={editItemMock}
+                    initiallyEditing
+                />
+            );
+            const item = screen.getByRole("listitem", {
+                name: oldTitle,
+            });
+            const titleEditInput = within(item).getByRole("textbox");
+            const editButton = within(item).getByRole("button");
+
+            await user.type(titleEditInput, userTypes);
+            act(() => {
+                editButton.click();
+            });
+            expect(screen.getByText(newTitle)).toBeVisible();
+        });
+
+        test("should change the button text ", () => {
+            render(<TodoItem data={itemData} buttonOnClick={async () => {}} />);
+            const item = screen.getByRole("listitem", {
+                name: itemData.title,
+            });
+            const editButton = within(item).getByRole("button");
+
+            const editButtonTitleBefore = editButton.textContent;
+            expect(editButtonTitleBefore).toBeDefined();
+            act(() => {
+                editButton.click();
+            });
+            const editButtonTitleAfter = editButton.textContent;
+            expect(editButtonTitleAfter).not.toEqual(editButtonTitleBefore);
         });
     });
     test("checkbox can be checked", () => {

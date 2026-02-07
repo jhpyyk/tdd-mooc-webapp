@@ -1,4 +1,4 @@
-import { useState, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import Checkbox from "./Checkbox/Checkbox";
 import "../Item.css";
 import type { TodoItemData } from "../../../types";
@@ -14,16 +14,22 @@ const TodoItem = ({
     initiallyEditing = false,
 }: TodoItemProps) => {
     const [isPending, startTransition] = useTransition();
-    const [title, setTitle] = useState(data.title);
+    const [optimisticTitle, setOptimisticTitle] = useOptimistic(data.title);
+    const [titleInputValue, setTitleInputValue] = useState(data.title);
     const [isEditing, setIsEditing] = useState(initiallyEditing);
 
     const handleSaveClick = () => {
+        setIsEditing(false);
         startTransition(async () => {
-            await buttonOnClick({
-                ...data,
-                title: title,
-            });
-            setIsEditing(false);
+            setOptimisticTitle(titleInputValue);
+            try {
+                await buttonOnClick({
+                    ...data,
+                    title: titleInputValue,
+                });
+            } catch (error) {
+                console.log(error);
+            }
         });
     };
 
@@ -41,15 +47,15 @@ const TodoItem = ({
     const titleEdit = (
         <input
             aria-label="Todo title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={titleInputValue}
+            onChange={(e) => setTitleInputValue(e.target.value)}
         />
     );
 
-    const titleText = <span>{title}</span>;
+    const titleText = <span>{optimisticTitle}</span>;
     const titleDisplay = isEditing ? titleEdit : titleText;
 
-    const editButtonText = isEditing ? "Save" : "Edit";
+    const editButtonText = isEditing || isPending ? "Save" : "Edit";
     const buttonHandler = isEditing ? handleSaveClick : handleEditClick;
 
     return (
@@ -64,7 +70,7 @@ const TodoItem = ({
             />
             <button
                 onClick={() => buttonHandler()}
-                disabled={!title || isPending}
+                disabled={!optimisticTitle || isPending}
             >
                 {editButtonText}
             </button>
