@@ -1,8 +1,37 @@
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import ArchivePage from "./ArchivePage";
-import { LocalItemDAO } from "../../ItemDAO";
+import { type ItemDAO } from "../../ItemDAO";
 import type { TodoItemData } from "../../types";
+import { vi } from "vitest";
 
+export class MockDAO implements ItemDAO {
+    itemData: TodoItemData[];
+    delay: number;
+
+    constructor(initialItems: TodoItemData[], delay = 0) {
+        this.itemData = initialItems;
+        this.delay = delay;
+    }
+    addItem = vi.fn();
+    editItem = vi.fn();
+    archiveDoneItems = vi.fn();
+    deleteItem = vi.fn();
+
+    getActiveItems = async () => {
+        await new Promise((r) => setTimeout(r, this.delay));
+        const items = this.itemData.filter((item) => {
+            return !item.archived;
+        });
+        return items;
+    };
+    getArchivedItems = async () => {
+        await new Promise((r) => setTimeout(r, this.delay));
+        const items = this.itemData.filter((item) => {
+            return item.archived;
+        });
+        return items;
+    };
+}
 describe("ArchivePage ", () => {
     test("should display only archived items", async () => {
         const itemTitle = "test item";
@@ -20,7 +49,7 @@ describe("ArchivePage ", () => {
                 archived: true,
             },
         ];
-        render(<ArchivePage itemDAO={new LocalItemDAO(testItems)} />);
+        render(<ArchivePage itemDAO={new MockDAO(testItems)} />);
 
         const items = await waitFor(() => screen.getAllByText(itemTitle));
         expect(items).toHaveLength(1);
@@ -36,7 +65,7 @@ describe("ArchivePage ", () => {
                 archived: true,
             },
         ];
-        render(<ArchivePage itemDAO={new LocalItemDAO(testItems)} />);
+        render(<ArchivePage itemDAO={new MockDAO(testItems)} />);
         const item = await waitFor(() =>
             screen.getByRole("listitem", {
                 name: testItems[0].title,
