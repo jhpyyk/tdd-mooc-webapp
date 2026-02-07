@@ -153,7 +153,34 @@ describe("TodoItem ", () => {
             });
             expect(screen.getByText(newTitle)).toBeVisible();
         });
+        test("should not change the item title on buttonOnClick error", async () => {
+            const editItemMock = () => {
+                throw new Error("error");
+            };
+            const oldTitle = "title";
+            const userTypes = "new";
+            render(
+                <TodoItem
+                    data={{ ...itemData, title: oldTitle }}
+                    buttonOnClick={editItemMock}
+                    initiallyEditing
+                />
+            );
+            const item = screen.getByRole("listitem", {
+                name: oldTitle,
+            });
+            const titleEditInput = within(item).getByRole("textbox");
+            const editButton = within(item).getByRole("button");
 
+            await user.type(titleEditInput, userTypes);
+            act(() => {
+                editButton.click();
+            });
+            await waitFor(
+                () => expect(screen.getByText(oldTitle)).toBeVisible(),
+                { timeout: 10 }
+            );
+        });
         test("should change the button text ", () => {
             render(<TodoItem data={itemData} buttonOnClick={async () => {}} />);
             const item = screen.getByRole("listitem", {
