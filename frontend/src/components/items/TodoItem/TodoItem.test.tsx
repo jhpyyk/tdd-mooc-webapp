@@ -1,7 +1,6 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import TodoItem from "./TodoItem";
-import { act } from "react";
 import type { TodoItemData } from "../../../types";
 import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
@@ -88,12 +87,13 @@ describe("TodoItem ", () => {
                 });
 
                 test("should be disabled when waiting for a response", () => {
+                    const onClick = async () => {
+                        await new Promise((r) => setTimeout(r, 5));
+                    };
                     render(
                         <TodoItem
                             data={{ ...itemData }}
-                            buttonOnClick={async () => {
-                                setTimeout(() => {}, 5);
-                            }}
+                            buttonOnClick={onClick}
                             initiallyEditing
                         />
                     );
@@ -124,8 +124,8 @@ describe("TodoItem ", () => {
                     const titleEditInput = within(item).getByRole("textbox");
                     const editButton = within(item).getByRole("button");
 
+                    await user.type(titleEditInput, newTitle);
                     await act(async () => {
-                        await user.type(titleEditInput, newTitle);
                         editButton.click();
                     });
                     const newItem = {
