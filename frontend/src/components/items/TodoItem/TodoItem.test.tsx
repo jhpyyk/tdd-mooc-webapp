@@ -160,4 +160,35 @@ describe("TodoItem ", () => {
             });
         });
     });
+    test("checkbox can be checked", () => {
+        render(<TodoItem data={itemData} buttonOnClick={async () => {}} />);
+        const item = screen.getByRole("listitem", {
+            name: itemData.title,
+        });
+        const checkbox = within(item).getByRole("checkbox");
+
+        act(() => {
+            checkbox.click();
+        });
+
+        expect(checkbox).toBeChecked();
+    });
+    test("checkbox can be unchecked", () => {
+        render(
+            <TodoItem
+                data={{ ...itemData, done: true }}
+                buttonOnClick={async () => {}}
+            />
+        );
+        const item = screen.getByRole("listitem", {
+            name: itemData.title,
+        });
+        const checkbox = within(item).getByRole("checkbox");
+
+        act(() => {
+            checkbox.click();
+        });
+
+        expect(checkbox).not.toBeChecked();
+    });
 });
