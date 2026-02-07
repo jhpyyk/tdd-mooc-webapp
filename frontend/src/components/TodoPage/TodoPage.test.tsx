@@ -1,4 +1,10 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import {
+    act,
+    queryAllByText,
+    render,
+    screen,
+    waitFor,
+} from "@testing-library/react";
 import TodoPage from "./TodoPage";
 import type { TodoItemData } from "../../types";
 import { type ItemDAO } from "../../ItemDAO";
@@ -52,7 +58,29 @@ describe("TodoPage ", () => {
         });
         expect(archiveButton).toBeDisabled();
     });
+    test("should not add an item on error", async () => {
+        const mockOnClick = vi.fn(() => {
+            throw Error("error");
+        });
+        const mockItemDAO = new MockDAO([]);
+        mockItemDAO.addItem = mockOnClick;
+        render(<TodoPage itemDAO={mockItemDAO} />);
 
+        const submitButton = screen.getByRole("button", {
+            name: /add item/i,
+        });
+        act(() => {
+            submitButton.click();
+        });
+
+        await waitFor(
+            () =>
+                expect(
+                    screen.queryAllByText(itemTitle)
+                ).not.toBeInTheDocument(),
+            { timeout: 100 }
+        );
+    });
     test("should not display archived items", async () => {
         const testItems: TodoItemData[] = [
             {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useOptimistic, useState, useTransition } from "react";
 import AddItemForm from "../AddItemForm/AddItemForm";
 import ItemList from "../items/ItemList/ItemList";
 import type { TodoItemData, TodoItemDataNoId } from "../../types";
@@ -9,8 +9,18 @@ interface TodoPageProps {
     itemDAO: ItemDAO;
 }
 
+const addItemReducer = (itemData: TodoItemData[], newItem: TodoItemData) => {
+    const newItems = [...itemData, newItem];
+    return newItems;
+};
+
 const TodoPage = ({ itemDAO }: TodoPageProps) => {
+    const [isPending, startTransition] = useTransition();
     const [itemData, setItemData] = useState<TodoItemData[]>([]);
+    const [optimisticItems, addOptimisticItem] = useOptimistic<
+        TodoItemData[],
+        TodoItemData
+    >(itemData, addItemReducer);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -21,9 +31,14 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
     }, [itemDAO]);
 
     const addItem = async (itemToAdd: TodoItemDataNoId) => {
-        const itemWithId = await itemDAO.addItem(itemToAdd);
-        const newItems = [...itemData, itemWithId];
-        setItemData(newItems);
+        startTransition(async () => {
+            addOptimisticItem({ ...itemToAdd, id: -1 });
+            const itemWithId = await itemDAO.addItem(itemToAdd);
+            startTransition(async () => {
+                const newItems = addItemReducer(itemData, itemWithId);
+                setItemData(newItems);
+            });
+        });
     };
 
     const editItem = async (itemToEdit: TodoItemData) => {
@@ -47,7 +62,7 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
         <div>
             <Link href="/archive">Archive</Link>
             <AddItemForm titleInitialValue="" submitOnClick={addItem} />
-            <ItemList itemData={itemData} buttonOnClick={editItem} />
+            <ItemList itemData={optimisticItems} buttonOnClick={editItem} />
             <button
                 disabled={!itemData.some((item) => item.done)}
                 onClick={archiveDoneItems}

@@ -83,4 +83,6 @@ describe("AddItemForm ", () => {
             expect(submitButton).toBeDisabled();
         });
     });
+
+    test("should display 'Error adding an item", () => {});
 });
