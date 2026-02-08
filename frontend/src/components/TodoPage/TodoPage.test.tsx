@@ -110,6 +110,7 @@ describe("TodoPage ", () => {
         expect(screen.queryAllByText(itemTitle)).toHaveLength(1);
     });
     test("Archive button should call archiveDoneItems", async () => {
+        const user = userEvent.setup();
         const testItems: TodoItemData[] = [
             {
                 id: 1,
@@ -119,6 +120,7 @@ describe("TodoPage ", () => {
             },
         ];
         const itemDaoMock = new MockDAO(testItems);
+
         render(<TodoPage itemDAO={itemDaoMock} />);
         const archiveButton = screen.getByRole("button", {
             name: /archive/i,
@@ -126,9 +128,7 @@ describe("TodoPage ", () => {
         await waitFor(() => expect(archiveButton).toBeEnabled(), {
             timeout: 20,
         });
-        act(() => {
-            archiveButton.click();
-        });
+        await user.click(archiveButton);
 
         await waitFor(
             () => expect(itemDaoMock.archiveDoneItems).toHaveBeenCalledTimes(1),
@@ -136,5 +136,52 @@ describe("TodoPage ", () => {
                 timeout: 20,
             }
         );
+    });
+    test("arhived item should be deleted optimistically", async () => {
+        const user = userEvent.setup();
+        const testItems: TodoItemData[] = [
+            {
+                id: 1,
+                title: itemTitle,
+                done: true,
+                archived: false,
+            },
+        ];
+        const itemDaoMock = new MockDAO(testItems);
+        itemDaoMock.archiveDoneItems = vi.fn(
+            () => new Promise((resolve) => setTimeout(resolve, 50))
+        );
+        render(<TodoPage itemDAO={itemDaoMock} />);
+        await waitFor(() => {
+            expect(screen.queryByText(itemTitle)).toBeInTheDocument();
+        });
+        const archiveButton = screen.getByRole("button", {
+            name: /archive/i,
+        });
+        await user.click(archiveButton);
+
+        expect(screen.queryByText(itemTitle)).not.toBeInTheDocument();
+    });
+    test("arhived item should not be archived on error", async () => {
+        const user = userEvent.setup();
+        const testItems: TodoItemData[] = [
+            {
+                id: 1,
+                title: itemTitle,
+                done: true,
+                archived: false,
+            },
+        ];
+        const itemDaoMock = new MockDAO(testItems);
+        itemDaoMock.archiveDoneItems = vi
+            .fn()
+            .mockRejectedValue(new Error("error"));
+        render(<TodoPage itemDAO={itemDaoMock} />);
+        const archiveButton = screen.getByRole("button", {
+            name: /archive/i,
+        });
+        await user.click(archiveButton);
+
+        expect(await screen.findByText(itemTitle)).toBeVisible();
     });
 });

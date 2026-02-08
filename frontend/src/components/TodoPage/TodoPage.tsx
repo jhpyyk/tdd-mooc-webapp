@@ -57,9 +57,13 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
     };
 
     const archiveDoneItems = async () => {
-        await itemDAO.archiveDoneItems();
-        const filtered = itemData.filter((item) => !item.done);
-        setItemData(filtered);
+        try {
+            await itemDAO.archiveDoneItems();
+            const filtered = itemData.filter((item) => !item.done);
+            setItemData(filtered);
+        } catch (error) {
+            console.log("error archiving");
+        }
     };
 
     return (
