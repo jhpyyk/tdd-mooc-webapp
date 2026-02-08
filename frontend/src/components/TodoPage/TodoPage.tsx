@@ -12,7 +12,7 @@ interface TodoPageProps {
 type ItemOperation =
     | { item: TodoItemData; type: "add" }
     | { item: TodoItemData; type: "update" }
-    | { item: TodoItemData; type: "delete" };
+    | { type: "archive" };
 
 const itemReducer = (itemData: TodoItemData[], operation: ItemOperation) => {
     let newItems = itemData;
@@ -27,6 +27,9 @@ const itemReducer = (itemData: TodoItemData[], operation: ItemOperation) => {
                 }
                 return item;
             });
+            return newItems;
+        case "archive":
+            newItems = itemData.filter((item) => !item.done);
             return newItems;
         default:
             return newItems;
@@ -85,13 +88,16 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
     };
 
     const archiveDoneItems = async () => {
-        try {
-            await itemDAO.archiveDoneItems();
-            const filtered = itemData.filter((item) => !item.done);
-            setItemData(filtered);
-        } catch (error) {
-            console.log("error archiving");
-        }
+        startTransition(async () => {
+            optimisticItemsReducer({ type: "archive" });
+            try {
+                await itemDAO.archiveDoneItems();
+                const newItems = itemReducer(itemData, { type: "archive" });
+                setItemData(newItems);
+            } catch (error) {
+                console.log("error archiving");
+            }
+        });
     };
 
     return (

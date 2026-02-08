@@ -231,7 +231,7 @@ describe("TodoPage ", () => {
             }
         );
     });
-    test.skip("arhived item should be deleted optimistically", async () => {
+    test("arhived item should be deleted optimistically", async () => {
         const user = userEvent.setup();
         const testItems: TodoItemData[] = [
             {
