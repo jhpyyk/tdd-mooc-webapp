@@ -9,9 +9,16 @@ interface TodoPageProps {
     itemDAO: ItemDAO;
 }
 
-const addItemReducer = (itemData: TodoItemData[], newItem: TodoItemData) => {
-    const newItems = [...itemData, newItem];
-    return newItems;
+type ItemOperation =
+    | { item: TodoItemData; type: "add" }
+    | { item: TodoItemData; type: "delete" };
+
+const itemReducer = (itemData: TodoItemData[], operation: ItemOperation) => {
+    if (operation.type === "add") {
+        const newItems = [...itemData, operation.item];
+        return newItems;
+    }
+    return itemData;
 };
 
 const TodoPage = ({ itemDAO }: TodoPageProps) => {
@@ -19,8 +26,8 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
     const [itemData, setItemData] = useState<TodoItemData[]>([]);
     const [optimisticItems, addOptimisticItem] = useOptimistic<
         TodoItemData[],
-        TodoItemData
-    >(itemData, addItemReducer);
+        ItemOperation
+    >(itemData, itemReducer);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -30,13 +37,17 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
         fetchData();
     }, [itemDAO]);
 
-    const addItem = async (itemToAdd: TodoItemDataNoId) => {
+    const addItemAction = async (itemToAdd: TodoItemDataNoId) => {
         startTransition(async () => {
-            addOptimisticItem({ ...itemToAdd, id: -1 });
+            const withId: TodoItemData = { ...itemToAdd, id: -1 };
+            addOptimisticItem({ item: withId, type: "add" });
             try {
-                const itemWithId = await itemDAO.addItem(itemToAdd);
+                const returnedItem = await itemDAO.addItem(itemToAdd);
                 startTransition(async () => {
-                    const newItems = addItemReducer(itemData, itemWithId);
+                    const newItems = itemReducer(itemData, {
+                        item: returnedItem,
+                        type: "add",
+                    });
                     setItemData(newItems);
                 });
             } catch (error) {
@@ -46,14 +57,18 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
     };
 
     const editItem = async (itemToEdit: TodoItemData) => {
-        const newItem = await itemDAO.editItem(itemToEdit);
-        const newItems = itemData.map((item) => {
-            if (item.id === newItem.id) {
-                return newItem;
-            }
-            return item;
-        });
-        setItemData(newItems);
+        try {
+            const newItem = await itemDAO.editItem(itemToEdit);
+            const newItems = itemData.map((item) => {
+                if (item.id === newItem.id) {
+                    return newItem;
+                }
+                return item;
+            });
+            setItemData(newItems);
+        } catch (error) {
+            console.log("Error editing item");
+        }
     };
 
     const archiveDoneItems = async () => {
@@ -71,7 +86,7 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
             <Link href="/archive">Archive</Link>
             <AddItemForm
                 titleInitialValue=""
-                submitOnClick={addItem}
+                submitOnClick={addItemAction}
                 isPending={isPending}
             />
             <ItemList itemData={optimisticItems} buttonOnClick={editItem} />

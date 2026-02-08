@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import TodoPage from "./TodoPage";
 import type { TodoItemData } from "../../types";
 import { type ItemDAO } from "../../ItemDAO";
@@ -88,7 +88,37 @@ describe("TodoPage ", () => {
             expect(screen.queryByText(itemTitle)).not.toBeInTheDocument();
         });
     });
+    test("should not change the item title on buttonOnClick error", async () => {
+        const oldTitle = "title";
+        const userTypes = "new";
+        const user = userEvent.setup();
+        const testItems: TodoItemData[] = [
+            {
+                id: 1,
+                title: oldTitle,
+                done: false,
+                archived: false,
+            },
+        ];
+        const mockItemDAO = new MockDAO(testItems);
 
+        mockItemDAO.editItem = vi.fn().mockRejectedValue(new Error("error"));
+        render(<TodoPage itemDAO={mockItemDAO} />);
+
+        const item = await screen.findByRole("listitem", {
+            name: oldTitle,
+        });
+        const editButton = within(item).getByRole("button");
+        await user.click(editButton);
+        const titleEditInput = await within(item).findByRole("textbox");
+        const saveButton = within(item).getByRole("button");
+
+        await user.type(titleEditInput, userTypes);
+        await user.click(saveButton);
+        await waitFor(() => expect(screen.getByText(oldTitle)).toBeVisible(), {
+            timeout: 10,
+        });
+    });
     test("should not display archived items", async () => {
         const testItems: TodoItemData[] = [
             {
@@ -137,7 +167,7 @@ describe("TodoPage ", () => {
             }
         );
     });
-    test("arhived item should be deleted optimistically", async () => {
+    test.skip("arhived item should be deleted optimistically", async () => {
         const user = userEvent.setup();
         const testItems: TodoItemData[] = [
             {

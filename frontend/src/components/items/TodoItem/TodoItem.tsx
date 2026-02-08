@@ -5,12 +5,12 @@ import type { TodoItemData } from "../../../types";
 
 interface TodoItemProps {
     data: TodoItemData;
-    buttonOnClick: (newItem: TodoItemData) => Promise<void>;
+    editItem: (newItem: TodoItemData) => Promise<void>;
     initiallyEditing?: boolean;
 }
 const TodoItem = ({
     data,
-    buttonOnClick,
+    editItem,
     initiallyEditing = false,
 }: TodoItemProps) => {
     const [isPending, startTransition] = useTransition();
@@ -22,14 +22,10 @@ const TodoItem = ({
         setIsEditing(false);
         startTransition(async () => {
             setOptimisticTitle(titleInputValue);
-            try {
-                await buttonOnClick({
-                    ...data,
-                    title: titleInputValue,
-                });
-            } catch (error) {
-                console.log(error);
-            }
+            await editItem({
+                ...data,
+                title: titleInputValue,
+            });
         });
     };
 
@@ -38,7 +34,7 @@ const TodoItem = ({
     };
 
     const handleCheckboxEvent = (newDone: boolean) => {
-        buttonOnClick({
+        editItem({
             ...data,
             done: newDone,
         });

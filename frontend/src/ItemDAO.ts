@@ -67,6 +67,8 @@ export class LocalItemDAO implements ItemDAO {
 
     editItem = async (itemToEdit: TodoItemData) => {
         await new Promise((r) => setTimeout(r, this.delay));
+
+        throw new Error("error");
         const newItems = this.itemData.map((item) => {
             if (item.id === itemToEdit.id) {
                 return itemToEdit;
