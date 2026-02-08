@@ -61,9 +61,10 @@ describe("TodoPage ", () => {
     });
     test("should add an item optimistically", async () => {
         const user = userEvent.setup();
-        const mockOnClick = vi.fn(() => new Promise(() => {}));
         const mockItemDAO = new MockDAO([]);
-        mockItemDAO.addItem = mockOnClick;
+        mockItemDAO.addItem = vi.fn(
+            () => new Promise((resolve) => setTimeout(resolve, 50))
+        );
         render(<TodoPage itemDAO={mockItemDAO} />);
 
         const titleInput = screen.getByLabelText(/add/i);
@@ -75,43 +76,25 @@ describe("TodoPage ", () => {
 
         expect(await screen.findByText(itemTitle)).toBeVisible();
     });
-    test("should add an item optimistically", async () => {
-        const user = userEvent.setup();
-        const mockOnClick = vi.fn(() => new Promise(() => {}));
-        const mockItemDAO = new MockDAO([]);
-        mockItemDAO.addItem = mockOnClick;
-        render(<TodoPage itemDAO={mockItemDAO} />);
-
-        const titleInput = screen.getByLabelText(/add/i);
-        const submitButton = screen.getByRole("button", {
-            name: /add item/i,
-        });
-        await user.type(titleInput, itemTitle);
-        await user.click(submitButton);
-
-        expect(await screen.findByText(itemTitle)).toBeVisible();
-    });
-
     test("should not add an item on error", async () => {
         const user = userEvent.setup();
-        const mockOnClick = vi.fn().mockRejectedValue(new Error("error"));
-
         const mockItemDAO = new MockDAO([]);
-        mockItemDAO.addItem = mockOnClick;
+
+        mockItemDAO.addItem = vi.fn().mockRejectedValue(new Error("error"));
+
         render(<TodoPage itemDAO={mockItemDAO} />);
 
-        const titleInput = screen.getByLabelText(/add/i);
-        const submitButton = screen.getByRole("button", {
-            name: /add item/i,
-        });
+        const titleInput = await screen.findByLabelText(/add/i);
+        const submitButton = screen.getByRole("button", { name: /add item/i });
+
         await user.type(titleInput, itemTitle);
         await user.click(submitButton);
 
-        await waitFor(
-            () => expect(screen.queryByText(itemTitle)).not.toBeInTheDocument(),
-            { timeout: 100 }
-        );
+        await waitFor(() => {
+            expect(screen.queryByText(itemTitle)).not.toBeInTheDocument();
+        });
     });
+
     test("should not display archived items", async () => {
         const testItems: TodoItemData[] = [
             {

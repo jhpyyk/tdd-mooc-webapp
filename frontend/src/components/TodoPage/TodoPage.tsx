@@ -33,11 +33,15 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
     const addItem = async (itemToAdd: TodoItemDataNoId) => {
         startTransition(async () => {
             addOptimisticItem({ ...itemToAdd, id: -1 });
-            const itemWithId = await itemDAO.addItem(itemToAdd);
-            startTransition(async () => {
-                const newItems = addItemReducer(itemData, itemWithId);
-                setItemData(newItems);
-            });
+            try {
+                const itemWithId = await itemDAO.addItem(itemToAdd);
+                startTransition(async () => {
+                    const newItems = addItemReducer(itemData, itemWithId);
+                    setItemData(newItems);
+                });
+            } catch (error) {
+                console.log("Error adding an item");
+            }
         });
     };
 
