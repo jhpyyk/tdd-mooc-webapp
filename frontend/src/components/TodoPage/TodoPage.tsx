@@ -15,20 +15,22 @@ type ItemOperation =
     | { item: TodoItemData; type: "delete" };
 
 const itemReducer = (itemData: TodoItemData[], operation: ItemOperation) => {
-    if (operation.type === "add") {
-        const newItems = [...itemData, operation.item];
-        return newItems;
+    let newItems = itemData;
+    switch (operation.type) {
+        case "add":
+            newItems = [...itemData, operation.item];
+            return newItems;
+        case "update":
+            newItems = itemData.map((item) => {
+                if (item.id === operation.item.id) {
+                    return operation.item;
+                }
+                return item;
+            });
+            return newItems;
+        default:
+            return newItems;
     }
-    if (operation.type === "update") {
-        const newItems = itemData.map((item) => {
-            if (item.id === operation.item.id) {
-                return operation.item;
-            }
-            return item;
-        });
-        return newItems;
-    }
-    return itemData;
 };
 
 const TodoPage = ({ itemDAO }: TodoPageProps) => {
