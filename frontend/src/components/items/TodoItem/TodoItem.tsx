@@ -1,4 +1,4 @@
-import { startTransition, useOptimistic, useState } from "react";
+import { useState, useTransition } from "react";
 import Checkbox from "./Checkbox/Checkbox";
 import "../Item.css";
 import type { TodoItemData } from "../../../types";
@@ -13,14 +13,13 @@ const TodoItem = ({
     editItemAction,
     initiallyEditing = false,
 }: TodoItemProps) => {
-    const [optimisticTitle, setOptimisticTitle] = useOptimistic(data.title);
+    const [isPending, startTransition] = useTransition();
     const [titleInputValue, setTitleInputValue] = useState(data.title);
     const [isEditing, setIsEditing] = useState(initiallyEditing);
 
     const handleSaveClick = () => {
         setIsEditing(false);
         startTransition(() => {
-            setOptimisticTitle(titleInputValue);
             editItemAction({
                 ...data,
                 title: titleInputValue,
@@ -47,8 +46,7 @@ const TodoItem = ({
         />
     );
 
-    const isSyncing = optimisticTitle !== data.title;
-    const titleText = <span>{optimisticTitle}</span>;
+    const titleText = <span>{data.title}</span>;
     const titleDisplay = isEditing ? titleEdit : titleText;
 
     const editButtonText = isEditing ? "Save" : "Edit";
@@ -66,7 +64,7 @@ const TodoItem = ({
             />
             <button
                 onClick={() => buttonHandler()}
-                disabled={!optimisticTitle || isSyncing}
+                disabled={!data.title || isPending}
             >
                 {editButtonText}
             </button>

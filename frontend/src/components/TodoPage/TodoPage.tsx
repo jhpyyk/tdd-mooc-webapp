@@ -11,11 +11,21 @@ interface TodoPageProps {
 
 type ItemOperation =
     | { item: TodoItemData; type: "add" }
+    | { item: TodoItemData; type: "update" }
     | { item: TodoItemData; type: "delete" };
 
 const itemReducer = (itemData: TodoItemData[], operation: ItemOperation) => {
     if (operation.type === "add") {
         const newItems = [...itemData, operation.item];
+        return newItems;
+    }
+    if (operation.type === "update") {
+        const newItems = itemData.map((item) => {
+            if (item.id === operation.item.id) {
+                return operation.item;
+            }
+            return item;
+        });
         return newItems;
     }
     return itemData;
@@ -24,7 +34,7 @@ const itemReducer = (itemData: TodoItemData[], operation: ItemOperation) => {
 const TodoPage = ({ itemDAO }: TodoPageProps) => {
     const [isPending, startTransition] = useTransition();
     const [itemData, setItemData] = useState<TodoItemData[]>([]);
-    const [optimisticItems, addOptimisticItem] = useOptimistic<
+    const [optimisticItems, optimisticItemsReducer] = useOptimistic<
         TodoItemData[],
         ItemOperation
     >(itemData, itemReducer);
@@ -40,7 +50,7 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
     const addItemAction = async (itemToAdd: TodoItemDataNoId) => {
         startTransition(async () => {
             const withId: TodoItemData = { ...itemToAdd, id: -1 };
-            addOptimisticItem({ item: withId, type: "add" });
+            optimisticItemsReducer({ item: withId, type: "add" });
             try {
                 const returnedItem = await itemDAO.addItem(itemToAdd);
                 startTransition(async () => {
@@ -58,13 +68,12 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
 
     const editItemAction = async (itemToEdit: TodoItemData) => {
         startTransition(async () => {
+            optimisticItemsReducer({ item: itemToEdit, type: "update" });
             try {
-                const newItem = await itemDAO.editItem(itemToEdit);
-                const newItems = itemData.map((item) => {
-                    if (item.id === newItem.id) {
-                        return newItem;
-                    }
-                    return item;
+                const returnedItem = await itemDAO.editItem(itemToEdit);
+                const newItems = itemReducer(itemData, {
+                    item: returnedItem,
+                    type: "update",
                 });
                 setItemData(newItems);
             } catch (error) {
