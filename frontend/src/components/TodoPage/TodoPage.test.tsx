@@ -9,6 +9,7 @@ import TodoPage from "./TodoPage";
 import type { TodoItemData } from "../../types";
 import { type ItemDAO } from "../../ItemDAO";
 import { vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 
 export class MockDAO implements ItemDAO {
     itemData: TodoItemData[];
@@ -58,26 +59,56 @@ describe("TodoPage ", () => {
         });
         expect(archiveButton).toBeDisabled();
     });
-    test("should not add an item on error", async () => {
-        const mockOnClick = vi.fn(() => {
-            throw Error("error");
-        });
+    test("should add an item optimistically", async () => {
+        const user = userEvent.setup();
+        const mockOnClick = vi.fn(() => new Promise(() => {}));
         const mockItemDAO = new MockDAO([]);
         mockItemDAO.addItem = mockOnClick;
         render(<TodoPage itemDAO={mockItemDAO} />);
 
+        const titleInput = screen.getByLabelText(/add/i);
         const submitButton = screen.getByRole("button", {
             name: /add item/i,
         });
-        act(() => {
-            submitButton.click();
+        await user.type(titleInput, itemTitle);
+        await user.click(submitButton);
+
+        expect(await screen.findByText(itemTitle)).toBeVisible();
+    });
+    test("should add an item optimistically", async () => {
+        const user = userEvent.setup();
+        const mockOnClick = vi.fn(() => new Promise(() => {}));
+        const mockItemDAO = new MockDAO([]);
+        mockItemDAO.addItem = mockOnClick;
+        render(<TodoPage itemDAO={mockItemDAO} />);
+
+        const titleInput = screen.getByLabelText(/add/i);
+        const submitButton = screen.getByRole("button", {
+            name: /add item/i,
         });
+        await user.type(titleInput, itemTitle);
+        await user.click(submitButton);
+
+        expect(await screen.findByText(itemTitle)).toBeVisible();
+    });
+
+    test("should not add an item on error", async () => {
+        const user = userEvent.setup();
+        const mockOnClick = vi.fn().mockRejectedValue(new Error("error"));
+
+        const mockItemDAO = new MockDAO([]);
+        mockItemDAO.addItem = mockOnClick;
+        render(<TodoPage itemDAO={mockItemDAO} />);
+
+        const titleInput = screen.getByLabelText(/add/i);
+        const submitButton = screen.getByRole("button", {
+            name: /add item/i,
+        });
+        await user.type(titleInput, itemTitle);
+        await user.click(submitButton);
 
         await waitFor(
-            () =>
-                expect(
-                    screen.queryAllByText(itemTitle)
-                ).not.toBeInTheDocument(),
+            () => expect(screen.queryByText(itemTitle)).not.toBeInTheDocument(),
             { timeout: 100 }
         );
     });
@@ -98,9 +129,8 @@ describe("TodoPage ", () => {
         ];
 
         render(<TodoPage itemDAO={new MockDAO(testItems)} />);
-
-        const items = await waitFor(() => screen.getAllByText(itemTitle));
-        expect(items).toHaveLength(1);
+        expect(await screen.findByText(itemTitle)).toBeVisible();
+        expect(screen.queryAllByText(itemTitle)).toHaveLength(1);
     });
     test("Archive button should call archiveDoneItems", async () => {
         const testItems: TodoItemData[] = [
