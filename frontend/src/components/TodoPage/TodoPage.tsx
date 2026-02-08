@@ -65,7 +65,11 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
     return (
         <div>
             <Link href="/archive">Archive</Link>
-            <AddItemForm titleInitialValue="" submitOnClick={addItem} />
+            <AddItemForm
+                titleInitialValue=""
+                submitOnClick={addItem}
+                isPending={isPending}
+            />
             <ItemList itemData={optimisticItems} buttonOnClick={editItem} />
             <button
                 disabled={!itemData.some((item) => item.done)}

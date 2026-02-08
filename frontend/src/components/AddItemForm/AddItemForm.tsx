@@ -4,11 +4,13 @@ import type { TodoItemDataNoId } from "../../types";
 interface AddItemFormProps {
     titleInitialValue: string;
     submitOnClick: (item: TodoItemDataNoId) => void;
+    isPending?: boolean;
 }
 
 const AddItemForm = ({
     titleInitialValue,
     submitOnClick,
+    isPending,
 }: AddItemFormProps) => {
     const [titleText, setTitleText] = useState(titleInitialValue);
 
@@ -22,6 +24,8 @@ const AddItemForm = ({
         submitOnClick(item);
         setTitleText("");
     };
+    const hasNoTitle = titleText ? false : true;
+    const buttonDisabled = hasNoTitle || isPending;
     return (
         <form>
             <label>
@@ -35,7 +39,7 @@ const AddItemForm = ({
             <button
                 type="submit"
                 onClick={(e) => handleSubmit(e)}
-                disabled={titleText ? false : true}
+                disabled={buttonDisabled}
             >
                 Add item
             </button>

@@ -1,10 +1,4 @@
-import {
-    act,
-    queryAllByText,
-    render,
-    screen,
-    waitFor,
-} from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import TodoPage from "./TodoPage";
 import type { TodoItemData } from "../../types";
 import { type ItemDAO } from "../../ItemDAO";
