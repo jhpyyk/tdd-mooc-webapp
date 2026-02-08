@@ -14,7 +14,7 @@ describe("TodoItem ", () => {
         archived: false,
     };
     test("item has a title", () => {
-        render(<TodoItem data={itemData} editItem={async () => {}} />);
+        render(<TodoItem data={itemData} editItemAction={async () => {}} />);
 
         const item = screen.getByText(itemData.title);
 
@@ -24,7 +24,9 @@ describe("TodoItem ", () => {
     describe("edit button ", () => {
         describe("when clicked ", () => {
             test("should not clear the item title", () => {
-                render(<TodoItem data={itemData} editItem={async () => {}} />);
+                render(
+                    <TodoItem data={itemData} editItemAction={async () => {}} />
+                );
                 const item = screen.getByRole("listitem", {
                     name: itemData.title,
                 });
@@ -40,7 +42,9 @@ describe("TodoItem ", () => {
             });
 
             test("should change the button text ", () => {
-                render(<TodoItem data={itemData} editItem={async () => {}} />);
+                render(
+                    <TodoItem data={itemData} editItemAction={async () => {}} />
+                );
                 const item = screen.getByRole("listitem", {
                     name: itemData.title,
                 });
@@ -62,7 +66,7 @@ describe("TodoItem ", () => {
             render(
                 <TodoItem
                     data={{ ...itemData, title: "" }}
-                    editItem={async () => {}}
+                    editItemAction={async () => {}}
                     initiallyEditing
                 />
             );
@@ -74,28 +78,6 @@ describe("TodoItem ", () => {
             expect(editButton).toBeDisabled();
         });
 
-        test("should be disabled when waiting for a response", () => {
-            const onClick = async () => {
-                await new Promise((r) => setTimeout(r, 5));
-            };
-            render(
-                <TodoItem
-                    data={{ ...itemData }}
-                    editItem={onClick}
-                    initiallyEditing
-                />
-            );
-            const item = screen.getByRole("listitem", {
-                name: itemData.title,
-            });
-            const editButton = within(item).getByRole("button");
-
-            act(() => {
-                editButton.click();
-            });
-
-            expect(editButton).toBeDisabled();
-        });
         test("should call editItem with new title", async () => {
             const editItemMock = vi.fn();
             const oldTitle = "title";
@@ -104,7 +86,7 @@ describe("TodoItem ", () => {
             render(
                 <TodoItem
                     data={{ ...itemData, title: oldTitle }}
-                    editItem={editItemMock}
+                    editItemAction={editItemMock}
                     initiallyEditing
                 />
             );
@@ -125,60 +107,10 @@ describe("TodoItem ", () => {
             expect(editItemMock).toHaveBeenCalledWith(newItem);
         });
 
-        test("should change the item title optimistically", async () => {
-            const editItemMock = vi.fn();
-            const oldTitle = "title";
-            const userTypes = "new";
-            const newTitle = oldTitle + userTypes;
-            render(
-                <TodoItem
-                    data={{ ...itemData, title: oldTitle }}
-                    editItem={editItemMock}
-                    initiallyEditing
-                />
-            );
-            const item = screen.getByRole("listitem", {
-                name: oldTitle,
-            });
-            const titleEditInput = within(item).getByRole("textbox");
-            const editButton = within(item).getByRole("button");
-
-            await user.type(titleEditInput, userTypes);
-            act(() => {
-                editButton.click();
-            });
-            expect(screen.getByText(newTitle)).toBeVisible();
-        });
-        // test("should not change the item title on buttonOnClick error", async () => {
-        //     const editItemMock = () => {
-        //         throw new Error("error");
-        //     };
-        //     const oldTitle = "title";
-        //     const userTypes = "new";
-        //     render(
-        //         <TodoItem
-        //             data={{ ...itemData, title: oldTitle }}
-        //             editItem={editItemMock}
-        //             initiallyEditing
-        //         />
-        //     );
-        //     const item = screen.getByRole("listitem", {
-        //         name: oldTitle,
-        //     });
-        //     const titleEditInput = within(item).getByRole("textbox");
-        //     const editButton = within(item).getByRole("button");
-
-        //     await user.type(titleEditInput, userTypes);
-        //     act(() => {
-        //         editButton.click();
-        //     });
-        //     await waitFor(
-        //         () => expect(screen.getByText(oldTitle)).toBeVisible(),
-        //         { timeout: 10 }
-        //     );
-        // });
         test("should change the button text ", () => {
-            render(<TodoItem data={itemData} editItem={async () => {}} />);
+            render(
+                <TodoItem data={itemData} editItemAction={async () => {}} />
+            );
             const item = screen.getByRole("listitem", {
                 name: itemData.title,
             });
@@ -194,7 +126,7 @@ describe("TodoItem ", () => {
         });
     });
     test("checkbox can be checked", () => {
-        render(<TodoItem data={itemData} editItem={async () => {}} />);
+        render(<TodoItem data={itemData} editItemAction={async () => {}} />);
         const item = screen.getByRole("listitem", {
             name: itemData.title,
         });
@@ -210,7 +142,7 @@ describe("TodoItem ", () => {
         render(
             <TodoItem
                 data={{ ...itemData, done: true }}
-                editItem={async () => {}}
+                editItemAction={async () => {}}
             />
         );
         const item = screen.getByRole("listitem", {

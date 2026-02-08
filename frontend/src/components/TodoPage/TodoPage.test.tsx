@@ -119,6 +119,70 @@ describe("TodoPage ", () => {
             timeout: 10,
         });
     });
+    test("should change the item title optimistically", async () => {
+        const oldTitle = "title";
+        const userTypes = "new";
+        const newTitle = oldTitle + userTypes;
+        const user = userEvent.setup();
+        const testItems: TodoItemData[] = [
+            {
+                id: 1,
+                title: oldTitle,
+                done: false,
+                archived: false,
+            },
+        ];
+        const mockItemDAO = new MockDAO(testItems);
+
+        mockItemDAO.editItem = vi.fn(async () => {
+            await new Promise((r) => setTimeout(r, 150));
+        });
+        render(<TodoPage itemDAO={mockItemDAO} />);
+
+        const item = await screen.findByRole("listitem", {
+            name: oldTitle,
+        });
+        const editButton = within(item).getByRole("button");
+        await user.click(editButton);
+        const titleEditInput = await within(item).findByRole("textbox");
+        const saveButton = within(item).getByRole("button");
+
+        await user.type(titleEditInput, userTypes);
+        await user.click(saveButton);
+        expect(await screen.findByText(newTitle)).toBeVisible();
+    });
+    test("edit button should be disabled when waiting for a response", async () => {
+        const oldTitle = "title";
+        const userTypes = "new";
+        const user = userEvent.setup();
+        const testItems: TodoItemData[] = [
+            {
+                id: 1,
+                title: oldTitle,
+                done: false,
+                archived: false,
+            },
+        ];
+        const mockItemDAO = new MockDAO(testItems);
+
+        mockItemDAO.editItem = vi.fn(async () => {
+            await new Promise((r) => setTimeout(r, 150));
+        });
+        render(<TodoPage itemDAO={mockItemDAO} />);
+
+        const item = await screen.findByRole("listitem", {
+            name: oldTitle,
+        });
+        const editButton = within(item).getByRole("button");
+        await user.click(editButton);
+        const titleEditInput = await within(item).findByRole("textbox");
+        const saveButton = within(item).getByRole("button");
+
+        await user.type(titleEditInput, userTypes);
+        await user.click(saveButton);
+
+        await waitFor(() => expect(saveButton).toBeDisabled());
+    });
     test("should not display archived items", async () => {
         const testItems: TodoItemData[] = [
             {

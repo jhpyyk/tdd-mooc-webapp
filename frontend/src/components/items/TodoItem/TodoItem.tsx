@@ -1,28 +1,27 @@
-import { useOptimistic, useState, useTransition } from "react";
+import { startTransition, useOptimistic, useState } from "react";
 import Checkbox from "./Checkbox/Checkbox";
 import "../Item.css";
 import type { TodoItemData } from "../../../types";
 
 interface TodoItemProps {
     data: TodoItemData;
-    editItem: (newItem: TodoItemData) => Promise<void>;
+    editItemAction: (newItem: TodoItemData) => Promise<void>;
     initiallyEditing?: boolean;
 }
 const TodoItem = ({
     data,
-    editItem,
+    editItemAction,
     initiallyEditing = false,
 }: TodoItemProps) => {
-    const [isPending, startTransition] = useTransition();
     const [optimisticTitle, setOptimisticTitle] = useOptimistic(data.title);
     const [titleInputValue, setTitleInputValue] = useState(data.title);
     const [isEditing, setIsEditing] = useState(initiallyEditing);
 
     const handleSaveClick = () => {
         setIsEditing(false);
-        startTransition(async () => {
+        startTransition(() => {
             setOptimisticTitle(titleInputValue);
-            await editItem({
+            editItemAction({
                 ...data,
                 title: titleInputValue,
             });
@@ -34,7 +33,7 @@ const TodoItem = ({
     };
 
     const handleCheckboxEvent = (newDone: boolean) => {
-        editItem({
+        editItemAction({
             ...data,
             done: newDone,
         });
@@ -48,10 +47,11 @@ const TodoItem = ({
         />
     );
 
+    const isSyncing = optimisticTitle !== data.title;
     const titleText = <span>{optimisticTitle}</span>;
     const titleDisplay = isEditing ? titleEdit : titleText;
 
-    const editButtonText = isEditing || isPending ? "Save" : "Edit";
+    const editButtonText = isEditing ? "Save" : "Edit";
     const buttonHandler = isEditing ? handleSaveClick : handleEditClick;
 
     return (
@@ -66,7 +66,7 @@ const TodoItem = ({
             />
             <button
                 onClick={() => buttonHandler()}
-                disabled={!optimisticTitle || isPending}
+                disabled={!optimisticTitle || isSyncing}
             >
                 {editButtonText}
             </button>

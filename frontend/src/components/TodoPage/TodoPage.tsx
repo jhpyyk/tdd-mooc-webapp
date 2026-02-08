@@ -56,19 +56,21 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
         });
     };
 
-    const editItem = async (itemToEdit: TodoItemData) => {
-        try {
-            const newItem = await itemDAO.editItem(itemToEdit);
-            const newItems = itemData.map((item) => {
-                if (item.id === newItem.id) {
-                    return newItem;
-                }
-                return item;
-            });
-            setItemData(newItems);
-        } catch (error) {
-            console.log("Error editing item");
-        }
+    const editItemAction = async (itemToEdit: TodoItemData) => {
+        startTransition(async () => {
+            try {
+                const newItem = await itemDAO.editItem(itemToEdit);
+                const newItems = itemData.map((item) => {
+                    if (item.id === newItem.id) {
+                        return newItem;
+                    }
+                    return item;
+                });
+                setItemData(newItems);
+            } catch (error) {
+                console.log("Error editing item");
+            }
+        });
     };
 
     const archiveDoneItems = async () => {
@@ -89,7 +91,10 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
                 submitOnClick={addItemAction}
                 isPending={isPending}
             />
-            <ItemList itemData={optimisticItems} buttonOnClick={editItem} />
+            <ItemList
+                itemData={optimisticItems}
+                buttonOnClick={editItemAction}
+            />
             <button
                 disabled={!itemData.some((item) => item.done)}
                 onClick={archiveDoneItems}

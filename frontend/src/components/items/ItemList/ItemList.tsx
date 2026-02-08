@@ -16,7 +16,7 @@ const ItemList = ({ itemData, buttonOnClick, archived }: ItemListProps) => {
                 {archived ? (
                     <ArchivedItem data={item} buttonOnClick={buttonOnClick} />
                 ) : (
-                    <TodoItem data={item} editItem={buttonOnClick} />
+                    <TodoItem data={item} editItemAction={buttonOnClick} />
                 )}
             </li>
         );
