@@ -1,9 +1,11 @@
-import { act, render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import TodoPage from "./TodoPage";
 import type { TodoItemData } from "../../types";
 import { type ItemDAO } from "../../ItemDAO";
 import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
+
+const MOCK_PROMISE_TIMEOUT = 10;
 
 export class MockDAO implements ItemDAO {
     itemData: TodoItemData[];
@@ -57,7 +59,10 @@ describe("TodoPage ", () => {
         const user = userEvent.setup();
         const mockItemDAO = new MockDAO([]);
         mockItemDAO.addItem = vi.fn(
-            () => new Promise((resolve) => setTimeout(resolve, 50))
+            () =>
+                new Promise((resolve) =>
+                    setTimeout(resolve, MOCK_PROMISE_TIMEOUT)
+                )
         );
         render(<TodoPage itemDAO={mockItemDAO} />);
 
@@ -116,7 +121,7 @@ describe("TodoPage ", () => {
         await user.type(titleEditInput, userTypes);
         await user.click(saveButton);
         await waitFor(() => expect(screen.getByText(oldTitle)).toBeVisible(), {
-            timeout: 10,
+            timeout: MOCK_PROMISE_TIMEOUT,
         });
     });
     test("should change the item title optimistically", async () => {
@@ -135,7 +140,7 @@ describe("TodoPage ", () => {
         const mockItemDAO = new MockDAO(testItems);
 
         mockItemDAO.editItem = vi.fn(async () => {
-            await new Promise((r) => setTimeout(r, 150));
+            await new Promise((r) => setTimeout(r, MOCK_PROMISE_TIMEOUT));
         });
         render(<TodoPage itemDAO={mockItemDAO} />);
 
@@ -166,7 +171,7 @@ describe("TodoPage ", () => {
         const mockItemDAO = new MockDAO(testItems);
 
         mockItemDAO.editItem = vi.fn(async () => {
-            await new Promise((r) => setTimeout(r, 150));
+            await new Promise((r) => setTimeout(r, MOCK_PROMISE_TIMEOUT));
         });
         render(<TodoPage itemDAO={mockItemDAO} />);
 
@@ -231,7 +236,7 @@ describe("TodoPage ", () => {
             }
         );
     });
-    test("arhived item should be deleted optimistically", async () => {
+    test("arhived item should be archived optimistically", async () => {
         const user = userEvent.setup();
         const testItems: TodoItemData[] = [
             {
@@ -243,7 +248,10 @@ describe("TodoPage ", () => {
         ];
         const itemDaoMock = new MockDAO(testItems);
         itemDaoMock.archiveDoneItems = vi.fn(
-            () => new Promise((resolve) => setTimeout(resolve, 50))
+            () =>
+                new Promise((resolve) =>
+                    setTimeout(resolve, MOCK_PROMISE_TIMEOUT)
+                )
         );
         render(<TodoPage itemDAO={itemDaoMock} />);
         await waitFor(() => {
@@ -277,5 +285,31 @@ describe("TodoPage ", () => {
         await user.click(archiveButton);
 
         expect(await screen.findByText(itemTitle)).toBeVisible();
+    });
+    test("archive button should be disabled when waiting for a response", async () => {
+        const title = "title";
+        const user = userEvent.setup();
+        const testItems: TodoItemData[] = [
+            {
+                id: 1,
+                title: title,
+                done: true,
+                archived: false,
+            },
+        ];
+        const mockItemDAO = new MockDAO(testItems);
+
+        mockItemDAO.archiveDoneItems = vi.fn(async () => {
+            await new Promise((r) => setTimeout(r, MOCK_PROMISE_TIMEOUT));
+        });
+        render(<TodoPage itemDAO={mockItemDAO} />);
+        const archiveButton = screen.getByRole("button", {
+            name: /archive/i,
+        });
+        await user.click(archiveButton);
+
+        await waitFor(() => expect(archiveButton).toBeDisabled(), {
+            timeout: 5,
+        });
     });
 });

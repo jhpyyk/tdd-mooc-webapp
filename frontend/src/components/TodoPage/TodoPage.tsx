@@ -113,7 +113,7 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
                 buttonOnClick={editItemAction}
             />
             <button
-                disabled={!itemData.some((item) => item.done)}
+                disabled={!itemData.some((item) => item.done) || isPending}
                 onClick={archiveDoneItems}
             >
                 Archive done items
