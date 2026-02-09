@@ -3,9 +3,7 @@ import TodoPage from "./TodoPage";
 import type { TodoItemData } from "../../types";
 import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { MockDAO } from "../../testHelpers";
-
-const MOCK_PROMISE_TIMEOUT = 10;
+import { createDeferred, MockDAO } from "../../testHelpers";
 
 describe("TodoPage ", () => {
     const itemTitle = "item title";
@@ -29,12 +27,8 @@ describe("TodoPage ", () => {
     test("should add an item optimistically", async () => {
         const user = userEvent.setup();
         const mockItemDAO = new MockDAO([]);
-        mockItemDAO.addItem = vi.fn(
-            () =>
-                new Promise((resolve) =>
-                    setTimeout(resolve, MOCK_PROMISE_TIMEOUT)
-                )
-        );
+        const deferred = createDeferred();
+        mockItemDAO.addItem = vi.fn(() => deferred.promise);
         render(<TodoPage itemDAO={mockItemDAO} />);
 
         const titleInput = screen.getByLabelText(/add/i);
@@ -45,6 +39,7 @@ describe("TodoPage ", () => {
         await user.click(submitButton);
 
         expect(await screen.findByText(itemTitle)).toBeVisible();
+        deferred.resolve();
     });
     test("should not add an item on error", async () => {
         const user = userEvent.setup();
@@ -91,9 +86,7 @@ describe("TodoPage ", () => {
 
         await user.type(titleEditInput, userTypes);
         await user.click(saveButton);
-        await waitFor(() => expect(screen.getByText(oldTitle)).toBeVisible(), {
-            timeout: MOCK_PROMISE_TIMEOUT,
-        });
+        await waitFor(() => expect(screen.getByText(oldTitle)).toBeVisible());
     });
     test("should change the item title optimistically", async () => {
         const oldTitle = "title";
@@ -110,9 +103,9 @@ describe("TodoPage ", () => {
         ];
         const mockItemDAO = new MockDAO(testItems);
 
-        mockItemDAO.editItem = vi.fn(async () => {
-            await new Promise((r) => setTimeout(r, MOCK_PROMISE_TIMEOUT));
-        });
+        const deferred = createDeferred();
+        mockItemDAO.editItem = vi.fn(() => deferred.promise);
+
         render(<TodoPage itemDAO={mockItemDAO} />);
 
         const item = await screen.findByRole("listitem", {
@@ -126,6 +119,7 @@ describe("TodoPage ", () => {
         await user.type(titleEditInput, userTypes);
         await user.click(saveButton);
         expect(await screen.findByText(newTitle)).toBeVisible();
+        deferred.resolve();
     });
     test("edit button should be disabled when waiting for a response", async () => {
         const oldTitle = "title";
@@ -141,9 +135,8 @@ describe("TodoPage ", () => {
         ];
         const mockItemDAO = new MockDAO(testItems);
 
-        mockItemDAO.editItem = vi.fn(async () => {
-            await new Promise((r) => setTimeout(r, MOCK_PROMISE_TIMEOUT));
-        });
+        const deferred = createDeferred();
+        mockItemDAO.editItem = vi.fn(() => deferred.promise);
         render(<TodoPage itemDAO={mockItemDAO} />);
 
         const item = await screen.findByRole("listitem", {
@@ -158,6 +151,7 @@ describe("TodoPage ", () => {
         await user.click(saveButton);
 
         await waitFor(() => expect(saveButton).toBeDisabled());
+        deferred.resolve();
     });
     test("should not display archived items", async () => {
         const testItems: TodoItemData[] = [
@@ -195,16 +189,11 @@ describe("TodoPage ", () => {
         const archiveButton = screen.getByRole("button", {
             name: /archive/i,
         });
-        await waitFor(() => expect(archiveButton).toBeEnabled(), {
-            timeout: 20,
-        });
+        await waitFor(() => expect(archiveButton).toBeEnabled());
         await user.click(archiveButton);
 
-        await waitFor(
-            () => expect(itemDaoMock.archiveDoneItems).toHaveBeenCalledTimes(1),
-            {
-                timeout: 20,
-            }
+        await waitFor(() =>
+            expect(itemDaoMock.archiveDoneItems).toHaveBeenCalledTimes(1)
         );
     });
     test("arhived item should be archived optimistically", async () => {
@@ -217,14 +206,11 @@ describe("TodoPage ", () => {
                 archived: false,
             },
         ];
-        const itemDaoMock = new MockDAO(testItems);
-        itemDaoMock.archiveDoneItems = vi.fn(
-            () =>
-                new Promise((resolve) =>
-                    setTimeout(resolve, MOCK_PROMISE_TIMEOUT)
-                )
-        );
-        render(<TodoPage itemDAO={itemDaoMock} />);
+        const mockItemDAO = new MockDAO(testItems);
+        const deferred = createDeferred();
+        mockItemDAO.archiveDoneItems = vi.fn(() => deferred.promise);
+
+        render(<TodoPage itemDAO={mockItemDAO} />);
         await waitFor(() => {
             expect(screen.queryByText(itemTitle)).toBeInTheDocument();
         });
@@ -234,6 +220,7 @@ describe("TodoPage ", () => {
         await user.click(archiveButton);
 
         expect(screen.queryByText(itemTitle)).not.toBeInTheDocument();
+        deferred.resolve();
     });
     test("arhived item should not be archived on error", async () => {
         const user = userEvent.setup();
@@ -270,17 +257,15 @@ describe("TodoPage ", () => {
         ];
         const mockItemDAO = new MockDAO(testItems);
 
-        mockItemDAO.archiveDoneItems = vi.fn(async () => {
-            await new Promise((r) => setTimeout(r, MOCK_PROMISE_TIMEOUT));
-        });
+        const deferred = createDeferred();
+        mockItemDAO.archiveDoneItems = vi.fn(() => deferred.promise);
         render(<TodoPage itemDAO={mockItemDAO} />);
         const archiveButton = screen.getByRole("button", {
             name: /archive/i,
         });
         await user.click(archiveButton);
 
-        await waitFor(() => expect(archiveButton).toBeDisabled(), {
-            timeout: 5,
-        });
+        await waitFor(() => expect(archiveButton).toBeDisabled());
+        deferred.resolve();
     });
 });
