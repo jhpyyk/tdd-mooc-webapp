@@ -1,40 +1,11 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import TodoPage from "./TodoPage";
 import type { TodoItemData } from "../../types";
-import { type ItemDAO } from "../../ItemDAO";
 import { vi } from "vitest";
 import userEvent from "@testing-library/user-event";
+import { MockDAO } from "../../testHelpers";
 
 const MOCK_PROMISE_TIMEOUT = 10;
-
-export class MockDAO implements ItemDAO {
-    itemData: TodoItemData[];
-    delay: number;
-
-    constructor(initialItems: TodoItemData[], delay = 0) {
-        this.itemData = initialItems;
-        this.delay = delay;
-    }
-    addItem = vi.fn();
-    editItem = vi.fn();
-    archiveDoneItems = vi.fn();
-    deleteItem = vi.fn();
-
-    getActiveItems = async () => {
-        await new Promise((r) => setTimeout(r, this.delay));
-        const items = this.itemData.filter((item) => {
-            return !item.archived;
-        });
-        return items;
-    };
-    getArchivedItems = async () => {
-        await new Promise((r) => setTimeout(r, this.delay));
-        const items = this.itemData.filter((item) => {
-            return item.archived;
-        });
-        return items;
-    };
-}
 
 describe("TodoPage ", () => {
     const itemTitle = "item title";
