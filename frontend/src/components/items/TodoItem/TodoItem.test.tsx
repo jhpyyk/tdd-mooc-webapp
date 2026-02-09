@@ -1,4 +1,4 @@
-import { render, screen, within, act, waitFor } from "@testing-library/react";
+import { render, screen, within, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import TodoItem from "./TodoItem";
 import type { TodoItemData } from "../../../types";

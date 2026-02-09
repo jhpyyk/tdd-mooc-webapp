@@ -31,7 +31,7 @@ export class MockDAO implements ItemDAO {
     };
 }
 
-export function createDeferred<T = void>() {
+export const createDeferred = <T = void>() => {
     let resolve!: (value: T) => void;
     let reject!: (reason?: unknown) => void;
 
@@ -41,4 +41,4 @@ export function createDeferred<T = void>() {
     });
 
     return { promise, resolve, reject };
-}
+};
