@@ -28,30 +28,6 @@ describe("ArchivePage ", () => {
         expect(items).toHaveLength(1);
     });
 
-    test("should not display an item after it's deleted", async () => {
-        const itemTitle = "test item";
-        const testItems: TodoItemData[] = [
-            {
-                id: 1,
-                title: itemTitle,
-                done: true,
-                archived: true,
-            },
-        ];
-        render(<ArchivePage itemDAO={new MockDAO(testItems)} />);
-        const item = await waitFor(() =>
-            screen.getByRole("listitem", {
-                name: testItems[0].title,
-            })
-        );
-        const deleteButton = within(item).getByRole("button");
-
-        act(() => {
-            deleteButton.click();
-        });
-
-        expect(screen.queryAllByText(itemTitle)).toHaveLength(0);
-    });
     test("should delete items optimistically", async () => {
         const user = userEvent.setup();
         const itemTitle = "test item";
@@ -91,15 +67,13 @@ describe("ArchivePage ", () => {
         const mockItemDAO = new MockDAO(testItems);
 
         mockItemDAO.deleteItem = vi.fn().mockRejectedValue(new Error("error"));
-        render(<ArchivePage itemDAO={new MockDAO(testItems)} />);
+        render(<ArchivePage itemDAO={mockItemDAO} />);
 
         const item = await screen.findByRole("listitem", {
             name: itemTitle,
         });
         const deleteButton = within(item).getByRole("button");
         await user.click(deleteButton);
-        await waitFor(() =>
-            expect(screen.queryAllByText(itemTitle)).toHaveLength(1)
-        );
+        expect(await screen.findByText(itemTitle)).toBeVisible();
     });
 });

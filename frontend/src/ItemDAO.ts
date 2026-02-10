@@ -93,6 +93,7 @@ export class LocalItemDAO implements ItemDAO {
 
     deleteItem = async (itemToDelete: TodoItemData) => {
         await new Promise((r) => setTimeout(r, this.delay));
+        throw new Error("error deleting item");
         const newItems = this.itemData.filter((item) => {
             return item.id !== itemToDelete.id;
         });
