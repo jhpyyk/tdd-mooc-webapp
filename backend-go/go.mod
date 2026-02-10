@@ -1,3 +1,3 @@
-module github.com/jhpyyk/tdd-mooc-webapp/backend-go
+module github.com/jhpyyk/tdd-mooc-webapp
 
 go 1.25.7
