@@ -1,6 +1,7 @@
 package main_test
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,14 +13,18 @@ func TestGetBackendE2ETestString(t *testing.T) {
 	t.Run("should return backend e2e test string", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/test", nil)
 		response := httptest.NewRecorder()
-
 		server.TodoServer(response, request)
 
-		got := response.Body.String()
-		want := "Hello from go backend"
+		var body map[string]string
+		err := json.NewDecoder(response.Body).Decode(&body)
+		if err != nil {
+			t.Fatalf("Unable to parse json from server %q into TestMessage, '%v'", response.Body, err)
+		}
 
-		if got != want {
-			t.Errorf("got %q, want %q", got, want)
+		wantedMessage := "Hello from go backend"
+
+		if body["message"] != wantedMessage {
+			t.Errorf("got %q, want %q", body, wantedMessage)
 		}
 	})
 }
