@@ -16,10 +16,10 @@ const fetchTest = async (): Promise<TestResponse> => {
 };
 
 const fetchGoAPITest = async (): Promise<TestResponse> => {
-    const res = await fetch(`${api_host}:5000/test`);
+    const res = await fetch(`http://${api_host}:5000/test`);
     console.log(res);
-    const data = await res.text();
-    return { message: data };
+    const data = await res.json();
+    return data;
 };
 const fetchDbHealth = async (): Promise<TestResponse> => {
     console.log("fetching db-health");
