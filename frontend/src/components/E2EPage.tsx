@@ -9,12 +9,18 @@ interface TestResponse {
     message: string;
 }
 const fetchTest = async (): Promise<TestResponse> => {
-    const res = await fetch(`${api_url}/test`);
+    const res: Response = await fetch(`${api_url}/test`);
     console.log(res);
     const data = await res.json();
     return data;
 };
 
+const fetchGoAPITest = async (): Promise<TestResponse> => {
+    const res = await fetch(`${api_host}:5000/test`);
+    console.log(res);
+    const data = await res.text();
+    return { message: data };
+};
 const fetchDbHealth = async (): Promise<TestResponse> => {
     console.log("fetching db-health");
     const res = await fetch(`${api_url}/db-health`);
@@ -25,11 +31,23 @@ const fetchDbHealth = async (): Promise<TestResponse> => {
 
 const E2EPage = () => {
     const [backendTestResponse, setBackendTestResponse] = useState<string>();
+    const [goBackendTestResponse, setGoBackendTestResponse] =
+        useState<string>();
     const [dbHealthResponse, setDbHealthResponse] = useState<string>();
 
     useEffect(() => {
         const fetchBackendResponse = async () => {
             const testResponse = await fetchTest();
+            console.log(testResponse);
+
+            setGoBackendTestResponse(testResponse.message);
+        };
+        fetchBackendResponse();
+    }, []);
+
+    useEffect(() => {
+        const fetchBackendResponse = async () => {
+            const testResponse = await fetchGoAPITest();
             console.log(testResponse);
 
             setBackendTestResponse(testResponse.message);
@@ -52,6 +70,7 @@ const E2EPage = () => {
             <h2>e2e stuff:</h2>
             <p>Hello from frontend</p>
             <p>{backendTestResponse}</p>
+            <p>{goBackendTestResponse}</p>
             <p>{dbHealthResponse}</p>
         </div>
     );

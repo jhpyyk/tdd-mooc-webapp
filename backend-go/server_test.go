@@ -16,7 +16,7 @@ func TestGetBackendE2ETestString(t *testing.T) {
 		server.TodoServer(response, request)
 
 		got := response.Body.String()
-		want := "Hello from backend"
+		want := "Hello from go backend"
 
 		if got != want {
 			t.Errorf("got %q, want %q", got, want)

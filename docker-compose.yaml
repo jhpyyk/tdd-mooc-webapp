@@ -1,7 +1,7 @@
 services:
   frontend:
     container_name: frontend
-    restart: unless-stopped
+    restart: no
     build: ./frontend
     ports:
       - 5173:5173
@@ -28,6 +28,23 @@ services:
     volumes:
       - ./backend/src:/usr/src/backend/src:ro
 
+  goapi:
+    container_name: goapi
+    restart: no
+    build:
+      context: ./backend-go
+      dockerfile: Dockerfile.dev
+    ports:
+      - 5000:5000
+    volumes:
+      - ./backend-go:/usr/src/backend-go
+    depends_on:
+      - dev_db
+      - test_db
+
+    environment:
+      - CGO_ENABLED=0
+
   dev_db:
     container_name: postgres_dev
     image: postgres
@@ -43,6 +60,7 @@ services:
 
   test_db:
     container_name: postgres_test
+    restart: no
     image: postgres
     ports:
       - 5433:5432
