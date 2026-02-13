@@ -27,4 +27,21 @@ func TestGetBackendE2ETestString(t *testing.T) {
 			t.Errorf("got %q, want %q", body, wantedMessage)
 		}
 	})
+	t.Run("should return DB health-check string", func(t *testing.T) {
+		request, _ := http.NewRequest(http.MethodGet, "/db-health", nil)
+		response := httptest.NewRecorder()
+		server.TodoServer(response, request)
+
+		var body map[string]string
+		err := json.NewDecoder(response.Body).Decode(&body)
+		if err != nil {
+			t.Fatalf("Unable to parse json from server %q into TestMessage, '%v'", response.Body, err)
+		}
+
+		wantedMessage := "DB connection is healthy"
+
+		if body["message"] != wantedMessage {
+			t.Errorf("got %q, want %q", body, wantedMessage)
+		}
+	})
 }

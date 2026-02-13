@@ -6,6 +6,5 @@ import (
 )
 
 func main() {
-	handler := http.HandlerFunc(TodoServer)
-	log.Fatal(http.ListenAndServe(":5000", handler))
+	log.Fatal(http.ListenAndServe(":5000", http.HandlerFunc(TodoServer)))
 }
