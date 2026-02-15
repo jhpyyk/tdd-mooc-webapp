@@ -13,14 +13,26 @@ func IntegrationTest(t *testing.T) {
 		t.Skip("skipping integration tests, set environment variable INTEGRATION_TEST")
 	}
 }
-func TestItemStore(t *testing.T) {
-	t.Run("Test ItemStore health check", func(t *testing.T) {
+
+func TestItemStoreIntegration(t *testing.T) {
+	itemStore := store.ItemStoreImpl{}
+	t.Run("Test ItemStoreImpl health check", func(t *testing.T) {
 		IntegrationTest(t)
-		itemStore := store.ItemStore{}
 		dbHealthString := itemStore.GetDbHealthString()
 		expected := "Go DB connection is healthy"
 		if dbHealthString != expected {
+			t.Errorf("Health check string does not match. Got %q, expected %q", dbHealthString, expected)
+		}
+	})
+}
 
+func TestItemStoreInMemory(t *testing.T) {
+	itemStore := store.ItemStoreInMemory{}
+
+	t.Run("Test ItemStoreInMemory health check", func(t *testing.T) {
+		dbHealthString := itemStore.GetDbHealthString()
+		expected := "In memory item store connection is healthy"
+		if dbHealthString != expected {
 			t.Errorf("Health check string does not match. Got %q, expected %q", dbHealthString, expected)
 		}
 	})

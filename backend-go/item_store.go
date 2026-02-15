@@ -8,10 +8,21 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type ItemStore struct {
+type ItemStore interface {
+	GetDbHealthString() string
 }
 
-func (store ItemStore) GetDbHealthString() string {
+type ItemStoreInMemory struct {
+}
+
+func (store *ItemStoreInMemory) GetDbHealthString() string {
+	return "In memory item store connection is healthy"
+}
+
+type ItemStoreImpl struct {
+}
+
+func (store *ItemStoreImpl) GetDbHealthString() string {
 	dsn := os.Getenv("TEST_DATABASE_URL")
 	if dsn == "" {
 		log.Fatal("TEST_DATABASE_URL not set")

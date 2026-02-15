@@ -10,10 +10,12 @@ import (
 )
 
 func TestGetBackendE2ETestString(t *testing.T) {
+	itemStore := server.ItemStoreImpl{}
+	todoServer := server.NewTodoServer(&itemStore)
 	t.Run("should return backend e2e test string", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/test", nil)
 		response := httptest.NewRecorder()
-		server.TodoServer(response, request)
+		todoServer.ServeHTTP(response, request)
 
 		var body map[string]string
 		err := json.NewDecoder(response.Body).Decode(&body)
@@ -28,9 +30,10 @@ func TestGetBackendE2ETestString(t *testing.T) {
 		}
 	})
 	t.Run("should return DB health-check string", func(t *testing.T) {
+		IntegrationTest(t)
 		request, _ := http.NewRequest(http.MethodGet, "/db-health", nil)
 		response := httptest.NewRecorder()
-		server.TodoServer(response, request)
+		todoServer.ServeHTTP(response, request)
 
 		var body map[string]string
 		err := json.NewDecoder(response.Body).Decode(&body)

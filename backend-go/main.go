@@ -6,5 +6,7 @@ import (
 )
 
 func main() {
-	log.Fatal(http.ListenAndServe(":5000", http.HandlerFunc(TodoServer)))
+	itemStore := ItemStoreImpl{}
+	todoServer := NewTodoServer(&itemStore)
+	log.Fatal(http.ListenAndServe(":5000", http.HandlerFunc(todoServer.ServeHTTP)))
 }
