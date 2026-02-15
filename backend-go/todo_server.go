@@ -10,6 +10,8 @@ type TodoServer struct {
 	http.Handler
 }
 
+type JSON = map[string]string
+
 func NewTodoServer(itemStore ItemStore) *TodoServer {
 	server := new(TodoServer)
 	server.store = itemStore
@@ -18,7 +20,7 @@ func NewTodoServer(itemStore ItemStore) *TodoServer {
 	router.Handle("/test", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		json.NewEncoder(w).Encode(map[string]string{
+		writeJSON(w, 200, JSON{
 			"message": "Hello from go backend",
 		})
 	}))
@@ -26,11 +28,23 @@ func NewTodoServer(itemStore ItemStore) *TodoServer {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		healthString := itemStore.GetDbHealthString()
-		json.NewEncoder(w).Encode(map[string]string{
+		writeJSON(w, 200, JSON{
 			"message": healthString,
 		})
 	}))
 	server.Handler = router
 
 	return server
+}
+
+func writeJSON(w http.ResponseWriter, status int, payload any) {
+	w.Header().Set("Content-Type", "application/json")
+
+	payloadMap, ok := payload.(JSON)
+	if ok != true {
+		w.WriteHeader(500)
+		return
+	}
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(payloadMap)
 }
