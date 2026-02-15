@@ -18,23 +18,34 @@ func NewTodoServer(itemStore ItemStore) *TodoServer {
 	router := http.NewServeMux()
 
 	router.Handle("/test", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 		writeJSON(w, 200, JSON{
 			"message": "Hello from go backend",
 		})
 	}))
 	router.Handle("/db-health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 		healthString := itemStore.GetDbHealthString()
-		writeJSON(w, 200, JSON{
+		writeJSON(w, http.StatusOK, JSON{
 			"message": healthString,
 		})
 	}))
-	server.Handler = router
+	server.Handler = corsMiddleware(router)
 
 	return server
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func writeJSON(w http.ResponseWriter, status int, payload any) {
@@ -42,7 +53,7 @@ func writeJSON(w http.ResponseWriter, status int, payload any) {
 
 	payloadMap, ok := payload.(JSON)
 	if ok != true {
-		w.WriteHeader(500)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(status)
