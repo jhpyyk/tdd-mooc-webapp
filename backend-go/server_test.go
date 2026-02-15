@@ -26,7 +26,7 @@ func TestGetBackendE2ETestString(t *testing.T) {
 		wantedMessage := "Hello from go backend"
 
 		if body["message"] != wantedMessage {
-			t.Errorf("got %q, want %q", body, wantedMessage)
+			t.Errorf("got %q, want %q", body["message"], wantedMessage)
 		}
 	})
 	t.Run("should return DB health-check string", func(t *testing.T) {
@@ -44,7 +44,7 @@ func TestGetBackendE2ETestString(t *testing.T) {
 		wantedMessage := "Go DB connection is healthy"
 
 		if body["message"] != wantedMessage {
-			t.Errorf("got %q, want %q", body, wantedMessage)
+			t.Errorf("got %q, want %q", body["message"], wantedMessage)
 		}
 	})
 }

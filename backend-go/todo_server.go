@@ -10,27 +10,30 @@ type TodoServer struct {
 	http.Handler
 }
 
-type JSON = map[string]string
+type TestMessage struct {
+	Message string `json:"message"`
+}
 
 func NewTodoServer(itemStore ItemStore) *TodoServer {
 	server := new(TodoServer)
 	server.store = itemStore
+
 	router := http.NewServeMux()
 
-	router.Handle("/test", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, 200, JSON{
-			"message": "Hello from go backend",
-		})
-	}))
-	router.Handle("/db-health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		healthString := itemStore.GetDbHealthString()
-		writeJSON(w, http.StatusOK, JSON{
-			"message": healthString,
-		})
-	}))
+	router.Handle("/test", http.HandlerFunc(server.testHandler))
+	router.Handle("/db-health", http.HandlerFunc(server.dbHealthHandler))
 	server.Handler = corsMiddleware(router)
 
 	return server
+}
+
+func (*TodoServer) testHandler(w http.ResponseWriter, _ *http.Request) {
+	writeTestMessageResponse(w, "Hello from go backend")
+}
+
+func (h *TodoServer) dbHealthHandler(w http.ResponseWriter, _ *http.Request) {
+	healthString := h.store.GetDbHealthString()
+	writeTestMessageResponse(w, healthString)
 }
 
 func corsMiddleware(next http.Handler) http.Handler {
@@ -48,14 +51,12 @@ func corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func writeJSON(w http.ResponseWriter, status int, payload any) {
+func writeTestMessageResponse(w http.ResponseWriter, message string) {
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
-	payloadMap, ok := payload.(JSON)
-	if ok != true {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	response := TestMessage{
+		Message: message,
 	}
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(payloadMap)
+	json.NewEncoder(w).Encode(response)
 }
