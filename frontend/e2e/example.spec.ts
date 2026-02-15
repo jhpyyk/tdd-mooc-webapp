@@ -20,3 +20,8 @@ test("frontend-backend-db connection works", async ({ page }) => {
     await page.goto("http://localhost:5173/e2e");
     await expect(page.getByText("DB connection is healthy")).toBeVisible();
 });
+
+test("frontend-gobackend-db connection works", async ({ page }) => {
+    await page.goto("http://localhost:5173/e2e");
+    await expect(page.getByText("Go DB connection is healthy")).toBeVisible();
+});

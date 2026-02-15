@@ -30,7 +30,7 @@ const fetchDbHealth = async (): Promise<TestResponse> => {
 };
 const fetchGoAPIDbHealth = async (): Promise<TestResponse> => {
     console.log("fetching db-health");
-    const res = await fetch(`${api_url}/db-health`);
+    const res = await fetch(`http://${api_host}:5000/db-health`);
     console.log(res);
     const data = await res.json();
     return data;
