@@ -18,7 +18,7 @@ func TodoServer(w http.ResponseWriter, r *http.Request) {
 	}))
 	router.Handle("/db-health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{
-			"message": "DB connection is healthy",
+			"message": "Go DB connection is healthy",
 		})
 	}))
 	router.ServeHTTP(w, r)

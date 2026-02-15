@@ -28,12 +28,20 @@ const fetchDbHealth = async (): Promise<TestResponse> => {
     const data = await res.json();
     return data;
 };
-
+const fetchGoAPIDbHealth = async (): Promise<TestResponse> => {
+    console.log("fetching db-health");
+    const res = await fetch(`${api_url}/db-health`);
+    console.log(res);
+    const data = await res.json();
+    return data;
+};
 const E2EPage = () => {
     const [backendTestResponse, setBackendTestResponse] = useState<string>();
     const [goBackendTestResponse, setGoBackendTestResponse] =
         useState<string>();
     const [dbHealthResponse, setDbHealthResponse] = useState<string>();
+    const [goApidbHealthResponse, setGoApiDbHealthResponse] =
+        useState<string>();
 
     useEffect(() => {
         const fetchBackendResponse = async () => {
@@ -65,6 +73,16 @@ const E2EPage = () => {
         fetchDbHealthResponse();
     }, []);
 
+    useEffect(() => {
+        const fetchGoAPIDbHealthResponse = async () => {
+            const testResponse = await fetchGoAPIDbHealth();
+            console.log(testResponse);
+
+            setGoApiDbHealthResponse(testResponse.message);
+        };
+        fetchGoAPIDbHealthResponse();
+    }, []);
+
     return (
         <div>
             <h2>e2e stuff:</h2>
@@ -72,6 +90,7 @@ const E2EPage = () => {
             <p>{backendTestResponse}</p>
             <p>{goBackendTestResponse}</p>
             <p>{dbHealthResponse}</p>
+            <p>{goApidbHealthResponse}</p>
         </div>
     );
 };

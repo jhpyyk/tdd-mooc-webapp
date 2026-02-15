@@ -38,7 +38,7 @@ func TestGetBackendE2ETestString(t *testing.T) {
 			t.Fatalf("Unable to parse json from server %q into TestMessage, '%v'", response.Body, err)
 		}
 
-		wantedMessage := "DB connection is healthy"
+		wantedMessage := "Go DB connection is healthy"
 
 		if body["message"] != wantedMessage {
 			t.Errorf("got %q, want %q", body, wantedMessage)

@@ -18,7 +18,7 @@ func TestItemStore(t *testing.T) {
 		IntegrationTest(t)
 		itemStore := store.ItemStore{}
 		dbHealthString := itemStore.GetDbHealthString()
-		expected := "DB connection is healthy"
+		expected := "Go DB connection is healthy"
 		if dbHealthString != expected {
 
 			t.Errorf("Health check string does not match. Got %q, expected %q", dbHealthString, expected)
