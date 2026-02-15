@@ -9,11 +9,13 @@ import (
 	server "github.com/jhpyyk/tdd-mooc-webapp/backend-go"
 )
 
-func TestGetBackendE2ETestString(t *testing.T) {
+func TestGetBackendE2ETestStringIntegration(t *testing.T) {
 	itemStore := server.ItemStoreImpl{}
 	todoServer := server.NewTodoServer(&itemStore)
-	t.Run("should return backend e2e test string", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/test", nil)
+
+	t.Run("should return DB health-check string", func(t *testing.T) {
+		IntegrationTest(t)
+		request, _ := http.NewRequest(http.MethodGet, "/db-health", nil)
 		response := httptest.NewRecorder()
 		todoServer.ServeHTTP(response, request)
 
@@ -23,7 +25,7 @@ func TestGetBackendE2ETestString(t *testing.T) {
 			t.Fatalf("Unable to parse json from server %q into TestMessage, '%v'", response.Body, err)
 		}
 
-		wantedMessage := "Hello from go backend"
+		wantedMessage := "Go DB connection is healthy"
 
 		if body["message"] != wantedMessage {
 			t.Errorf("got %q, want %q", body["message"], wantedMessage)
