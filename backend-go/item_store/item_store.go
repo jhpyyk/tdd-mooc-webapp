@@ -1,4 +1,4 @@
-package main
+package item_store
 
 import (
 	"database/sql"

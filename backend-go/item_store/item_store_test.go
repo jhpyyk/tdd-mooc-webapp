@@ -1,9 +1,9 @@
-package main_test
+package item_store_test
 
 import (
 	"testing"
 
-	store "github.com/jhpyyk/tdd-mooc-webapp/backend-go"
+	store "github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
 )
 
 func TestItemStoreInMemory(t *testing.T) {

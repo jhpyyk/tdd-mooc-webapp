@@ -1,12 +1,14 @@
-package main
+package todo_server
 
 import (
 	"encoding/json"
 	"net/http"
+
+	item_store "github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
 )
 
 type TodoServer struct {
-	store ItemStore
+	store item_store.ItemStore
 	http.Handler
 }
 
@@ -14,7 +16,7 @@ type TestMessage struct {
 	Message string `json:"message"`
 }
 
-func NewTodoServer(itemStore ItemStore) *TodoServer {
+func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
 	server := new(TodoServer)
 	server.store = itemStore
 

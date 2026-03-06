@@ -1,4 +1,4 @@
-package main_test
+package todo_server_test
 
 import (
 	"encoding/json"
@@ -6,15 +6,17 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	server "github.com/jhpyyk/tdd-mooc-webapp/backend-go"
+	store "github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
+	helpers "github.com/jhpyyk/tdd-mooc-webapp/backend-go/test_helpers"
+	server "github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
 )
 
 func TestGetBackendE2ETestStringIntegration(t *testing.T) {
-	itemStore := server.ItemStoreImpl{}
+	itemStore := store.ItemStoreImpl{}
 	todoServer := server.NewTodoServer(&itemStore)
 
 	t.Run("should return DB health-check string", func(t *testing.T) {
-		IntegrationTest(t)
+		helpers.IntegrationTest(t)
 		request, _ := http.NewRequest(http.MethodGet, "/db-health", nil)
 		response := httptest.NewRecorder()
 		todoServer.ServeHTTP(response, request)

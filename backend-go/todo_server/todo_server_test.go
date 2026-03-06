@@ -1,4 +1,4 @@
-package main_test
+package todo_server_test
 
 import (
 	"encoding/json"
@@ -6,11 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	server "github.com/jhpyyk/tdd-mooc-webapp/backend-go"
+	store "github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
+	server "github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
 )
 
 func TestGetBackendE2ETestString(t *testing.T) {
-	itemStore := server.ItemStoreImpl{}
+	itemStore := store.ItemStoreImpl{}
 	todoServer := server.NewTodoServer(&itemStore)
 	t.Run("should return backend e2e test string", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/test", nil)

@@ -1,23 +1,16 @@
-package main_test
+package item_store_test
 
 import (
-	"os"
 	"testing"
 
-	store "github.com/jhpyyk/tdd-mooc-webapp/backend-go"
+	store "github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
+	helpers "github.com/jhpyyk/tdd-mooc-webapp/backend-go/test_helpers"
 )
-
-func IntegrationTest(t *testing.T) {
-	t.Helper()
-	if os.Getenv("INTEGRATION_TEST") == "" {
-		t.Skip("skipping integration tests, set environment variable INTEGRATION_TEST")
-	}
-}
 
 func TestItemStoreIntegration(t *testing.T) {
 	itemStore := store.ItemStoreImpl{}
 	t.Run("Test ItemStoreImpl health check", func(t *testing.T) {
-		IntegrationTest(t)
+		helpers.IntegrationTest(t)
 		dbHealthString := itemStore.GetDbHealthString()
 		expected := "Go DB connection is healthy"
 		if dbHealthString != expected {
