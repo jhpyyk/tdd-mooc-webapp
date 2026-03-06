@@ -12,13 +12,6 @@ type ItemStore interface {
 	GetDbHealthString() string
 }
 
-type ItemStoreInMemory struct {
-}
-
-func (store *ItemStoreInMemory) GetDbHealthString() string {
-	return "In memory item store connection is healthy"
-}
-
 type ItemStoreImpl struct {
 }
 

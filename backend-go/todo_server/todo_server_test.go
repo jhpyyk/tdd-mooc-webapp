@@ -31,3 +31,17 @@ func TestGetBackendE2ETestString(t *testing.T) {
 		}
 	})
 }
+
+func TestGetAllItems(t *testing.T) {
+	itemStore := store.ItemStoreImpl{}
+	todoServer := server.NewTodoServer(&itemStore)
+	t.Run("should return 200", func(t *testing.T) {
+		request, _ := http.NewRequest(http.MethodGet, "/items", nil)
+		response := httptest.NewRecorder()
+		todoServer.ServeHTTP(response, request)
+
+		if response.Result().StatusCode != http.StatusOK {
+			t.Fatalf("GET /items did not return 200")
+		}
+	})
+}
