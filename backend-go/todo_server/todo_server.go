@@ -3,7 +3,6 @@ package todo_server
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	item_store "github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
 )
@@ -37,17 +36,13 @@ func (server *TodoServer) itemsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server *TodoServer) oneItemHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
+	id := r.PathValue("id")
+	if id == "" {
 		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
-	item := item_store.Item{
-		ID:       id,
-		Title:    "title",
-		Done:     false,
-		Archived: false,
-	}
+	item := server.store.GetItem(id)
 	writeItemResponse(w, item)
 }
 

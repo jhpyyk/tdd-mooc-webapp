@@ -17,7 +17,7 @@ type Item struct {
 
 type ItemStore interface {
 	GetDbHealthString() string
-	GetItem() Item
+	GetItem(id string) Item
 }
 
 type ItemStoreImpl struct {
@@ -42,6 +42,6 @@ func (store *ItemStoreImpl) GetDbHealthString() string {
 	return "Go DB connection is healthy"
 }
 
-func (store *ItemStoreImpl) GetItem() Item {
+func (store *ItemStoreImpl) GetItem(id string) Item {
 	panic("not implemented")
 }

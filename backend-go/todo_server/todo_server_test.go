@@ -58,7 +58,7 @@ func TestGetOneItem(t *testing.T) {
 	todoServer := setupTestServer(t, items)
 
 	t.Run("GET /items/1 should return the item", func(t *testing.T) {
-		result := doGetToEndpoint(t, todoServer, "/items/1")
+		result := doGetToEndpoint(t, todoServer, "/items/1", http.StatusOK)
 		item := decodeItem(t, result)
 		assertItemEqual(t, items[0], item)
 	})
@@ -78,7 +78,7 @@ func newItemStoreStub(items []item_store.Item) *ItemStoreStub {
 	return &stub
 }
 
-func (store *ItemStoreStub) GetItem() item_store.Item {
+func (store *ItemStoreStub) GetItem(_ string) item_store.Item {
 	return store.items[0]
 }
 
@@ -105,15 +105,15 @@ func setupTestServer(t testing.TB, items []item_store.Item) *server.TodoServer {
 	return todoServer
 }
 
-func doGetToEndpoint(t testing.TB, server *server.TodoServer, endpoint string) *http.Response {
+func doGetToEndpoint(t testing.TB, server *server.TodoServer, endpoint string, expectedCode int) *http.Response {
 	request, _ := http.NewRequest(http.MethodGet, endpoint, nil)
 	response := httptest.NewRecorder()
 	server.ServeHTTP(response, request)
 
 	result := response.Result()
 
-	if result.StatusCode != http.StatusOK {
-		t.Fatalf("GET /items/1 did not return 200")
+	if result.StatusCode != expectedCode {
+		t.Fatalf("GET %q did not return %q", endpoint, expectedCode)
 	}
 	return result
 }
