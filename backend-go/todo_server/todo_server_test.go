@@ -34,20 +34,6 @@ func TestGetBackendE2ETestString(t *testing.T) {
 	})
 }
 
-func TestGetAllItems(t *testing.T) {
-	itemStore := store.ItemStoreImpl{}
-	todoServer := server.NewTodoServer(&itemStore)
-	t.Run("should return all items", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/items", nil)
-		response := httptest.NewRecorder()
-		todoServer.ServeHTTP(response, request)
-
-		if response.Result().StatusCode != http.StatusOK {
-			t.Fatalf("GET /items did not return 200")
-		}
-	})
-}
-
 func TestGetOneItem(t *testing.T) {
 	items := []item_store.Item{{
 		ID:       1,
@@ -64,12 +50,44 @@ func TestGetOneItem(t *testing.T) {
 	})
 }
 
+func TestGetActiveItems(t *testing.T) {
+
+	initialItems := []item_store.Item{
+		{
+			ID:       1,
+			Title:    "title",
+			Done:     false,
+			Archived: false,
+		},
+		{
+			ID:       2,
+			Title:    "title",
+			Done:     false,
+			Archived: false,
+		},
+	}
+
+	todoServer := setupTestServer(t, initialItems)
+	t.Run("should return all items", func(t *testing.T) {
+
+		result := doGetToEndpoint(t, todoServer, "/items", http.StatusOK)
+		items := decodeItemSlice(t, result)
+		for i := range items {
+			assertItemEqual(t, initialItems[i], items[i])
+		}
+	})
+}
+
 type ItemStoreStub struct {
 	items []item_store.Item
 }
 
 func (store *ItemStoreStub) GetDbHealthString() string {
 	return ""
+}
+
+func (store *ItemStoreStub) GetAllItems() []item_store.Item {
+	return store.items
 }
 
 func newItemStoreStub(items []item_store.Item) *ItemStoreStub {
@@ -92,9 +110,17 @@ func decodeItem(t testing.TB, result *http.Response) item_store.Item {
 	var item item_store.Item
 	err := json.NewDecoder(result.Body).Decode(&item)
 	if err != nil {
-		t.Fatalf("Unable to parse json from server %q into TestMessage, '%v'", result.Body, err)
+		t.Fatalf("Unable to parse json from server %q into Item, '%v'", result.Body, err)
 	}
 	return item
+}
+func decodeItemSlice(t testing.TB, result *http.Response) []item_store.Item {
+	var items []item_store.Item
+	err := json.NewDecoder(result.Body).Decode(&items)
+	if err != nil {
+		t.Fatalf("Unable to parse json from server %q into Item, '%v'", result.Body, err)
+	}
+	return items
 }
 
 func setupTestServer(t testing.TB, items []item_store.Item) *server.TodoServer {

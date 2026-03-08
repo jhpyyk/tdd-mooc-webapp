@@ -32,6 +32,8 @@ func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
 }
 
 func (server *TodoServer) itemsHandler(w http.ResponseWriter, r *http.Request) {
+	items := server.store.GetAllItems()
+	writeItemSliceResponse(w, items)
 
 }
 
@@ -85,4 +87,11 @@ func writeItemResponse(w http.ResponseWriter, item item_store.Item) {
 	w.WriteHeader(http.StatusOK)
 
 	json.NewEncoder(w).Encode(item)
+}
+
+func writeItemSliceResponse(w http.ResponseWriter, items []item_store.Item) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(items)
 }
