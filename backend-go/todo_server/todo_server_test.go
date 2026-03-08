@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
@@ -47,25 +48,33 @@ func TestGetAllItems(t *testing.T) {
 	})
 }
 
-type ItemStoreStub struct{}
+type ItemStoreStub struct {
+	items []item_store.Item
+}
 
 func (store *ItemStoreStub) GetDbHealthString() string {
 	return ""
 }
 
+func newItemStoreStub(items []item_store.Item) *ItemStoreStub {
+	stub := ItemStoreStub{}
+	stub.items = items
+	return &stub
+}
+
 func (store *ItemStoreStub) GetItem() item_store.Item {
-	item := item_store.Item{
+	return store.items[0]
+}
+
+func TestGetOneItem(t *testing.T) {
+	items := []item_store.Item{{
 		ID:       1,
 		Title:    "title",
 		Done:     false,
 		Archived: false,
-	}
-	return item
-}
-
-func TestGetOneItem(t *testing.T) {
-	itemStore := ItemStoreStub{}
-	todoServer := server.NewTodoServer(&itemStore)
+	}}
+	itemStore := newItemStoreStub(items)
+	todoServer := server.NewTodoServer(itemStore)
 
 	t.Run("GET /items/1 should return the item", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/items/1", nil)
@@ -84,10 +93,8 @@ func TestGetOneItem(t *testing.T) {
 			t.Fatalf("Unable to parse json from server %q into TestMessage, '%v'", response.Body, err)
 		}
 
-		if item.ID != 1 {
-			t.Fatalf("did not return 1, returned %v", item)
+		if !reflect.DeepEqual(item, items[0]) {
+			t.Fatalf("did not return %v, returned %v", items[0], item)
 		}
-
 	})
-
 }
