@@ -8,8 +8,16 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type Item struct {
+	ID       int
+	Title    string
+	Done     bool
+	Archived bool
+}
+
 type ItemStore interface {
 	GetDbHealthString() string
+	GetItem() Item
 }
 
 type ItemStoreImpl struct {
@@ -32,4 +40,8 @@ func (store *ItemStoreImpl) GetDbHealthString() string {
 	}
 
 	return "Go DB connection is healthy"
+}
+
+func (store *ItemStoreImpl) GetItem() Item {
+	panic("not implemented")
 }

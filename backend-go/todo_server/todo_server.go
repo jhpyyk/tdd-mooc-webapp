@@ -3,6 +3,7 @@ package todo_server
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	item_store "github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
 )
@@ -25,6 +26,7 @@ func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
 	router.Handle("/test", http.HandlerFunc(server.testHandler))
 	router.Handle("/db-health", http.HandlerFunc(server.dbHealthHandler))
 	router.Handle("/items", http.HandlerFunc(server.itemsHandler))
+	router.Handle("/items/{id}", http.HandlerFunc(server.oneItemHandler))
 	server.Handler = corsMiddleware(router)
 
 	return server
@@ -32,6 +34,21 @@ func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
 
 func (server *TodoServer) itemsHandler(w http.ResponseWriter, r *http.Request) {
 
+}
+
+func (server *TodoServer) oneItemHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	item := item_store.Item{
+		ID:       id,
+		Title:    "title",
+		Done:     false,
+		Archived: false,
+	}
+	writeItemResponse(w, item)
 }
 
 func (*TodoServer) testHandler(w http.ResponseWriter, _ *http.Request) {
@@ -66,4 +83,11 @@ func writeTestMessageResponse(w http.ResponseWriter, message string) {
 		Message: message,
 	}
 	json.NewEncoder(w).Encode(response)
+}
+
+func writeItemResponse(w http.ResponseWriter, item item_store.Item) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(item)
 }
