@@ -12,42 +12,34 @@ import (
 	server "github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
 )
 
-func TestGetBackendE2ETestString(t *testing.T) {
-	itemStore := store.ItemStoreImpl{}
-	todoServer := server.NewTodoServer(&itemStore)
-	t.Run("should return backend e2e test string", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/test", nil)
-		response := httptest.NewRecorder()
-		todoServer.ServeHTTP(response, request)
-
-		var body map[string]string
-		err := json.NewDecoder(response.Body).Decode(&body)
-		if err != nil {
-			t.Fatalf("Unable to parse json from server %q into TestMessage, '%v'", response.Body, err)
-		}
-
-		wantedMessage := "Hello from go backend"
-
-		if body["message"] != wantedMessage {
-			t.Errorf("got %q, want %q", body["message"], wantedMessage)
-		}
-	})
+type ItemStoreStub struct {
+	items []item_store.Item
 }
 
-func TestGetOneItem(t *testing.T) {
-	items := []item_store.Item{{
-		ID:       1,
-		Title:    "title",
-		Done:     false,
-		Archived: false,
-	}}
-	todoServer := setupTestServer(t, items)
+func (store *ItemStoreStub) GetDbHealthString() string {
+	return ""
+}
 
-	t.Run("GET /items/1 should return the item", func(t *testing.T) {
-		result := doGetToEndpoint(t, todoServer, "/items/1", http.StatusOK)
-		item := decodeItem(t, result)
-		assertItemEqual(t, items[0], item)
-	})
+func (store *ItemStoreStub) GetAllActiveItems() []item_store.Item {
+	return []item_store.Item{store.items[0]}
+}
+
+func newItemStoreStub(items []item_store.Item) *ItemStoreStub {
+	stub := ItemStoreStub{}
+	stub.items = items
+	return &stub
+}
+
+func (store *ItemStoreStub) GetItem(_ string) item_store.Item {
+	return store.items[0]
+}
+
+func setupTestServer(t testing.TB, items []item_store.Item) *server.TodoServer {
+	t.Helper()
+
+	itemStore := newItemStoreStub(items)
+	todoServer := server.NewTodoServer(itemStore)
+	return todoServer
 }
 
 func TestGetActiveItems(t *testing.T) {
@@ -79,28 +71,6 @@ func TestGetActiveItems(t *testing.T) {
 	})
 }
 
-type ItemStoreStub struct {
-	items []item_store.Item
-}
-
-func (store *ItemStoreStub) GetDbHealthString() string {
-	return ""
-}
-
-func (store *ItemStoreStub) GetAllActiveItems() []item_store.Item {
-	return []item_store.Item{store.items[0]}
-}
-
-func newItemStoreStub(items []item_store.Item) *ItemStoreStub {
-	stub := ItemStoreStub{}
-	stub.items = items
-	return &stub
-}
-
-func (store *ItemStoreStub) GetItem(_ string) item_store.Item {
-	return store.items[0]
-}
-
 func assertItemEqual(t testing.TB, wanted, got item_store.Item) {
 	if !reflect.DeepEqual(wanted, got) {
 		t.Fatalf("items are not equal wanted %v, got %v", wanted, got)
@@ -126,14 +96,6 @@ func decodeItemSlice(t testing.TB, result *http.Response) []item_store.Item {
 	return items
 }
 
-func setupTestServer(t testing.TB, items []item_store.Item) *server.TodoServer {
-	t.Helper()
-
-	itemStore := newItemStoreStub(items)
-	todoServer := server.NewTodoServer(itemStore)
-	return todoServer
-}
-
 func doGetToEndpoint(t testing.TB, server *server.TodoServer, endpoint string, expectedCode int) *http.Response {
 	t.Helper()
 	request, _ := http.NewRequest(http.MethodGet, endpoint, nil)
@@ -146,4 +108,26 @@ func doGetToEndpoint(t testing.TB, server *server.TodoServer, endpoint string, e
 		t.Fatalf("GET %q did not return %q", endpoint, expectedCode)
 	}
 	return result
+}
+
+func TestGetBackendE2ETestString(t *testing.T) {
+	itemStore := store.ItemStoreImpl{}
+	todoServer := server.NewTodoServer(&itemStore)
+	t.Run("should return backend e2e test string", func(t *testing.T) {
+		request, _ := http.NewRequest(http.MethodGet, "/test", nil)
+		response := httptest.NewRecorder()
+		todoServer.ServeHTTP(response, request)
+
+		var body map[string]string
+		err := json.NewDecoder(response.Body).Decode(&body)
+		if err != nil {
+			t.Fatalf("Unable to parse json from server %q into TestMessage, '%v'", response.Body, err)
+		}
+
+		wantedMessage := "Hello from go backend"
+
+		if body["message"] != wantedMessage {
+			t.Errorf("got %q, want %q", body["message"], wantedMessage)
+		}
+	})
 }

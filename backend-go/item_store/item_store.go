@@ -17,7 +17,6 @@ type Item struct {
 
 type ItemStore interface {
 	GetDbHealthString() string
-	GetItem(id string) Item
 	GetAllActiveItems() []Item
 }
 
@@ -41,10 +40,6 @@ func (store *ItemStoreImpl) GetDbHealthString() string {
 	}
 
 	return "Go DB connection is healthy"
-}
-
-func (store *ItemStoreImpl) GetItem(id string) Item {
-	panic("not implemented")
 }
 
 func (store *ItemStoreImpl) GetAllActiveItems() []Item {

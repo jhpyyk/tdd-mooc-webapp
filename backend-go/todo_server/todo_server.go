@@ -24,28 +24,16 @@ func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
 
 	router.Handle("/test", http.HandlerFunc(server.testHandler))
 	router.Handle("/db-health", http.HandlerFunc(server.dbHealthHandler))
-	router.Handle("/active-items", http.HandlerFunc(server.itemsHandler))
-	router.Handle("/items/{id}", http.HandlerFunc(server.oneItemHandler))
+	router.Handle("/active-items", http.HandlerFunc(server.activeItemsHandler))
 	server.Handler = corsMiddleware(router)
 
 	return server
 }
 
-func (server *TodoServer) itemsHandler(w http.ResponseWriter, r *http.Request) {
+func (server *TodoServer) activeItemsHandler(w http.ResponseWriter, r *http.Request) {
 	items := server.store.GetAllActiveItems()
 	writeItemSliceResponse(w, items)
 
-}
-
-func (server *TodoServer) oneItemHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	if id == "" {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	item := server.store.GetItem(id)
-	writeItemResponse(w, item)
 }
 
 func (*TodoServer) testHandler(w http.ResponseWriter, _ *http.Request) {
