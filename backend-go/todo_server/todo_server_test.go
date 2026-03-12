@@ -63,18 +63,19 @@ func TestGetActiveItems(t *testing.T) {
 			ID:       2,
 			Title:    "title",
 			Done:     false,
-			Archived: false,
+			Archived: true,
 		},
 	}
 
 	todoServer := setupTestServer(t, initialItems)
-	t.Run("should return all items", func(t *testing.T) {
+	t.Run("should return all active items", func(t *testing.T) {
 
-		result := doGetToEndpoint(t, todoServer, "/items", http.StatusOK)
+		result := doGetToEndpoint(t, todoServer, "/active-items", http.StatusOK)
 		items := decodeItemSlice(t, result)
-		for i := range items {
-			assertItemEqual(t, initialItems[i], items[i])
+		if len(items) != 1 {
+			t.Fatalf("/active-items did not return correct items, wanted %v, got %v", initialItems[0], items)
 		}
+		assertItemEqual(t, initialItems[0], items[0])
 	})
 }
 
@@ -86,8 +87,8 @@ func (store *ItemStoreStub) GetDbHealthString() string {
 	return ""
 }
 
-func (store *ItemStoreStub) GetAllItems() []item_store.Item {
-	return store.items
+func (store *ItemStoreStub) GetAllActiveItems() []item_store.Item {
+	return []item_store.Item{store.items[0]}
 }
 
 func newItemStoreStub(items []item_store.Item) *ItemStoreStub {

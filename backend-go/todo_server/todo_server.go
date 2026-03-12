@@ -24,7 +24,7 @@ func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
 
 	router.Handle("/test", http.HandlerFunc(server.testHandler))
 	router.Handle("/db-health", http.HandlerFunc(server.dbHealthHandler))
-	router.Handle("/items", http.HandlerFunc(server.itemsHandler))
+	router.Handle("/active-items", http.HandlerFunc(server.itemsHandler))
 	router.Handle("/items/{id}", http.HandlerFunc(server.oneItemHandler))
 	server.Handler = corsMiddleware(router)
 
@@ -32,7 +32,7 @@ func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
 }
 
 func (server *TodoServer) itemsHandler(w http.ResponseWriter, r *http.Request) {
-	items := server.store.GetAllItems()
+	items := server.store.GetAllActiveItems()
 	writeItemSliceResponse(w, items)
 
 }
