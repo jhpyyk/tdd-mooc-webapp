@@ -107,6 +107,7 @@ func assertItemEqual(t testing.TB, wanted, got item_store.Item) {
 }
 
 func decodeItem(t testing.TB, result *http.Response) item_store.Item {
+	t.Helper()
 	var item item_store.Item
 	err := json.NewDecoder(result.Body).Decode(&item)
 	if err != nil {
@@ -115,6 +116,7 @@ func decodeItem(t testing.TB, result *http.Response) item_store.Item {
 	return item
 }
 func decodeItemSlice(t testing.TB, result *http.Response) []item_store.Item {
+	t.Helper()
 	var items []item_store.Item
 	err := json.NewDecoder(result.Body).Decode(&items)
 	if err != nil {
@@ -132,6 +134,7 @@ func setupTestServer(t testing.TB, items []item_store.Item) *server.TodoServer {
 }
 
 func doGetToEndpoint(t testing.TB, server *server.TodoServer, endpoint string, expectedCode int) *http.Response {
+	t.Helper()
 	request, _ := http.NewRequest(http.MethodGet, endpoint, nil)
 	response := httptest.NewRecorder()
 	server.ServeHTTP(response, request)
