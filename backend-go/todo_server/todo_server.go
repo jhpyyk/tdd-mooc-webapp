@@ -37,20 +37,21 @@ func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
 func (server *TodoServer) activeItemsHandler(w http.ResponseWriter, r *http.Request) {
 	items := server.store.GetAllActiveItems()
 	writeItemSliceResponse(w, items)
-
-}
-
-func (*TodoServer) testHandler(w http.ResponseWriter, _ *http.Request) {
-	writeTestMessageResponse(w, "Hello from go backend")
 }
 
 func (server *TodoServer) archivedItemsHandler(w http.ResponseWriter, r *http.Request) {
+	items := server.store.GetAllArchivedItems()
+	writeItemSliceResponse(w, items)
 }
 
 func (server *TodoServer) itemHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server *TodoServer) archiveDoneItemsHandler(w http.ResponseWriter, r *http.Request) {
+}
+
+func (*TodoServer) testHandler(w http.ResponseWriter, _ *http.Request) {
+	writeTestMessageResponse(w, "Hello from go backend")
 }
 
 func (h *TodoServer) dbHealthHandler(w http.ResponseWriter, _ *http.Request) {
