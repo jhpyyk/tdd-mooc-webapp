@@ -90,15 +90,6 @@ func TestGetItems(t *testing.T) {
 	t.Run(archivedItemsEndpoint+" should return all archived items", func(t *testing.T) {
 		assertItemsEndpointReturnsCorrectItems(t, todoServer, archivedItemsEndpoint, []item_store.Item{initialItems[1]})
 	})
-
-}
-
-func TestGetItemsItemStoreError(t *testing.T) {
-	itemsEndpoint := "/items"
-	server := setupTestServer(t, []item_store.Item{}, true)
-	t.Run(itemsEndpoint+" returns 500 on item store error", func(t *testing.T) {
-		doGetToEndpoint(t, server, itemsEndpoint, http.StatusInternalServerError)
-	})
 }
 
 func assertItemsEndpointReturnsCorrectItems(t testing.TB, todoServer *server.TodoServer, endpoint string, wanted []item_store.Item) {
@@ -109,6 +100,16 @@ func assertItemsEndpointReturnsCorrectItems(t testing.TB, todoServer *server.Tod
 		t.Fatalf("%q did not return correct items, wanted %v, got %v", endpoint, wanted, returnedItems)
 	}
 	assertItemsEqual(t, wanted, returnedItems)
+}
+
+func TestGetItemsItemStoreError(t *testing.T) {
+	endpoints := []string{"/items", "/items?archived=true", "/items?archived=false"}
+	server := setupTestServer(t, []item_store.Item{}, true)
+	for _, endpoint := range endpoints {
+		t.Run(endpoint+" returns 500 on item store error", func(t *testing.T) {
+			doGetToEndpoint(t, server, endpoint, http.StatusInternalServerError)
+		})
+	}
 }
 
 func assertItemsEqual(t testing.TB, wanted, got []item_store.Item) {
