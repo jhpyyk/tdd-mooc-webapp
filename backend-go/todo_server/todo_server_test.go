@@ -2,6 +2,7 @@ package todo_server_test
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -13,35 +14,46 @@ import (
 )
 
 type ItemStoreStub struct {
-	items []item_store.Item
+	items      []item_store.Item
+	throwError bool
 }
 
-func newItemStoreStub(items []item_store.Item) *ItemStoreStub {
+func newItemStoreStub(items []item_store.Item, throwError bool) *ItemStoreStub {
 	stub := ItemStoreStub{}
 	stub.items = items
+	stub.throwError = throwError
 	return &stub
 }
 
-func (store *ItemStoreStub) GetAllItems() []item_store.Item {
-	return store.items
+func (store *ItemStoreStub) GetAllItems() ([]item_store.Item, error) {
+	if store.throwError {
+		return nil, errors.New("error in GetAllItems")
+	}
+	return store.items, nil
 }
 
-func (store *ItemStoreStub) GetAllActiveItems() []item_store.Item {
-	return []item_store.Item{store.items[0]}
+func (store *ItemStoreStub) GetAllActiveItems() ([]item_store.Item, error) {
+	if store.throwError {
+		return nil, errors.New("error in GetAllActiveItems")
+	}
+	return []item_store.Item{store.items[0]}, nil
 }
 
-func (store *ItemStoreStub) GetAllArchivedItems() []item_store.Item {
-	return []item_store.Item{store.items[1]}
+func (store *ItemStoreStub) GetAllArchivedItems() ([]item_store.Item, error) {
+	if store.throwError {
+		return nil, errors.New("error in GetAllArchivedItems")
+	}
+	return []item_store.Item{store.items[1]}, nil
 }
 
 func (store *ItemStoreStub) GetDbHealthString() string {
 	return ""
 }
 
-func setupTestServer(t testing.TB, items []item_store.Item) *server.TodoServer {
+func setupTestServer(t testing.TB, items []item_store.Item, throwError bool) *server.TodoServer {
 	t.Helper()
 
-	itemStore := newItemStoreStub(items)
+	itemStore := newItemStoreStub(items, throwError)
 	todoServer := server.NewTodoServer(itemStore)
 	return todoServer
 }
@@ -63,7 +75,7 @@ func TestGetItems(t *testing.T) {
 		},
 	}
 
-	todoServer := setupTestServer(t, initialItems)
+	todoServer := setupTestServer(t, initialItems, false)
 	itemsEndpoint := "/items"
 	t.Run(itemsEndpoint+" should return all items", func(t *testing.T) {
 		assertItemsEndpointReturnsCorrectItems(t, todoServer, itemsEndpoint, initialItems)
@@ -77,6 +89,15 @@ func TestGetItems(t *testing.T) {
 	archivedItemsEndpoint := "/items?archived=true"
 	t.Run(archivedItemsEndpoint+" should return all archived items", func(t *testing.T) {
 		assertItemsEndpointReturnsCorrectItems(t, todoServer, archivedItemsEndpoint, []item_store.Item{initialItems[1]})
+	})
+
+}
+
+func TestGetItemsItemStoreError(t *testing.T) {
+	itemsEndpoint := "/items"
+	server := setupTestServer(t, []item_store.Item{}, true)
+	t.Run(itemsEndpoint+" returns 500 on item store error", func(t *testing.T) {
+		doGetToEndpoint(t, server, itemsEndpoint, http.StatusInternalServerError)
 	})
 }
 
@@ -126,7 +147,7 @@ func doGetToEndpoint(t testing.TB, server *server.TodoServer, endpoint string, e
 	result := response.Result()
 
 	if result.StatusCode != expectedCode {
-		t.Fatalf("GET %q did not return %q", endpoint, expectedCode)
+		t.Fatalf("GET %q did not return %v", endpoint, expectedCode)
 	}
 	return result
 }

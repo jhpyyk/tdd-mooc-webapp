@@ -43,13 +43,26 @@ func itemsGetHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.
 	archived := r.URL.Query().Get("archived")
 	switch archived {
 	case "false":
-		items := store.GetAllActiveItems()
+		items, err := store.GetAllActiveItems()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		writeItemSliceResponse(w, items)
 	case "true":
-		items := store.GetAllArchivedItems()
+
+		items, err := store.GetAllArchivedItems()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		writeItemSliceResponse(w, items)
 	default:
-		items := store.GetAllItems()
+		items, err := store.GetAllItems()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		writeItemSliceResponse(w, items)
 	}
 }
