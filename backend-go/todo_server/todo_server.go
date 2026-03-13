@@ -24,7 +24,7 @@ func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
 
 	router.Handle("/test", http.HandlerFunc(server.testHandler))
 	router.Handle("/db-health", http.HandlerFunc(server.dbHealthHandler))
-	router.Handle("/items", http.HandlerFunc(server.itemsHandler))
+	router.Handle("/items", http.HandlerFunc(server.itemsRouteHandler))
 	router.Handle("/active-items", http.HandlerFunc(server.activeItemsHandler))
 	router.Handle("/archived-items", http.HandlerFunc(server.archivedItemsHandler))
 	router.Handle("/archive-done", http.HandlerFunc(server.archiveDoneItemsHandler))
@@ -44,19 +44,23 @@ func (server *TodoServer) archivedItemsHandler(w http.ResponseWriter, r *http.Re
 	writeItemSliceResponse(w, items)
 }
 
-func (server *TodoServer) itemsHandler(w http.ResponseWriter, r *http.Request) {
+func (server *TodoServer) itemsRouteHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		if r.URL.Query().Get("archived") == "false" {
-			items := server.store.GetAllActiveItems()
-			writeItemSliceResponse(w, items)
-		} else {
-
-			items := server.store.GetAllItems()
-			writeItemSliceResponse(w, items)
-		}
+		itemsGetHandler(server.store, w, r)
 	}
+}
 
+func itemsGetHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.Request) {
+	archived := r.URL.Query().Get("archived")
+	switch archived {
+	case "false":
+		items := store.GetAllActiveItems()
+		writeItemSliceResponse(w, items)
+	default:
+		items := store.GetAllItems()
+		writeItemSliceResponse(w, items)
+	}
 }
 
 func (server *TodoServer) archiveDoneItemsHandler(w http.ResponseWriter, r *http.Request) {
