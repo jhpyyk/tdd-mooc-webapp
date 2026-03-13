@@ -17,6 +17,7 @@ type Item struct {
 
 type ItemStore interface {
 	GetDbHealthString() string
+	GetAllItems() []Item
 	GetAllActiveItems() []Item
 	GetAllArchivedItems() []Item
 }
@@ -48,5 +49,9 @@ func (store *ItemStoreImpl) GetAllActiveItems() []Item {
 }
 
 func (store *ItemStoreImpl) GetAllArchivedItems() []Item {
+	panic("not implemented")
+}
+
+func (store *ItemStoreImpl) GetAllItems() []Item {
 	panic("not implemented")
 }
