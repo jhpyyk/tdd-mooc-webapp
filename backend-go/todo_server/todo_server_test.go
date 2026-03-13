@@ -85,12 +85,13 @@ func TestGetItems(t *testing.T) {
 		assertItemEqual(t, initialItems[0], items[0])
 	})
 
-	t.Run("/archived-items should return all archived items", func(t *testing.T) {
+	archivedItemsEndpoint := "/items?archived=true"
+	t.Run(archivedItemsEndpoint+" should return all archived items", func(t *testing.T) {
 
-		result := doGetToEndpoint(t, todoServer, "/archived-items", http.StatusOK)
+		result := doGetToEndpoint(t, todoServer, archivedItemsEndpoint, http.StatusOK)
 		items := decodeItemSlice(t, result)
 		if len(items) != 1 {
-			t.Fatalf("/archived-items did not return correct items, wanted %v, got %v", initialItems[1], items)
+			t.Fatalf("%q did not return correct items, wanted %v, got %v", archivedItemsEndpoint, initialItems[1], items)
 		}
 		assertItemEqual(t, initialItems[1], items[0])
 	})
