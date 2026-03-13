@@ -64,40 +64,34 @@ func TestGetItems(t *testing.T) {
 	}
 
 	todoServer := setupTestServer(t, initialItems)
-	t.Run("/items should return all items", func(t *testing.T) {
-		result := doGetToEndpoint(t, todoServer, "/items", http.StatusOK)
-		items := decodeItemSlice(t, result)
-		if len(items) != 2 {
-			t.Fatalf("/items did not return correct items, wanted %v, got %v", initialItems, items)
-		}
-		assertItemEqual(t, initialItems[0], items[0])
-		assertItemEqual(t, initialItems[1], items[1])
+	itemsEndpoint := "/items"
+	t.Run(itemsEndpoint+" should return all items", func(t *testing.T) {
+		assertItemsEndpointReturnsCorrectItems(t, todoServer, itemsEndpoint, initialItems)
 	})
 
 	activeItemsEndpoint := "/items?archived=false"
 	t.Run(activeItemsEndpoint+" should return all active items", func(t *testing.T) {
-
-		result := doGetToEndpoint(t, todoServer, activeItemsEndpoint, http.StatusOK)
-		items := decodeItemSlice(t, result)
-		if len(items) != 1 {
-			t.Fatalf("%q did not return correct items, wanted %v, got %v", activeItemsEndpoint, initialItems[0], items)
-		}
-		assertItemEqual(t, initialItems[0], items[0])
+		assertItemsEndpointReturnsCorrectItems(t, todoServer, activeItemsEndpoint, []item_store.Item{initialItems[0]})
 	})
 
 	archivedItemsEndpoint := "/items?archived=true"
 	t.Run(archivedItemsEndpoint+" should return all archived items", func(t *testing.T) {
-
-		result := doGetToEndpoint(t, todoServer, archivedItemsEndpoint, http.StatusOK)
-		items := decodeItemSlice(t, result)
-		if len(items) != 1 {
-			t.Fatalf("%q did not return correct items, wanted %v, got %v", archivedItemsEndpoint, initialItems[1], items)
-		}
-		assertItemEqual(t, initialItems[1], items[0])
+		assertItemsEndpointReturnsCorrectItems(t, todoServer, archivedItemsEndpoint, []item_store.Item{initialItems[1]})
 	})
 }
 
-func assertItemEqual(t testing.TB, wanted, got item_store.Item) {
+func assertItemsEndpointReturnsCorrectItems(t testing.TB, todoServer *server.TodoServer, endpoint string, wanted []item_store.Item) {
+	t.Helper()
+	result := doGetToEndpoint(t, todoServer, endpoint, http.StatusOK)
+	returnedItems := decodeItemSlice(t, result)
+	if len(returnedItems) != len(wanted) {
+		t.Fatalf("%q did not return correct items, wanted %v, got %v", endpoint, wanted, returnedItems)
+	}
+	assertItemsEqual(t, wanted, returnedItems)
+}
+
+func assertItemsEqual(t testing.TB, wanted, got []item_store.Item) {
+	t.Helper()
 	if !reflect.DeepEqual(wanted, got) {
 		t.Fatalf("items are not equal wanted %v, got %v", wanted, got)
 	}
@@ -112,6 +106,7 @@ func decodeItem(t testing.TB, result *http.Response) item_store.Item {
 	}
 	return item
 }
+
 func decodeItemSlice(t testing.TB, result *http.Response) []item_store.Item {
 	t.Helper()
 	var items []item_store.Item
