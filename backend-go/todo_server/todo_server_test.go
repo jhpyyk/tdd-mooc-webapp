@@ -1,6 +1,7 @@
 package todo_server_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -44,6 +45,16 @@ func (store *ItemStoreStub) GetAllArchivedItems() ([]item_store.Item, error) {
 		return nil, errors.New("error in GetAllArchivedItems")
 	}
 	return []item_store.Item{store.items[1]}, nil
+}
+
+func (store *ItemStoreStub) AddItem(title string) (item_store.Item, error) {
+	item := item_store.Item{
+		ID:       999,
+		Title:    title,
+		Done:     false,
+		Archived: false,
+	}
+	return item, nil
 }
 
 func (store *ItemStoreStub) GetDbHealthString() string {
@@ -110,6 +121,37 @@ func TestGetItemsItemStoreError(t *testing.T) {
 			doGetToEndpoint(t, server, endpoint, http.StatusInternalServerError)
 		})
 	}
+}
+
+func TestPostItems(t *testing.T) {
+	itemsEndpoint := "/items"
+	todoServer := setupTestServer(t, []item_store.Item{}, false)
+
+	t.Run(itemsEndpoint+" should return the added item", func(t *testing.T) {
+		title := "item title"
+		payload := server.AddItemRequest{
+			Title: title,
+		}
+		buffer := new(bytes.Buffer)
+		json.NewEncoder(buffer).Encode(payload)
+
+		request, _ := http.NewRequest(http.MethodPost, itemsEndpoint, buffer)
+		response := httptest.NewRecorder()
+		todoServer.ServeHTTP(response, request)
+
+		result := response.Result()
+
+		expectedCode := http.StatusOK
+
+		if result.StatusCode != expectedCode {
+			t.Fatalf("POST %q returned wrong code, wanted %v, got %v", itemsEndpoint, expectedCode, result.StatusCode)
+		}
+		item := decodeItem(t, result)
+		if item.Title != title {
+			t.Fatalf("POST returned the wrong title, wanted %v, got %v", title, item.Title)
+		}
+	})
+
 }
 
 func assertItemsEqual(t testing.TB, wanted, got []item_store.Item) {

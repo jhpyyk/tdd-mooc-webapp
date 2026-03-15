@@ -16,6 +16,10 @@ type TestMessage struct {
 	Message string `json:"message"`
 }
 
+type AddItemRequest struct {
+	Title string `json:"title"`
+}
+
 func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
 	server := new(TodoServer)
 	server.store = itemStore
@@ -36,6 +40,8 @@ func (server *TodoServer) itemsRouteHandler(w http.ResponseWriter, r *http.Reque
 	switch r.Method {
 	case http.MethodGet:
 		itemsGetHandler(server.store, w, r)
+	case http.MethodPost:
+		itemsPostHandler(server.store, w, r)
 	}
 }
 
@@ -65,6 +71,19 @@ func itemsGetHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.
 		}
 		writeItemSliceResponse(w, items)
 	}
+}
+
+func itemsPostHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.Request) {
+	decoded := new(AddItemRequest)
+	err := json.NewDecoder(r.Body).Decode(decoded)
+	if err != nil {
+		return
+	}
+	item, err := store.AddItem(decoded.Title)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	writeItemResponse(w, item)
 }
 
 func (server *TodoServer) archiveDoneItemsHandler(w http.ResponseWriter, r *http.Request) {
