@@ -14,6 +14,14 @@ import (
 	server "github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
 )
 
+const (
+	itemsEndpoint      = "/items"
+	itemsArchivedTrue  = "/items?archived=true"
+	itemsArchivedFalse = "/items?archived=false"
+	testEndpoint       = "/test"
+	dbHealthEndpoint   = "/db-health"
+)
+
 type ItemStoreStub struct {
 	items      []item_store.Item
 	throwError bool
@@ -87,18 +95,15 @@ func TestGetItems(t *testing.T) {
 	}
 
 	todoServer := setupTestServer(t, initialItems, false)
-	itemsEndpoint := "/items"
 	t.Run(itemsEndpoint+" should return all items", func(t *testing.T) {
 		assertItemsEndpointReturnsCorrectItems(t, todoServer, itemsEndpoint, initialItems)
 	})
 
-	activeItemsEndpoint := "/items?archived=false"
-	t.Run(activeItemsEndpoint+" should return all active items", func(t *testing.T) {
+	t.Run(itemsArchivedFalse+" should return all active items", func(t *testing.T) {
 		assertItemsEndpointReturnsCorrectItems(t, todoServer, itemsEndpoint, initialItems)
 	})
 
-	archivedItemsEndpoint := "/items?archived=true"
-	t.Run(archivedItemsEndpoint+" should return all archived items", func(t *testing.T) {
+	t.Run(itemsArchivedTrue+" should return all archived items", func(t *testing.T) {
 		assertItemsEndpointReturnsCorrectItems(t, todoServer, itemsEndpoint, initialItems)
 	})
 }
@@ -114,7 +119,7 @@ func assertItemsEndpointReturnsCorrectItems(t testing.TB, todoServer *server.Tod
 }
 
 func TestGetItemsItemStoreError(t *testing.T) {
-	endpoints := []string{"/items", "/items?archived=true", "/items?archived=false"}
+	endpoints := []string{itemsEndpoint, itemsArchivedTrue, itemsArchivedFalse}
 	server := setupTestServer(t, []item_store.Item{}, true)
 	for _, endpoint := range endpoints {
 		t.Run(endpoint+" returns 500 on item store error", func(t *testing.T) {
@@ -124,7 +129,6 @@ func TestGetItemsItemStoreError(t *testing.T) {
 }
 
 func TestPostItems(t *testing.T) {
-	itemsEndpoint := "/items"
 	todoServer := setupTestServer(t, []item_store.Item{}, false)
 
 	t.Run(itemsEndpoint+" should return the added item", func(t *testing.T) {
