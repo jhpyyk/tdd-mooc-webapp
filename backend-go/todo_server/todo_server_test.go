@@ -94,18 +94,18 @@ func TestGetItems(t *testing.T) {
 
 	activeItemsEndpoint := "/items?archived=false"
 	t.Run(activeItemsEndpoint+" should return all active items", func(t *testing.T) {
-		assertItemsEndpointReturnsCorrectItems(t, todoServer, activeItemsEndpoint, []item_store.Item{initialItems[0]})
+		assertItemsEndpointReturnsCorrectItems(t, todoServer, itemsEndpoint, initialItems)
 	})
 
 	archivedItemsEndpoint := "/items?archived=true"
 	t.Run(archivedItemsEndpoint+" should return all archived items", func(t *testing.T) {
-		assertItemsEndpointReturnsCorrectItems(t, todoServer, archivedItemsEndpoint, []item_store.Item{initialItems[1]})
+		assertItemsEndpointReturnsCorrectItems(t, todoServer, itemsEndpoint, initialItems)
 	})
 }
 
 func assertItemsEndpointReturnsCorrectItems(t testing.TB, todoServer *server.TodoServer, endpoint string, wanted []item_store.Item) {
 	t.Helper()
-	result := doGetToEndpoint(t, todoServer, endpoint, http.StatusOK)
+	result := doRequestToEndpoint(t, todoServer, endpoint, http.MethodGet, nil, http.StatusOK)
 	returnedItems := decodeItemSlice(t, result)
 	if len(returnedItems) != len(wanted) {
 		t.Fatalf("%q did not return correct items, wanted %v, got %v", endpoint, wanted, returnedItems)
