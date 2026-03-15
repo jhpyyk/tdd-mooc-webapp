@@ -132,23 +132,11 @@ func TestPostItems(t *testing.T) {
 		payload := server.AddItemRequest{
 			Title: title,
 		}
-		buffer := new(bytes.Buffer)
-		json.NewEncoder(buffer).Encode(payload)
 
-		request, _ := http.NewRequest(http.MethodPost, itemsEndpoint, buffer)
-		response := httptest.NewRecorder()
-		todoServer.ServeHTTP(response, request)
-
-		result := response.Result()
-
-		expectedCode := http.StatusOK
-
-		if result.StatusCode != expectedCode {
-			t.Fatalf("POST %q returned wrong code, wanted %v, got %v", itemsEndpoint, expectedCode, result.StatusCode)
-		}
+		result := doRequestToEndpoint(t, todoServer, itemsEndpoint, http.MethodPost, payload, http.StatusOK)
 		item := decodeItem(t, result)
-		if item.Title != title {
-			t.Fatalf("POST returned the wrong title, wanted %v, got %v", title, item.Title)
+		if title != item.Title {
+			t.Fatalf("POST returned the wrong title, wanted %q, got %q", title, item.Title)
 		}
 	})
 
@@ -191,6 +179,22 @@ func doGetToEndpoint(t testing.TB, server *server.TodoServer, endpoint string, e
 
 	if result.StatusCode != expectedCode {
 		t.Fatalf("GET %q did not return %v", endpoint, expectedCode)
+	}
+	return result
+}
+
+func doRequestToEndpoint(t testing.TB, server *server.TodoServer, endpoint string, method string, payload any, expectedCode int) *http.Response {
+	t.Helper()
+	buffer := new(bytes.Buffer)
+	json.NewEncoder(buffer).Encode(payload)
+	request, _ := http.NewRequest(method, endpoint, buffer)
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+
+	result := response.Result()
+
+	if result.StatusCode != expectedCode {
+		t.Fatalf("%q %q did not return %v", method, endpoint, expectedCode)
 	}
 	return result
 }
