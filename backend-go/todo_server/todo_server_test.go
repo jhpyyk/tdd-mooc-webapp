@@ -23,8 +23,9 @@ const (
 )
 
 type ItemStoreStub struct {
-	items      []item_store.Item
-	throwError bool
+	items             []item_store.Item
+	throwError        bool
+	AddItemCalledWith []string
 }
 
 func newItemStoreStub(items []item_store.Item, throwError bool) *ItemStoreStub {
@@ -56,6 +57,7 @@ func (store *ItemStoreStub) GetAllArchivedItems() ([]item_store.Item, error) {
 }
 
 func (store *ItemStoreStub) AddItem(title string) (item_store.Item, error) {
+	store.AddItemCalledWith = append(store.AddItemCalledWith, title)
 	item := item_store.Item{
 		ID:       999,
 		Title:    title,
@@ -69,12 +71,12 @@ func (store *ItemStoreStub) GetDbHealthString() string {
 	return ""
 }
 
-func setupTestServer(t testing.TB, items []item_store.Item, throwError bool) *server.TodoServer {
+func setupTestServer(t testing.TB, items []item_store.Item, throwError bool) (*server.TodoServer, *ItemStoreStub) {
 	t.Helper()
 
 	itemStore := newItemStoreStub(items, throwError)
 	todoServer := server.NewTodoServer(itemStore)
-	return todoServer
+	return todoServer, itemStore
 }
 
 func TestGetItems(t *testing.T) {
@@ -94,7 +96,7 @@ func TestGetItems(t *testing.T) {
 		},
 	}
 
-	todoServer := setupTestServer(t, initialItems, false)
+	todoServer, _ := setupTestServer(t, initialItems, false)
 	t.Run(itemsEndpoint+" should return all items", func(t *testing.T) {
 		assertItemsEndpointReturnsCorrectItems(t, todoServer, itemsEndpoint, initialItems)
 	})
@@ -120,7 +122,7 @@ func assertItemsEndpointReturnsCorrectItems(t testing.TB, todoServer *server.Tod
 
 func TestGetItemsItemStoreError(t *testing.T) {
 	endpoints := []string{itemsEndpoint, itemsArchivedTrue, itemsArchivedFalse}
-	server := setupTestServer(t, []item_store.Item{}, true)
+	server, _ := setupTestServer(t, []item_store.Item{}, true)
 	for _, endpoint := range endpoints {
 		t.Run(endpoint+" returns 500 on item store error", func(t *testing.T) {
 			doGetToEndpoint(t, server, endpoint, http.StatusInternalServerError)
@@ -129,9 +131,9 @@ func TestGetItemsItemStoreError(t *testing.T) {
 }
 
 func TestPostItems(t *testing.T) {
-	todoServer := setupTestServer(t, []item_store.Item{}, false)
 
-	t.Run(itemsEndpoint+" should return the added item", func(t *testing.T) {
+	t.Run("POST"+itemsEndpoint+" should return the added item", func(t *testing.T) {
+		todoServer, _ := setupTestServer(t, []item_store.Item{}, false)
 		title := "item title"
 		payload := server.AddItemRequest{
 			Title: title,
@@ -142,6 +144,26 @@ func TestPostItems(t *testing.T) {
 		if title != item.Title {
 			t.Fatalf("POST returned the wrong title, wanted %q, got %q", title, item.Title)
 		}
+	})
+
+	t.Run("POST"+itemsEndpoint+" should return call item store add item", func(t *testing.T) {
+		todoServer, store := setupTestServer(t, []item_store.Item{}, false)
+		title := "item title"
+		payload := server.AddItemRequest{
+			Title: title,
+		}
+
+		doRequestToEndpoint(t, todoServer, itemsEndpoint, http.MethodPost, payload, http.StatusOK)
+
+		timesCalled := len(store.AddItemCalledWith)
+		if timesCalled != 1 {
+			t.Fatalf("Add item was not called the right amount of times, wanted 1, got %v", timesCalled)
+		}
+		arg := store.AddItemCalledWith[0]
+		if arg != title {
+			t.Fatalf("Add item was not called with the right argument, wanted %q, got %v", title, arg)
+		}
+
 	})
 
 }
