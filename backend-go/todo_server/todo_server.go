@@ -134,27 +134,45 @@ func itemsPostHandler(store item_store.ItemStore, w http.ResponseWriter, r *http
 }
 
 func itemsPutHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.Request) {
-	decoded := new(EditItemRequest)
-	if err := json.NewDecoder(r.Body).Decode(decoded); err != nil {
-		http.Error(w, "invalid json body", http.StatusBadRequest)
+	req, ok := mustDecodeAndValidateEditItemRequest(w, r)
+	if !ok {
 		return
 	}
-	if err := decoded.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+
+	id, ok := mustParsePathID(w, r, "id")
+	if !ok {
 		return
 	}
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil || id <= 0 {
-		http.Error(w, "Invalid id", http.StatusBadRequest)
-		return
-	}
-	item, err := store.EditItem(decoded.ToItem(id))
+
+	item, err := store.EditItem(req.ToItem(id))
 	if err != nil {
-		http.Error(w, "Failed to edit item in DB", http.StatusInternalServerError)
+		http.Error(w, "failed to edit item in DB", http.StatusInternalServerError)
 		return
 	}
+
 	writeItemResponse(w, item)
+}
+
+func mustDecodeAndValidateEditItemRequest(w http.ResponseWriter, r *http.Request) (*EditItemRequest, bool) {
+	var req EditItemRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid json body", http.StatusBadRequest)
+		return nil, false
+	}
+	if err := req.Validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return nil, false
+	}
+	return &req, true
+}
+
+func mustParsePathID(w http.ResponseWriter, r *http.Request, key string) (int, bool) {
+	id, err := strconv.Atoi(r.PathValue(key))
+	if err != nil || id <= 0 {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return 0, false
+	}
+	return id, true
 }
 
 func (server *TodoServer) archiveDoneItemsHandler(w http.ResponseWriter, r *http.Request) {
