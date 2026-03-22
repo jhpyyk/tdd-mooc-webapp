@@ -146,6 +146,9 @@ func itemsPutHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.
 
 	item, err := store.EditItem(req.ToItem(id))
 	if err != nil {
+		if errors.Is(err, item_store.ErrItemNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		}
 		http.Error(w, "failed to edit item in DB", http.StatusInternalServerError)
 		return
 	}

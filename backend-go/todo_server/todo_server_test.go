@@ -25,12 +25,12 @@ const (
 
 type ItemStoreStub struct {
 	items              []item_store.Item
-	throwError         bool
+	throwError         error
 	AddItemCalledWith  []string
 	EditItemCalledWith []item_store.Item
 }
 
-func newItemStoreStub(items []item_store.Item, throwError bool) *ItemStoreStub {
+func newItemStoreStub(items []item_store.Item, throwError error) *ItemStoreStub {
 	stub := ItemStoreStub{}
 	stub.items = items
 	stub.throwError = throwError
@@ -38,28 +38,31 @@ func newItemStoreStub(items []item_store.Item, throwError bool) *ItemStoreStub {
 }
 
 func (store *ItemStoreStub) GetAllItems() ([]item_store.Item, error) {
-	if store.throwError {
-		return nil, errors.New("error in GetAllItems")
+	if store.throwError != nil {
+		return nil, store.throwError
 	}
 	return store.items, nil
 }
 
 func (store *ItemStoreStub) GetAllActiveItems() ([]item_store.Item, error) {
-	if store.throwError {
-		return nil, errors.New("error in GetAllActiveItems")
+	if store.throwError != nil {
+		return nil, store.throwError
 	}
 	return []item_store.Item{store.items[0]}, nil
 }
 
 func (store *ItemStoreStub) GetAllArchivedItems() ([]item_store.Item, error) {
-	if store.throwError {
-		return nil, errors.New("error in GetAllArchivedItems")
+	if store.throwError != nil {
+		return nil, store.throwError
 	}
 	return []item_store.Item{store.items[1]}, nil
 }
 
 func (store *ItemStoreStub) AddItem(title string) (item_store.Item, error) {
 	store.AddItemCalledWith = append(store.AddItemCalledWith, title)
+	if store.throwError != nil {
+		return item_store.Item{}, store.throwError
+	}
 	item := item_store.Item{
 		ID:       999,
 		Title:    title,
@@ -71,6 +74,9 @@ func (store *ItemStoreStub) AddItem(title string) (item_store.Item, error) {
 
 func (store *ItemStoreStub) EditItem(item item_store.Item) (item_store.Item, error) {
 	store.EditItemCalledWith = append(store.EditItemCalledWith, item)
+	if store.throwError != nil {
+		return item_store.Item{}, store.throwError
+	}
 	return item, nil
 }
 
@@ -78,7 +84,7 @@ func (store *ItemStoreStub) GetDbHealthString() string {
 	return ""
 }
 
-func setupTestServer(t testing.TB, items []item_store.Item, throwError bool) (*server.TodoServer, *ItemStoreStub) {
+func setupTestServer(t testing.TB, items []item_store.Item, throwError error) (*server.TodoServer, *ItemStoreStub) {
 	t.Helper()
 
 	itemStore := newItemStoreStub(items, throwError)
@@ -103,7 +109,7 @@ func TestGetItems(t *testing.T) {
 		},
 	}
 
-	todoServer, _ := setupTestServer(t, initialItems, false)
+	todoServer, _ := setupTestServer(t, initialItems, nil)
 	t.Run(itemsEndpoint+" should return all items", func(t *testing.T) {
 		assertItemsEndpointReturnsCorrectItems(t, todoServer, itemsEndpoint, initialItems)
 	})
@@ -129,7 +135,7 @@ func assertItemsEndpointReturnsCorrectItems(t testing.TB, todoServer *server.Tod
 
 func TestGetItemsItemStoreError(t *testing.T) {
 	endpoints := []string{itemsEndpoint, itemsArchivedTrue, itemsArchivedFalse}
-	server, _ := setupTestServer(t, []item_store.Item{}, true)
+	server, _ := setupTestServer(t, []item_store.Item{}, errors.New("some internal error in DB"))
 	for _, endpoint := range endpoints {
 		t.Run(endpoint+" returns 500 on item store error", func(t *testing.T) {
 			doGetToEndpoint(t, server, endpoint, http.StatusInternalServerError)
@@ -140,7 +146,7 @@ func TestGetItemsItemStoreError(t *testing.T) {
 func TestPostItems(t *testing.T) {
 
 	t.Run("POST"+itemsEndpoint+" should return the added item", func(t *testing.T) {
-		todoServer, _ := setupTestServer(t, []item_store.Item{}, false)
+		todoServer, _ := setupTestServer(t, []item_store.Item{}, nil)
 		title := "item title"
 		payload := server.AddItemRequest{
 			Title: &title,
@@ -154,7 +160,7 @@ func TestPostItems(t *testing.T) {
 	})
 
 	t.Run("POST"+itemsEndpoint+" should return call item store add item method", func(t *testing.T) {
-		todoServer, store := setupTestServer(t, []item_store.Item{}, false)
+		todoServer, store := setupTestServer(t, []item_store.Item{}, nil)
 		title := "item title"
 		payload := server.AddItemRequest{
 			Title: &title,
@@ -185,7 +191,7 @@ func TestPutItems(t *testing.T) {
 	}
 	t.Run("PUT"+itemsEndpointWithID1+" should return the edited item", func(t *testing.T) {
 
-		todoServer, _ := setupTestServer(t, initialItems, false)
+		todoServer, _ := setupTestServer(t, initialItems, nil)
 		newTitle := "new item title"
 		done := false
 		archived := false
@@ -203,7 +209,7 @@ func TestPutItems(t *testing.T) {
 	})
 
 	t.Run("PUT"+itemsEndpointWithID1+" should return call item store edit item", func(t *testing.T) {
-		todoServer, store := setupTestServer(t, []item_store.Item{}, false)
+		todoServer, store := setupTestServer(t, []item_store.Item{}, nil)
 		title := "item title"
 		done := false
 		archived := false
@@ -227,13 +233,27 @@ func TestPutItems(t *testing.T) {
 
 	t.Run("PUT"+itemsEndpointWithID1+" should return 400 on invalid data", func(t *testing.T) {
 
-		todoServer, _ := setupTestServer(t, []item_store.Item{}, false)
+		todoServer, _ := setupTestServer(t, []item_store.Item{}, nil)
 		title := "item title"
 		payload := server.EditItemRequest{
 			Title: title,
 		}
 
 		doRequestToEndpoint(t, todoServer, itemsEndpointWithID1, http.MethodPut, payload, http.StatusBadRequest)
+	})
+	t.Run("PUT"+itemsEndpointWithID1+" should return 404 on non-existent item id", func(t *testing.T) {
+
+		todoServer, _ := setupTestServer(t, []item_store.Item{}, store.ErrItemNotFound)
+		title := "item title"
+		done := false
+		archived := false
+		payload := server.EditItemRequest{
+			Title:    title,
+			Done:     &done,
+			Archived: &archived,
+		}
+
+		doRequestToEndpoint(t, todoServer, itemsEndpointWithID1, http.MethodPut, payload, http.StatusNotFound)
 	})
 }
 

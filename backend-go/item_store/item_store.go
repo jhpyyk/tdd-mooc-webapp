@@ -2,6 +2,7 @@ package item_store
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"os"
 
@@ -14,6 +15,8 @@ type Item struct {
 	Done     bool
 	Archived bool
 }
+
+var ErrItemNotFound = errors.New("item not found")
 
 type ItemStore interface {
 	GetDbHealthString() string
