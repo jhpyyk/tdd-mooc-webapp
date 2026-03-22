@@ -15,11 +15,12 @@ import (
 )
 
 const (
-	itemsEndpoint      = "/items"
-	itemsArchivedTrue  = "/items?archived=true"
-	itemsArchivedFalse = "/items?archived=false"
-	testEndpoint       = "/test"
-	dbHealthEndpoint   = "/db-health"
+	itemsEndpoint        = "/items"
+	itemsEndpointWithID1 = "/items/1"
+	itemsArchivedTrue    = "/items?archived=true"
+	itemsArchivedFalse   = "/items?archived=false"
+	testEndpoint         = "/test"
+	dbHealthEndpoint     = "/db-health"
 )
 
 type ItemStoreStub struct {
@@ -182,36 +183,37 @@ func TestPutItems(t *testing.T) {
 			Archived: false,
 		},
 	}
-	t.Run("PUT"+itemsEndpoint+" should return the edited item", func(t *testing.T) {
+	t.Run("PUT"+itemsEndpointWithID1+" should return the edited item", func(t *testing.T) {
 
 		todoServer, _ := setupTestServer(t, initialItems, false)
-		newTitle := "new title"
-
+		newTitle := "new item title"
+		done := false
+		archived := false
 		payload := server.EditItemRequest{
-			ID:       1,
 			Title:    newTitle,
-			Done:     false,
-			Archived: false,
+			Done:     &done,
+			Archived: &archived,
 		}
 
-		result := doRequestToEndpoint(t, todoServer, itemsEndpoint, http.MethodPut, payload, http.StatusOK)
+		result := doRequestToEndpoint(t, todoServer, itemsEndpointWithID1, http.MethodPut, payload, http.StatusOK)
 		item := decodeItem(t, result)
 		if newTitle != item.Title {
 			t.Fatalf("PUT returned the wrong title, wanted %q, got %q", newTitle, item.Title)
 		}
 	})
 
-	t.Run("PUT"+itemsEndpoint+" should return call item store edit item", func(t *testing.T) {
+	t.Run("PUT"+itemsEndpointWithID1+" should return call item store edit item", func(t *testing.T) {
 		todoServer, store := setupTestServer(t, []item_store.Item{}, false)
 		title := "item title"
+		done := false
+		archived := false
 		payload := server.EditItemRequest{
-			ID:       1,
 			Title:    title,
-			Done:     false,
-			Archived: false,
+			Done:     &done,
+			Archived: &archived,
 		}
 
-		doRequestToEndpoint(t, todoServer, itemsEndpoint, http.MethodPut, payload, http.StatusOK)
+		doRequestToEndpoint(t, todoServer, itemsEndpointWithID1, http.MethodPut, payload, http.StatusOK)
 
 		timesCalled := len(store.EditItemCalledWith)
 		if timesCalled != 1 {
@@ -221,6 +223,17 @@ func TestPutItems(t *testing.T) {
 		if arg.Title != title {
 			t.Fatalf("Edit item was not called with the right argument, wanted %q, got %v", title, arg)
 		}
+	})
+
+	t.Run("PUT"+itemsEndpointWithID1+" should return 400 on invalid data", func(t *testing.T) {
+
+		todoServer, _ := setupTestServer(t, []item_store.Item{}, false)
+		title := "item title"
+		payload := server.EditItemRequest{
+			Title: title,
+		}
+
+		doRequestToEndpoint(t, todoServer, itemsEndpointWithID1, http.MethodPut, payload, http.StatusBadRequest)
 	})
 }
 

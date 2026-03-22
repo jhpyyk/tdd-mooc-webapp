@@ -2,7 +2,10 @@ package todo_server
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strconv"
+	"strings"
 
 	item_store "github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
 )
@@ -21,18 +24,30 @@ type AddItemRequest struct {
 }
 
 type EditItemRequest struct {
-	ID       int    `json:"id"`
 	Title    string `json:"title"`
-	Done     bool   `json:"done"`
-	Archived bool   `json:"archived"`
+	Done     *bool  `json:"done"`
+	Archived *bool  `json:"archived"`
 }
 
-func (r *EditItemRequest) ToItem() item_store.Item {
+func (r *EditItemRequest) Validate() error {
+	if strings.TrimSpace(r.Title) == "" {
+		return errors.New("title is required")
+	}
+	if r.Done == nil {
+		return errors.New("done is required")
+	}
+	if r.Archived == nil {
+		return errors.New("archived is required")
+	}
+	return nil
+}
+
+func (r *EditItemRequest) ToItem(id int) item_store.Item {
 	item := item_store.Item{
-		ID:       r.ID,
+		ID:       id,
 		Title:    r.Title,
-		Done:     r.Done,
-		Archived: r.Archived,
+		Done:     *r.Done,
+		Archived: *r.Archived,
 	}
 	return item
 }
@@ -46,6 +61,7 @@ func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
 	router.Handle("/test", http.HandlerFunc(server.testHandler))
 	router.Handle("/db-health", http.HandlerFunc(server.dbHealthHandler))
 	router.Handle("/items", http.HandlerFunc(server.itemsRouteHandler))
+	router.Handle("/items/{id}", http.HandlerFunc(server.itemByIdHandler))
 	router.Handle("/archive-done", http.HandlerFunc(server.archiveDoneItemsHandler))
 
 	server.Handler = corsMiddleware(router)
@@ -59,6 +75,11 @@ func (server *TodoServer) itemsRouteHandler(w http.ResponseWriter, r *http.Reque
 		itemsGetHandler(server.store, w, r)
 	case http.MethodPost:
 		itemsPostHandler(server.store, w, r)
+	}
+}
+
+func (server *TodoServer) itemByIdHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
 	case http.MethodPut:
 		itemsPutHandler(server.store, w, r)
 	}
@@ -116,10 +137,22 @@ func itemsPutHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.
 	decoded := new(EditItemRequest)
 	if err := json.NewDecoder(r.Body).Decode(decoded); err != nil {
 		http.Error(w, "invalid json body", http.StatusBadRequest)
+		return
 	}
-	item, err := store.EditItem(decoded.ToItem())
+	if err := decoded.Validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+	item, err := store.EditItem(decoded.ToItem(id))
 	if err != nil {
 		http.Error(w, "Failed to edit item in DB", http.StatusInternalServerError)
+		return
 	}
 	writeItemResponse(w, item)
 }
