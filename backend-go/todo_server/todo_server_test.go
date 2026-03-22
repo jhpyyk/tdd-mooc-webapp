@@ -23,9 +23,10 @@ const (
 )
 
 type ItemStoreStub struct {
-	items             []item_store.Item
-	throwError        bool
-	AddItemCalledWith []string
+	items              []item_store.Item
+	throwError         bool
+	AddItemCalledWith  []string
+	EditItemCalledWith []item_store.Item
 }
 
 func newItemStoreStub(items []item_store.Item, throwError bool) *ItemStoreStub {
@@ -64,6 +65,11 @@ func (store *ItemStoreStub) AddItem(title string) (item_store.Item, error) {
 		Done:     false,
 		Archived: false,
 	}
+	return item, nil
+}
+
+func (store *ItemStoreStub) EditItem(item item_store.Item) (item_store.Item, error) {
+	store.EditItemCalledWith = append(store.EditItemCalledWith, item)
 	return item, nil
 }
 
@@ -136,7 +142,7 @@ func TestPostItems(t *testing.T) {
 		todoServer, _ := setupTestServer(t, []item_store.Item{}, false)
 		title := "item title"
 		payload := server.AddItemRequest{
-			Title: title,
+			Title: &title,
 		}
 
 		result := doRequestToEndpoint(t, todoServer, itemsEndpoint, http.MethodPost, payload, http.StatusOK)
@@ -146,11 +152,11 @@ func TestPostItems(t *testing.T) {
 		}
 	})
 
-	t.Run("POST"+itemsEndpoint+" should return call item store add item", func(t *testing.T) {
+	t.Run("POST"+itemsEndpoint+" should return call item store add item method", func(t *testing.T) {
 		todoServer, store := setupTestServer(t, []item_store.Item{}, false)
 		title := "item title"
 		payload := server.AddItemRequest{
-			Title: title,
+			Title: &title,
 		}
 
 		doRequestToEndpoint(t, todoServer, itemsEndpoint, http.MethodPost, payload, http.StatusOK)
@@ -166,6 +172,56 @@ func TestPostItems(t *testing.T) {
 
 	})
 
+}
+func TestPutItems(t *testing.T) {
+	initialItems := []item_store.Item{
+		{
+			ID:       1,
+			Title:    "title",
+			Done:     false,
+			Archived: false,
+		},
+	}
+	t.Run("PUT"+itemsEndpoint+" should return the edited item", func(t *testing.T) {
+
+		todoServer, _ := setupTestServer(t, initialItems, false)
+		newTitle := "new title"
+
+		payload := server.EditItemRequest{
+			ID:       1,
+			Title:    newTitle,
+			Done:     false,
+			Archived: false,
+		}
+
+		result := doRequestToEndpoint(t, todoServer, itemsEndpoint, http.MethodPut, payload, http.StatusOK)
+		item := decodeItem(t, result)
+		if newTitle != item.Title {
+			t.Fatalf("PUT returned the wrong title, wanted %q, got %q", newTitle, item.Title)
+		}
+	})
+
+	t.Run("PUT"+itemsEndpoint+" should return call item store edit item", func(t *testing.T) {
+		todoServer, store := setupTestServer(t, []item_store.Item{}, false)
+		title := "item title"
+		payload := server.EditItemRequest{
+			ID:       1,
+			Title:    title,
+			Done:     false,
+			Archived: false,
+		}
+
+		doRequestToEndpoint(t, todoServer, itemsEndpoint, http.MethodPut, payload, http.StatusOK)
+
+		timesCalled := len(store.EditItemCalledWith)
+		if timesCalled != 1 {
+			t.Fatalf("Edit item was not called the right amount of times, wanted 1, got %v", timesCalled)
+		}
+		arg := store.EditItemCalledWith[0]
+		if arg.Title != title {
+			t.Fatalf("Edit item was not called with the right argument, wanted %q, got %v", title, arg)
+		}
+	})
 }
 
 func assertItemsEqual(t testing.TB, wanted, got []item_store.Item) {

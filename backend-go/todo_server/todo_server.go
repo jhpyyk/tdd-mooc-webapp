@@ -17,7 +17,24 @@ type TestMessage struct {
 }
 
 type AddItemRequest struct {
-	Title string `json:"title"`
+	Title *string `json:"title"`
+}
+
+type EditItemRequest struct {
+	ID       int    `json:"id"`
+	Title    string `json:"title"`
+	Done     bool   `json:"done"`
+	Archived bool   `json:"archived"`
+}
+
+func (r *EditItemRequest) ToItem() item_store.Item {
+	item := item_store.Item{
+		ID:       r.ID,
+		Title:    r.Title,
+		Done:     r.Done,
+		Archived: r.Archived,
+	}
+	return item
 }
 
 func NewTodoServer(itemStore item_store.ItemStore) *TodoServer {
@@ -42,6 +59,8 @@ func (server *TodoServer) itemsRouteHandler(w http.ResponseWriter, r *http.Reque
 		itemsGetHandler(server.store, w, r)
 	case http.MethodPost:
 		itemsPostHandler(server.store, w, r)
+	case http.MethodPut:
+		itemsPutHandler(server.store, w, r)
 	}
 }
 
@@ -75,13 +94,32 @@ func itemsGetHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.
 
 func itemsPostHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.Request) {
 	decoded := new(AddItemRequest)
-	err := json.NewDecoder(r.Body).Decode(decoded)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(decoded); err != nil {
+		http.Error(w, "invalid json body", http.StatusBadRequest)
 		return
 	}
-	item, err := store.AddItem(decoded.Title)
+
+	if decoded.Title == nil || *decoded.Title == "" {
+		http.Error(w, "title is required", http.StatusBadRequest)
+		return
+	}
+
+	item, err := store.AddItem(*decoded.Title)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "failed to add item", http.StatusInternalServerError)
+		return
+	}
+	writeItemResponse(w, item)
+}
+
+func itemsPutHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.Request) {
+	decoded := new(EditItemRequest)
+	if err := json.NewDecoder(r.Body).Decode(decoded); err != nil {
+		http.Error(w, "invalid json body", http.StatusBadRequest)
+	}
+	item, err := store.EditItem(decoded.ToItem())
+	if err != nil {
+		http.Error(w, "Failed to edit item in DB", http.StatusInternalServerError)
 	}
 	writeItemResponse(w, item)
 }

@@ -21,6 +21,7 @@ type ItemStore interface {
 	GetAllActiveItems() ([]Item, error)
 	GetAllArchivedItems() ([]Item, error)
 	AddItem(title string) (Item, error)
+	EditItem(Item) (Item, error)
 }
 
 type ItemStoreImpl struct {
@@ -58,5 +59,9 @@ func (store *ItemStoreImpl) GetAllItems() ([]Item, error) {
 }
 
 func (store *ItemStoreImpl) AddItem(title string) (Item, error) {
+	panic("not implemented")
+}
+
+func (store *ItemStoreImpl) EditItem(item Item) (Item, error) {
 	panic("not implemented")
 }
