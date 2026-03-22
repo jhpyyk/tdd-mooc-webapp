@@ -19,15 +19,17 @@ const (
 	itemsEndpointWithID1 = "/items/1"
 	itemsArchivedTrue    = "/items?archived=true"
 	itemsArchivedFalse   = "/items?archived=false"
+	archiveDoneItems     = "/archive-done"
 	testEndpoint         = "/test"
 	dbHealthEndpoint     = "/db-health"
 )
 
 type ItemStoreStub struct {
-	items              []item_store.Item
-	throwError         error
-	AddItemCalledWith  []string
-	EditItemCalledWith []item_store.Item
+	items                       []item_store.Item
+	throwError                  error
+	AddItemCalledWith           []string
+	EditItemCalledWith          []item_store.Item
+	ArchiveDoneItemsCalledTimes int
 }
 
 func newItemStoreStub(items []item_store.Item, throwError error) *ItemStoreStub {
@@ -78,6 +80,14 @@ func (store *ItemStoreStub) EditItem(item item_store.Item) (item_store.Item, err
 		return item_store.Item{}, store.throwError
 	}
 	return item, nil
+}
+
+func (store *ItemStoreStub) ArchiveDoneItems() error {
+	store.ArchiveDoneItemsCalledTimes += 1
+	if store.throwError != nil {
+		return store.throwError
+	}
+	return nil
 }
 
 func (store *ItemStoreStub) GetDbHealthString() string {
@@ -231,7 +241,7 @@ func TestPutItems(t *testing.T) {
 		}
 	})
 
-	t.Run("PUT"+itemsEndpointWithID1+" should return 400 on invalid data", func(t *testing.T) {
+	t.Run("PUT "+itemsEndpointWithID1+" should return 400 on invalid data", func(t *testing.T) {
 
 		todoServer, _ := setupTestServer(t, []item_store.Item{}, nil)
 		title := "item title"
@@ -241,7 +251,7 @@ func TestPutItems(t *testing.T) {
 
 		doRequestToEndpoint(t, todoServer, itemsEndpointWithID1, http.MethodPut, payload, http.StatusBadRequest)
 	})
-	t.Run("PUT"+itemsEndpointWithID1+" should return 404 on non-existent item id", func(t *testing.T) {
+	t.Run("PUT "+itemsEndpointWithID1+" should return 404 on non-existent item id", func(t *testing.T) {
 
 		todoServer, _ := setupTestServer(t, []item_store.Item{}, store.ErrItemNotFound)
 		title := "item title"
@@ -254,6 +264,33 @@ func TestPutItems(t *testing.T) {
 		}
 
 		doRequestToEndpoint(t, todoServer, itemsEndpointWithID1, http.MethodPut, payload, http.StatusNotFound)
+	})
+}
+
+func TestArchiveDoneItems(t *testing.T) {
+	initialItems := []item_store.Item{
+		{
+			ID:       1,
+			Title:    "title",
+			Done:     false,
+			Archived: false,
+		},
+		{
+			ID:       2,
+			Title:    "title",
+			Done:     false,
+			Archived: true,
+		},
+	}
+	t.Run("POST "+archiveDoneItems+" should call archiveDoneItems", func(t *testing.T) {
+		todoServer, store := setupTestServer(t, initialItems, nil)
+
+		doRequestToEndpoint(t, todoServer, archiveDoneItems, http.MethodPost, nil, http.StatusOK)
+
+		calledTimes := store.ArchiveDoneItemsCalledTimes
+		if calledTimes != 1 {
+			t.Fatalf("ArchiveDoneItems was not called the right amount of times, wanted 1, got %v", calledTimes)
+		}
 	})
 }
 
