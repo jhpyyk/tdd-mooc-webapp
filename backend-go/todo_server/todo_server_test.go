@@ -11,7 +11,7 @@ import (
 
 	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
 	store "github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
-	server "github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
+	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
 )
 
 const (
@@ -30,6 +30,7 @@ type ItemStoreStub struct {
 	AddItemCalledWith           []string
 	EditItemCalledWith          []item_store.Item
 	ArchiveDoneItemsCalledTimes int
+	DeleteItemCalledWith        []int
 }
 
 func newItemStoreStub(items []item_store.Item, throwError error) *ItemStoreStub {
@@ -82,6 +83,14 @@ func (store *ItemStoreStub) EditItem(item item_store.Item) (item_store.Item, err
 	return item, nil
 }
 
+func (store *ItemStoreStub) DeleteItem(id int) error {
+	store.DeleteItemCalledWith = append(store.DeleteItemCalledWith, id)
+	if store.throwError != nil {
+		return store.throwError
+	}
+	return nil
+}
+
 func (store *ItemStoreStub) ArchiveDoneItems() error {
 	store.ArchiveDoneItemsCalledTimes += 1
 	if store.throwError != nil {
@@ -94,11 +103,11 @@ func (store *ItemStoreStub) GetDbHealthString() string {
 	return ""
 }
 
-func setupTestServer(t testing.TB, items []item_store.Item, throwError error) (*server.TodoServer, *ItemStoreStub) {
+func setupTestServer(t testing.TB, items []item_store.Item, throwError error) (*todo_server.TodoServer, *ItemStoreStub) {
 	t.Helper()
 
 	itemStore := newItemStoreStub(items, throwError)
-	todoServer := server.NewTodoServer(itemStore)
+	todoServer := todo_server.NewTodoServer(itemStore)
 	return todoServer, itemStore
 }
 
@@ -133,7 +142,7 @@ func TestGetItems(t *testing.T) {
 	})
 }
 
-func assertItemsEndpointReturnsCorrectItems(t testing.TB, todoServer *server.TodoServer, endpoint string, wanted []item_store.Item) {
+func assertItemsEndpointReturnsCorrectItems(t testing.TB, todoServer *todo_server.TodoServer, endpoint string, wanted []item_store.Item) {
 	t.Helper()
 	result := doRequestToEndpoint(t, todoServer, endpoint, http.MethodGet, nil, http.StatusOK)
 	returnedItems := decodeItemSlice(t, result)
@@ -158,7 +167,7 @@ func TestPostItems(t *testing.T) {
 	t.Run("POST"+itemsEndpoint+" should return the added item", func(t *testing.T) {
 		todoServer, _ := setupTestServer(t, []item_store.Item{}, nil)
 		title := "item title"
-		payload := server.AddItemRequest{
+		payload := todo_server.AddItemRequest{
 			Title: &title,
 		}
 
@@ -172,7 +181,7 @@ func TestPostItems(t *testing.T) {
 	t.Run("POST"+itemsEndpoint+" should return call item store add item method", func(t *testing.T) {
 		todoServer, store := setupTestServer(t, []item_store.Item{}, nil)
 		title := "item title"
-		payload := server.AddItemRequest{
+		payload := todo_server.AddItemRequest{
 			Title: &title,
 		}
 
@@ -205,7 +214,7 @@ func TestPutItems(t *testing.T) {
 		newTitle := "new item title"
 		done := false
 		archived := false
-		payload := server.EditItemRequest{
+		payload := todo_server.EditItemRequest{
 			Title:    newTitle,
 			Done:     &done,
 			Archived: &archived,
@@ -223,7 +232,7 @@ func TestPutItems(t *testing.T) {
 		title := "item title"
 		done := false
 		archived := false
-		payload := server.EditItemRequest{
+		payload := todo_server.EditItemRequest{
 			Title:    title,
 			Done:     &done,
 			Archived: &archived,
@@ -245,7 +254,7 @@ func TestPutItems(t *testing.T) {
 
 		todoServer, _ := setupTestServer(t, []item_store.Item{}, nil)
 		title := "item title"
-		payload := server.EditItemRequest{
+		payload := todo_server.EditItemRequest{
 			Title: title,
 		}
 
@@ -253,11 +262,11 @@ func TestPutItems(t *testing.T) {
 	})
 	t.Run("PUT "+itemsEndpointWithID1+" should return 404 on non-existent item id", func(t *testing.T) {
 
-		todoServer, _ := setupTestServer(t, []item_store.Item{}, store.ErrItemNotFound)
+		todoServer, _ := setupTestServer(t, []item_store.Item{}, item_store.ErrItemNotFound)
 		title := "item title"
 		done := false
 		archived := false
-		payload := server.EditItemRequest{
+		payload := todo_server.EditItemRequest{
 			Title:    title,
 			Done:     &done,
 			Archived: &archived,
@@ -294,6 +303,30 @@ func TestArchiveDoneItems(t *testing.T) {
 	})
 }
 
+func TestDeleteItem(t *testing.T) {
+	initialItems := []item_store.Item{
+		{
+			ID:       1,
+			Title:    "title",
+			Done:     false,
+			Archived: false,
+		},
+	}
+	t.Run("DELETE "+itemsEndpointWithID1+" should call delete item store function", func(t *testing.T) {
+		todoServer, store := setupTestServer(t, initialItems, nil)
+
+		doRequestToEndpoint(t, todoServer, itemsEndpointWithID1, http.MethodDelete, nil, http.StatusOK)
+
+		calledWith := store.DeleteItemCalledWith
+		if calledTimes := len(calledWith); calledTimes != 1 {
+			t.Fatalf("delete item store function was not called the right amount of times, wanted 1, got %v", calledTimes)
+		}
+		if firstCall := calledWith[0]; firstCall != 1 {
+			t.Fatalf("Edit item was not called with the right argument, wanted 1, got %v", firstCall)
+		}
+	})
+}
+
 func assertItemsEqual(t testing.TB, wanted, got []item_store.Item) {
 	t.Helper()
 	if !reflect.DeepEqual(wanted, got) {
@@ -321,7 +354,7 @@ func decodeItemSlice(t testing.TB, result *http.Response) []item_store.Item {
 	return items
 }
 
-func doGetToEndpoint(t testing.TB, server *server.TodoServer, endpoint string, expectedCode int) *http.Response {
+func doGetToEndpoint(t testing.TB, server *todo_server.TodoServer, endpoint string, expectedCode int) *http.Response {
 	t.Helper()
 	request, _ := http.NewRequest(http.MethodGet, endpoint, nil)
 	response := httptest.NewRecorder()
@@ -335,7 +368,7 @@ func doGetToEndpoint(t testing.TB, server *server.TodoServer, endpoint string, e
 	return result
 }
 
-func doRequestToEndpoint(t testing.TB, server *server.TodoServer, endpoint string, method string, payload any, expectedCode int) *http.Response {
+func doRequestToEndpoint(t testing.TB, server *todo_server.TodoServer, endpoint string, method string, payload any, expectedCode int) *http.Response {
 	t.Helper()
 	buffer := new(bytes.Buffer)
 	json.NewEncoder(buffer).Encode(payload)
@@ -353,7 +386,7 @@ func doRequestToEndpoint(t testing.TB, server *server.TodoServer, endpoint strin
 
 func TestGetBackendE2ETestString(t *testing.T) {
 	itemStore := store.ItemStoreImpl{}
-	todoServer := server.NewTodoServer(&itemStore)
+	todoServer := todo_server.NewTodoServer(&itemStore)
 	t.Run("should return backend e2e test string", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/test", nil)
 		response := httptest.NewRecorder()
@@ -370,5 +403,6 @@ func TestGetBackendE2ETestString(t *testing.T) {
 		if body["message"] != wantedMessage {
 			t.Errorf("got %q, want %q", body["message"], wantedMessage)
 		}
+
 	})
 }

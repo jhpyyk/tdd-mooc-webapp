@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	item_store "github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
+	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
 )
 
 type TodoServer struct {
@@ -82,6 +82,8 @@ func (server *TodoServer) itemByIdHandler(w http.ResponseWriter, r *http.Request
 	switch r.Method {
 	case http.MethodPut:
 		itemsPutHandler(server.store, w, r)
+	case http.MethodDelete:
+		itemsDeleteHandler(server.store, w, r)
 	}
 }
 
@@ -154,6 +156,22 @@ func itemsPutHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.
 	}
 
 	writeItemResponse(w, item)
+}
+
+func itemsDeleteHandler(store item_store.ItemStore, w http.ResponseWriter, r *http.Request) {
+	id, ok := mustParsePathID(w, r, "id")
+	if !ok {
+		return
+	}
+	err := store.DeleteItem(id)
+	if err != nil {
+		if errors.Is(err, item_store.ErrItemNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		}
+		http.Error(w, "failed to edit item in DB", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func mustDecodeAndValidateEditItemRequest(w http.ResponseWriter, r *http.Request) (*EditItemRequest, bool) {

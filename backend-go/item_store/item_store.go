@@ -25,6 +25,7 @@ type ItemStore interface {
 	GetAllArchivedItems() ([]Item, error)
 	AddItem(title string) (Item, error)
 	EditItem(Item) (Item, error)
+	DeleteItem(id int) error
 	ArchiveDoneItems() error
 }
 
@@ -71,5 +72,9 @@ func (store *ItemStoreImpl) EditItem(item Item) (Item, error) {
 }
 
 func (store *ItemStoreImpl) ArchiveDoneItems() error {
+	panic("not implemented")
+}
+
+func (store *ItemStoreImpl) DeleteItem(id int) error {
 	panic("not implemented")
 }
