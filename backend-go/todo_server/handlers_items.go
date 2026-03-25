@@ -86,16 +86,3 @@ func itemsDeleteHandler(w http.ResponseWriter, r *http.Request, store item_store
 	}
 	w.WriteHeader(http.StatusOK)
 }
-
-func (server *TodoServer) archiveDoneItemsHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST is allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	err := server.store.ArchiveDoneItems()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	w.WriteHeader(http.StatusOK)
-}
