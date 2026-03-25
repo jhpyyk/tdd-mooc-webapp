@@ -23,93 +23,6 @@ const (
 	dbHealthEndpoint     = "/db-health"
 )
 
-type ItemStoreStub struct {
-	items                       []item_store.Item
-	throwError                  error
-	AddItemCalledWith           []string
-	EditItemCalledWith          []item_store.Item
-	ArchiveDoneItemsCalledTimes int
-	DeleteItemCalledWith        []int
-}
-
-func newItemStoreStub(items []item_store.Item, throwError error) *ItemStoreStub {
-	stub := ItemStoreStub{}
-	stub.items = items
-	stub.throwError = throwError
-	return &stub
-}
-
-func (store *ItemStoreStub) GetAllItems() ([]item_store.Item, error) {
-	if store.throwError != nil {
-		return nil, store.throwError
-	}
-	return store.items, nil
-}
-
-func (store *ItemStoreStub) GetAllActiveItems() ([]item_store.Item, error) {
-	if store.throwError != nil {
-		return nil, store.throwError
-	}
-	return []item_store.Item{store.items[0]}, nil
-}
-
-func (store *ItemStoreStub) GetAllArchivedItems() ([]item_store.Item, error) {
-	if store.throwError != nil {
-		return nil, store.throwError
-	}
-	return []item_store.Item{store.items[1]}, nil
-}
-
-func (store *ItemStoreStub) AddItem(title string) (item_store.Item, error) {
-	store.AddItemCalledWith = append(store.AddItemCalledWith, title)
-	if store.throwError != nil {
-		return item_store.Item{}, store.throwError
-	}
-	item := item_store.Item{
-		ID:       999,
-		Title:    title,
-		Done:     false,
-		Archived: false,
-	}
-	return item, nil
-}
-
-func (store *ItemStoreStub) EditItem(item item_store.Item) (item_store.Item, error) {
-	store.EditItemCalledWith = append(store.EditItemCalledWith, item)
-	if store.throwError != nil {
-		return item_store.Item{}, store.throwError
-	}
-	return item, nil
-}
-
-func (store *ItemStoreStub) DeleteItem(id int) error {
-	store.DeleteItemCalledWith = append(store.DeleteItemCalledWith, id)
-	if store.throwError != nil {
-		return store.throwError
-	}
-	return nil
-}
-
-func (store *ItemStoreStub) ArchiveDoneItems() error {
-	store.ArchiveDoneItemsCalledTimes += 1
-	if store.throwError != nil {
-		return store.throwError
-	}
-	return nil
-}
-
-func (store *ItemStoreStub) GetDbHealthString() string {
-	return ""
-}
-
-func setupTestServer(t testing.TB, items []item_store.Item, throwError error) (*todo_server.TodoServer, *ItemStoreStub) {
-	t.Helper()
-
-	itemStore := newItemStoreStub(items, throwError)
-	todoServer := todo_server.NewTodoServer(itemStore)
-	return todoServer, itemStore
-}
-
 func TestGetItems(t *testing.T) {
 
 	initialItems := []item_store.Item{
@@ -275,33 +188,6 @@ func TestPutItems(t *testing.T) {
 	})
 }
 
-func TestArchiveDoneItems(t *testing.T) {
-	initialItems := []item_store.Item{
-		{
-			ID:       1,
-			Title:    "title",
-			Done:     false,
-			Archived: false,
-		},
-		{
-			ID:       2,
-			Title:    "title",
-			Done:     false,
-			Archived: true,
-		},
-	}
-	t.Run("POST "+archiveDoneItems+" should call archiveDoneItems", func(t *testing.T) {
-		todoServer, store := setupTestServer(t, initialItems, nil)
-
-		doRequestToEndpoint(t, todoServer, archiveDoneItems, http.MethodPost, nil, http.StatusOK)
-
-		calledTimes := store.ArchiveDoneItemsCalledTimes
-		if calledTimes != 1 {
-			t.Fatalf("ArchiveDoneItems was not called the right amount of times, wanted 1, got %v", calledTimes)
-		}
-	})
-}
-
 func TestDeleteItem(t *testing.T) {
 	initialItems := []item_store.Item{
 		{
@@ -328,6 +214,33 @@ func TestDeleteItem(t *testing.T) {
 
 		todoServer, _ := setupTestServer(t, []item_store.Item{}, item_store.ErrItemNotFound)
 		doRequestToEndpoint(t, todoServer, itemsEndpointWithID1, http.MethodDelete, nil, http.StatusNotFound)
+	})
+}
+
+func TestArchiveDoneItems(t *testing.T) {
+	initialItems := []item_store.Item{
+		{
+			ID:       1,
+			Title:    "title",
+			Done:     false,
+			Archived: false,
+		},
+		{
+			ID:       2,
+			Title:    "title",
+			Done:     false,
+			Archived: true,
+		},
+	}
+	t.Run("POST "+archiveDoneItems+" should call archiveDoneItems", func(t *testing.T) {
+		todoServer, store := setupTestServer(t, initialItems, nil)
+
+		doRequestToEndpoint(t, todoServer, archiveDoneItems, http.MethodPost, nil, http.StatusOK)
+
+		calledTimes := store.ArchiveDoneItemsCalledTimes
+		if calledTimes != 1 {
+			t.Fatalf("ArchiveDoneItems was not called the right amount of times, wanted 1, got %v", calledTimes)
+		}
 	})
 }
 
