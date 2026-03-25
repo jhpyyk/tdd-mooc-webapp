@@ -318,11 +318,16 @@ func TestDeleteItem(t *testing.T) {
 
 		calledWith := store.DeleteItemCalledWith
 		if calledTimes := len(calledWith); calledTimes != 1 {
-			t.Fatalf("delete item store function was not called the right amount of times, wanted 1, got %v", calledTimes)
+			t.Fatalf("Delete item store function was not called the right amount of times, wanted 1, got %v", calledTimes)
 		}
 		if firstCall := calledWith[0]; firstCall != 1 {
-			t.Fatalf("Edit item was not called with the right argument, wanted 1, got %v", firstCall)
+			t.Fatalf("Delete item was not called with the right argument, wanted 1, got %v", firstCall)
 		}
+	})
+	t.Run("DELETE "+itemsEndpointWithID1+" should return 404 on non-existent item id", func(t *testing.T) {
+
+		todoServer, _ := setupTestServer(t, []item_store.Item{}, item_store.ErrItemNotFound)
+		doRequestToEndpoint(t, todoServer, itemsEndpointWithID1, http.MethodDelete, nil, http.StatusNotFound)
 	})
 }
 
