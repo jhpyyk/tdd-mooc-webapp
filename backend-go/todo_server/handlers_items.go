@@ -56,7 +56,7 @@ func itemsPostHandler(w http.ResponseWriter, r *http.Request, store item_store.I
 	writeItemResponse(w, item)
 }
 
-func itemsPutHandler(w http.ResponseWriter, r *http.Request, store item_store.ItemStore, id int) {
+func itemByIdPutHandler(w http.ResponseWriter, r *http.Request, store item_store.ItemStore, id int) {
 	req, ok := mustDecodeAndValidateEditItemRequest(w, r)
 	if !ok {
 		return
@@ -75,7 +75,7 @@ func itemsPutHandler(w http.ResponseWriter, r *http.Request, store item_store.It
 	writeItemResponse(w, item)
 }
 
-func itemsDeleteHandler(w http.ResponseWriter, r *http.Request, store item_store.ItemStore, id int) {
+func itemByIdDeleteHandler(w http.ResponseWriter, r *http.Request, store item_store.ItemStore, id int) {
 	err := store.DeleteItem(id)
 	if err != nil {
 		if errors.Is(err, item_store.ErrItemNotFound) {

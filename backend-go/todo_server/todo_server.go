@@ -44,9 +44,9 @@ func (server *TodoServer) itemByIdRouteHandler(w http.ResponseWriter, r *http.Re
 	}
 	switch r.Method {
 	case http.MethodPut:
-		itemsPutHandler(w, r, server.store, id)
+		itemByIdPutHandler(w, r, server.store, id)
 	case http.MethodDelete:
-		itemsDeleteHandler(w, r, server.store, id)
+		itemByIdDeleteHandler(w, r, server.store, id)
 	}
 }
 
