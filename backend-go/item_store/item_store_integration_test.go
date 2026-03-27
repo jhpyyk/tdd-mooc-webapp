@@ -12,9 +12,10 @@ import (
 )
 
 func TestItemStoreIntegration(t *testing.T) {
+	test_helpers.IntegrationTest(t)
+
 	itemStore := item_store.ItemStoreImpl{}
 	t.Run("Test ItemStoreImpl health check", func(t *testing.T) {
-		test_helpers.IntegrationTest(t)
 		dbHealthString := itemStore.GetDbHealthString()
 		expected := "Go DB connection is healthy"
 		if dbHealthString != expected {
