@@ -30,20 +30,28 @@ type ItemStore interface {
 }
 
 type ItemStoreImpl struct {
+	items []Item
+	DB    *sql.DB
 }
 
-func (store *ItemStoreImpl) GetDbHealthString() string {
+func NewItemStore() *ItemStoreImpl {
+	store := ItemStoreImpl{}
+
 	dsn := os.Getenv("TEST_DATABASE_URL")
 	if dsn == "" {
 		log.Fatal("TEST_DATABASE_URL not set")
 	}
 	db, err := sql.Open("postgres", dsn)
-
 	if err != nil {
 		log.Fatalf("Error opening db connectio %v", err)
 	}
+	store.DB = db
 
-	_, err = db.Exec("SELECT 1")
+	return &store
+}
+
+func (store *ItemStoreImpl) GetDbHealthString() string {
+	_, err := store.DB.Exec("SELECT 1")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -11,24 +11,72 @@ import (
 	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
 )
 
+func setupStore() *item_store.ItemStoreImpl {
+	store := item_store.NewItemStore()
+	items := []item_store.Item{
+		{
+			Title:    "title1",
+			Done:     false,
+			Archived: false,
+		},
+		{
+			Title:    "title1",
+			Done:     false,
+			Archived: false,
+		},
+	}
+	for _, item := range items {
+		store.DB.Exec(
+			`
+				insert into todo_items (title, done, archived)
+				values (?, ?, ?)
+				`,
+			item.Title, item.Done, item.Archived,
+		)
+	}
+	return store
+}
+
 func TestItemStoreIntegration(t *testing.T) {
 	test_helpers.IntegrationTest(t)
+	store := setupStore()
 
-	itemStore := item_store.ItemStoreImpl{}
 	t.Run("Test ItemStoreImpl health check", func(t *testing.T) {
-		dbHealthString := itemStore.GetDbHealthString()
+		dbHealthString := store.GetDbHealthString()
 		expected := "Go DB connection is healthy"
 		if dbHealthString != expected {
 			t.Errorf("Health check string does not match. Got %q, expected %q", dbHealthString, expected)
 		}
 	})
+
+	t.Run("Test setup function", func(t *testing.T) {
+		rows, err := store.DB.Query(
+			`
+			select * from todo_items
+			`,
+		)
+		if err != nil {
+			t.Fatalf("error in test setup %q", err.Error())
+		}
+		items := []item_store.Item{}
+		for rows.Next() {
+			var item item_store.Item
+			if err := rows.Scan(&item.ID, &item.Title, &item.Done, &item.Archived); err != nil {
+				t.Fatalf("error in test setup %q", err.Error())
+			}
+		}
+		if len(items) != 2 {
+			t.Fatalf("error in test setup %q", err.Error())
+		}
+
+	})
 }
 
 func TestGetBackendE2ETestString(t *testing.T) {
-	itemStore := item_store.ItemStoreImpl{}
-	todoServer := todo_server.NewTodoServer(&itemStore)
+	test_helpers.IntegrationTest(t)
+	itemStore := item_store.NewItemStore()
+	todoServer := todo_server.NewTodoServer(itemStore)
 	t.Run("should return backend e2e test string", func(t *testing.T) {
-		test_helpers.IntegrationTest(t)
 		request, _ := http.NewRequest(http.MethodGet, "/test", nil)
 		response := httptest.NewRecorder()
 		todoServer.ServeHTTP(response, request)
