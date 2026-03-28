@@ -87,8 +87,19 @@ func (store *ItemStoreImpl) GetAllActiveItems() ([]Item, error) {
 }
 
 func (store *ItemStoreImpl) GetAllArchivedItems() ([]Item, error) {
-	panic("not implemented")
+	rows, err := store.DB.Query(
+		`
+			select * from todo_items
+			where archived = true
+			`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	items, err := ScanRowsToItems(rows)
+	return items, err
 }
+
 func (store *ItemStoreImpl) AddItem(title string) (Item, error) {
 	panic("not implemented")
 }

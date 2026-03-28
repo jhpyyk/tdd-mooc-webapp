@@ -97,6 +97,15 @@ func TestItemStoreIntegrationGetItems(t *testing.T) {
 		want := []item_store.Item{initialItems[0]}
 		helpers.AssertItemsEqual(t, want, items)
 	})
+
+	t.Run("Test get all archived items should return all items that are archived", func(t *testing.T) {
+		items, err := store.GetAllArchivedItems()
+		if err != nil {
+			t.Fatalf("error getting all archived items %q", err)
+		}
+		want := []item_store.Item{initialItems[1]}
+		helpers.AssertItemsEqual(t, want, items)
+	})
 }
 
 func TestGetBackendE2ETestString(t *testing.T) {
