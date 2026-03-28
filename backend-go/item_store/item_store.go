@@ -76,15 +76,9 @@ func (store *ItemStoreImpl) GetAllItems() ([]Item, error) {
 	if err != nil {
 		return nil, err
 	}
-	items := []Item{}
-	for rows.Next() {
-		var item Item
-		if err := rows.Scan(&item.ID, &item.Title, &item.Done, &item.Archived); err != nil {
-			return nil, err
-		}
-		items = append(items, item)
-	}
-	return items, nil
+	items, err := ScanRowsToItems(rows)
+	return items, err
+
 }
 
 func (store *ItemStoreImpl) AddItem(title string) (Item, error) {
@@ -101,4 +95,17 @@ func (store *ItemStoreImpl) ArchiveDoneItems() error {
 
 func (store *ItemStoreImpl) DeleteItem(id int) error {
 	panic("not implemented")
+}
+
+func ScanRowsToItems(rows *sql.Rows) ([]Item, error) {
+	items := []Item{}
+	for rows.Next() {
+		var item Item
+		err := rows.Scan(&item.ID, &item.Title, &item.Done, &item.Archived)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, nil
 }

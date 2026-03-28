@@ -65,20 +65,13 @@ func TestItemStoreIntegrationSetup(t *testing.T) {
 			`,
 		)
 		if err != nil {
-			t.Fatalf("error in test setup %q", err.Error())
+			t.Fatalf("error in item store  test setup %q", err.Error())
 		}
-		items := []item_store.Item{}
-		for rows.Next() {
-			var item item_store.Item
-			if err := rows.Scan(&item.ID, &item.Title, &item.Done, &item.Archived); err != nil {
-				t.Fatalf("error in test setup %q", err.Error())
-			}
-			items = append(items, item)
+		items, err := item_store.ScanRowsToItems(rows)
+		if err != nil {
+			t.Fatalf("error in item store test setup, %q", err.Error())
 		}
-		rows.Close()
-		if len(items) != 2 {
-			t.Fatalf("error in test setup %q", err.Error())
-		}
+
 		helpers.AssertItemsEqual(t, initialItems, items)
 
 	})
