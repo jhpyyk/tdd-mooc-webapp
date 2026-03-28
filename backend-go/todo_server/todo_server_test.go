@@ -6,10 +6,11 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
+
 	"testing"
 
 	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
+	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/test_helpers"
 	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
 )
 
@@ -61,7 +62,7 @@ func assertItemsEndpointReturnsCorrectItems(t testing.TB, todoServer *todo_serve
 	if len(returnedItems) != len(wanted) {
 		t.Fatalf("%q did not return correct items, wanted %v, got %v", endpoint, wanted, returnedItems)
 	}
-	assertItemsEqual(t, wanted, returnedItems)
+	test_helpers.AssertItemsEqual(t, wanted, returnedItems)
 }
 
 func TestGetItemsItemStoreError(t *testing.T) {
@@ -242,13 +243,6 @@ func TestArchiveDoneItems(t *testing.T) {
 			t.Fatalf("ArchiveDoneItems was not called the right amount of times, wanted 1, got %v", calledTimes)
 		}
 	})
-}
-
-func assertItemsEqual(t testing.TB, wanted, got []item_store.Item) {
-	t.Helper()
-	if !reflect.DeepEqual(wanted, got) {
-		t.Fatalf("items are not equal wanted %v, got %v", wanted, got)
-	}
 }
 
 func decodeItem(t testing.TB, result *http.Response) item_store.Item {

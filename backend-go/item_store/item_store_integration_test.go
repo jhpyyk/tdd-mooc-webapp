@@ -7,19 +7,21 @@ import (
 	"testing"
 
 	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
-	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/test_helpers"
+	helpers "github.com/jhpyyk/tdd-mooc-webapp/backend-go/test_helpers"
 	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
 )
 
-func setupStore(t testing.TB) *item_store.ItemStoreImpl {
+func setupStore(t testing.TB) (*item_store.ItemStoreImpl, []item_store.Item) {
 	store := item_store.NewItemStore()
 	items := []item_store.Item{
 		{
+			ID:       1,
 			Title:    "title1",
 			Done:     false,
 			Archived: false,
 		},
 		{
+			ID:       2,
 			Title:    "title1",
 			Done:     false,
 			Archived: false,
@@ -37,12 +39,12 @@ func setupStore(t testing.TB) *item_store.ItemStoreImpl {
 			t.Fatalf("setup insert failed %v", err)
 		}
 	}
-	return store
+	return store, items
 }
 
 func TestItemStoreIntegrationSetup(t *testing.T) {
-	test_helpers.IntegrationTest(t)
-	store := setupStore(t)
+	helpers.IntegrationTest(t)
+	store, initialItems := setupStore(t)
 
 	t.Cleanup(func() {
 		_, _ = store.DB.Exec(`TRUNCATE TABLE todo_items RESTART IDENTITY`)
@@ -77,18 +79,26 @@ func TestItemStoreIntegrationSetup(t *testing.T) {
 		if len(items) != 2 {
 			t.Fatalf("error in test setup %q", err.Error())
 		}
+		helpers.AssertItemsEqual(t, initialItems, items)
 
 	})
 }
 
-func TestItemStoreIntegrationGetAllItems(t *testing.T) {
-	t.Run("Test get all items should return all items", func(t *testing.T) {
+func TestItemStoreIntegrationGetItems(t *testing.T) {
+	helpers.IntegrationTest(t)
+	store, initialItems := setupStore(t)
 
+	t.Run("Test get all items should return all items", func(t *testing.T) {
+		items, err := store.GetAllItems()
+		if err != nil {
+			t.Fatalf("error getting all items %q", err)
+		}
+		helpers.AssertItemsEqual(t, initialItems, items)
 	})
 }
 
 func TestGetBackendE2ETestString(t *testing.T) {
-	test_helpers.IntegrationTest(t)
+	helpers.IntegrationTest(t)
 	itemStore := item_store.NewItemStore()
 	todoServer := todo_server.NewTodoServer(itemStore)
 	t.Run("should return backend e2e test string", func(t *testing.T) {
