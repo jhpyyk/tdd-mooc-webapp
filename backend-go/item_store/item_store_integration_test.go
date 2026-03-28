@@ -24,7 +24,7 @@ func setupStore(t testing.TB) (*item_store.ItemStoreImpl, []item_store.Item) {
 			ID:       2,
 			Title:    "title1",
 			Done:     false,
-			Archived: false,
+			Archived: true,
 		},
 	}
 	for _, item := range items {
@@ -65,7 +65,7 @@ func TestItemStoreIntegrationSetup(t *testing.T) {
 			`,
 		)
 		if err != nil {
-			t.Fatalf("error in item store  test setup %q", err.Error())
+			t.Fatalf("error in item store test setup %q", err.Error())
 		}
 		items, err := item_store.ScanRowsToItems(rows)
 		if err != nil {
@@ -87,6 +87,15 @@ func TestItemStoreIntegrationGetItems(t *testing.T) {
 			t.Fatalf("error getting all items %q", err)
 		}
 		helpers.AssertItemsEqual(t, initialItems, items)
+	})
+
+	t.Run("Test get all active items should return all items that are not archived", func(t *testing.T) {
+		items, err := store.GetAllActiveItems()
+		if err != nil {
+			t.Fatalf("error getting all active items %q", err)
+		}
+		want := []item_store.Item{initialItems[0]}
+		helpers.AssertItemsEqual(t, want, items)
 	})
 }
 

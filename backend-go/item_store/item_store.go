@@ -59,14 +59,6 @@ func (store *ItemStoreImpl) GetDbHealthString() string {
 	return "Go DB connection is healthy"
 }
 
-func (store *ItemStoreImpl) GetAllActiveItems() ([]Item, error) {
-	panic("not implemented")
-}
-
-func (store *ItemStoreImpl) GetAllArchivedItems() ([]Item, error) {
-	panic("not implemented")
-}
-
 func (store *ItemStoreImpl) GetAllItems() ([]Item, error) {
 	rows, err := store.DB.Query(
 		`
@@ -78,9 +70,25 @@ func (store *ItemStoreImpl) GetAllItems() ([]Item, error) {
 	}
 	items, err := ScanRowsToItems(rows)
 	return items, err
-
 }
 
+func (store *ItemStoreImpl) GetAllActiveItems() ([]Item, error) {
+	rows, err := store.DB.Query(
+		`
+			select * from todo_items
+			where archived = false
+			`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	items, err := ScanRowsToItems(rows)
+	return items, err
+}
+
+func (store *ItemStoreImpl) GetAllArchivedItems() ([]Item, error) {
+	panic("not implemented")
+}
 func (store *ItemStoreImpl) AddItem(title string) (Item, error) {
 	panic("not implemented")
 }
