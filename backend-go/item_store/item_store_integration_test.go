@@ -11,7 +11,7 @@ import (
 	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
 )
 
-func setupStore() *item_store.ItemStoreImpl {
+func setupStore(t testing.TB) *item_store.ItemStoreImpl {
 	store := item_store.NewItemStore()
 	items := []item_store.Item{
 		{
@@ -26,20 +26,23 @@ func setupStore() *item_store.ItemStoreImpl {
 		},
 	}
 	for _, item := range items {
-		store.DB.Exec(
+		_, err := store.DB.Exec(
 			`
 				insert into todo_items (title, done, archived)
-				values (?, ?, ?)
+				values ($1, $2, $3)
 				`,
 			item.Title, item.Done, item.Archived,
 		)
+		if err != nil {
+			t.Fatalf("setup insert failed %v", err)
+		}
 	}
 	return store
 }
 
 func TestItemStoreIntegration(t *testing.T) {
 	test_helpers.IntegrationTest(t)
-	store := setupStore()
+	store := setupStore(t)
 
 	t.Run("Test ItemStoreImpl health check", func(t *testing.T) {
 		dbHealthString := store.GetDbHealthString()
@@ -64,6 +67,7 @@ func TestItemStoreIntegration(t *testing.T) {
 			if err := rows.Scan(&item.ID, &item.Title, &item.Done, &item.Archived); err != nil {
 				t.Fatalf("error in test setup %q", err.Error())
 			}
+			items = append(items, item)
 		}
 		if len(items) != 2 {
 			t.Fatalf("error in test setup %q", err.Error())

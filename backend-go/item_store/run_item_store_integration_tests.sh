@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cleanup() {
+  docker compose -f start_test_db.yaml down
+}
+trap cleanup EXIT
+
 docker compose -f start_test_db.yaml up -d
 
 echo "Waiting for test DB to become healthy..."
-for i in {1..5}; do
+for i in {1..15}; do
   status=$(docker inspect -f '{{.State.Health.Status}}' item_store_test_db 2>/dev/null || echo "starting")
   if [ "$status" = "healthy" ]; then
     echo "DB is healthy"
