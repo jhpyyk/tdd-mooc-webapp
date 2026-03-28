@@ -42,16 +42,16 @@ func setupStore(t testing.TB) (*item_store.ItemStoreImpl, []item_store.Item) {
 	return store, items
 }
 
-func storeTearDown(t testing.TB, store *item_store.ItemStoreImpl) {
-	t.Cleanup(func() {
-		_, _ = store.DB.Exec(`TRUNCATE TABLE todo_items RESTART IDENTITY`)
-	})
+func clearTodoItemTable(store *item_store.ItemStoreImpl) {
+	_, _ = store.DB.Exec(`TRUNCATE TABLE todo_items RESTART IDENTITY`)
 }
 
 func TestItemStoreIntegrationSetup(t *testing.T) {
 	helpers.IntegrationTest(t)
 	store, initialItems := setupStore(t)
-	storeTearDown(t, store)
+	t.Cleanup(func() {
+		clearTodoItemTable(store)
+	})
 
 	t.Run("Test ItemStoreImpl health check", func(t *testing.T) {
 		dbHealthString := store.GetDbHealthString()
@@ -114,35 +114,89 @@ func TestItemStoreIntegrationGetItems(t *testing.T) {
 func TestItemStoreIntegrationAddItem(t *testing.T) {
 	helpers.IntegrationTest(t)
 	store, _ := setupStore(t)
-	storeTearDown(t, store)
+	t.Cleanup(func() {
+		clearTodoItemTable(store)
+	})
+
+	title := "added item"
 
 	t.Run("should return an item with the title", func(t *testing.T) {
-		title := "added item"
-		item := addItemHelper(t, store)
+		clearTodoItemTable(store)
+		item := addItemHelper(t, store, title)
 		if item.Title != title {
 			t.Fatalf("returned title has incorrect title, wanted %v, got %v", title, item.Title)
 		}
 	})
 	t.Run("should return an item with done == false", func(t *testing.T) {
-		item := addItemHelper(t, store)
+		clearTodoItemTable(store)
+		item := addItemHelper(t, store, title)
 		if item.Done != false {
 			t.Fatalf("returned 'done' has incorrect value, wanted %v, got %v", item.Done, false)
 		}
 	})
 	t.Run("should return an item with archived == false", func(t *testing.T) {
-		item := addItemHelper(t, store)
-		if item.Done != false {
+		clearTodoItemTable(store)
+		item := addItemHelper(t, store, title)
+		if item.Archived != false {
 			t.Fatalf("returned 'archived' has incorrect value, wanted %v, got %v", item.Archived, false)
+		}
+	})
+
+	t.Run("added item in db should have correct id", func(t *testing.T) {
+		clearTodoItemTable(store)
+		addItemHelper(t, store, title)
+		item := addItemQueryHelper(t, store, title)
+		if item.ID == 0 {
+			t.Fatalf("invalid id for added item, got %v", item.ID)
+		}
+	})
+	t.Run("added item in db should have correct title", func(t *testing.T) {
+		clearTodoItemTable(store)
+		addItemHelper(t, store, title)
+		item := addItemQueryHelper(t, store, title)
+		if item.Title != title {
+			t.Fatalf("add item returned wrong title, wanted %v, got %v", title, item.Title)
+		}
+	})
+	t.Run("added item in db should have done == false", func(t *testing.T) {
+		clearTodoItemTable(store)
+		addItemHelper(t, store, title)
+		item := addItemQueryHelper(t, store, title)
+		if item.Done != false {
+			t.Fatalf("add item returned wrong done value, wanted %v, got %v", false, item.Done)
+		}
+	})
+	t.Run("added item in db should have archived == false", func(t *testing.T) {
+		clearTodoItemTable(store)
+		addItemHelper(t, store, title)
+		item := addItemQueryHelper(t, store, title)
+		if item.Archived != false {
+			t.Fatalf("add item returned wrong archived value, wanted %v, got %v", false, item.Archived)
 		}
 	})
 }
 
-func addItemHelper(t testing.TB, store *item_store.ItemStoreImpl) item_store.Item {
+func addItemHelper(t testing.TB, store *item_store.ItemStoreImpl, title string) item_store.Item {
 	t.Helper()
-	title := "added item"
 	item, err := store.AddItem(title)
 	if err != nil {
 		t.Fatalf("error adding item %q", err.Error())
+	}
+	return item
+}
+
+func addItemQueryHelper(t testing.TB, store *item_store.ItemStoreImpl, title string) item_store.Item {
+	t.Helper()
+	row := store.DB.QueryRow(
+		`
+		select id, title, done, archived from todo_items
+		where title = $1
+		`,
+		title,
+	)
+	item, err := item_store.ScanRowToItem(row)
+	if err != nil {
+		t.Fatalf("error adding item to db %q", err.Error())
 	}
 	return item
 }
