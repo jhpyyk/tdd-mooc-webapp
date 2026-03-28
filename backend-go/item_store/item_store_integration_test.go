@@ -40,9 +40,13 @@ func setupStore(t testing.TB) *item_store.ItemStoreImpl {
 	return store
 }
 
-func TestItemStoreIntegration(t *testing.T) {
+func TestItemStoreIntegrationSetup(t *testing.T) {
 	test_helpers.IntegrationTest(t)
 	store := setupStore(t)
+
+	t.Cleanup(func() {
+		_, _ = store.DB.Exec(`TRUNCATE TABLE todo_items RESTART IDENTITY`)
+	})
 
 	t.Run("Test ItemStoreImpl health check", func(t *testing.T) {
 		dbHealthString := store.GetDbHealthString()
@@ -69,9 +73,16 @@ func TestItemStoreIntegration(t *testing.T) {
 			}
 			items = append(items, item)
 		}
+		rows.Close()
 		if len(items) != 2 {
 			t.Fatalf("error in test setup %q", err.Error())
 		}
+
+	})
+}
+
+func TestItemStoreIntegrationGetAllItems(t *testing.T) {
+	t.Run("Test get all items should return all items", func(t *testing.T) {
 
 	})
 }
