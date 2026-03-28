@@ -118,34 +118,33 @@ func TestItemStoreIntegrationAddItem(t *testing.T) {
 
 	t.Run("should return an item with the title", func(t *testing.T) {
 		title := "added item"
-		item, err := store.AddItem(title)
-		if err != nil {
-			t.Fatalf("error adding item %q", err.Error())
-		}
+		item := addItemHelper(t, store)
 		if item.Title != title {
 			t.Fatalf("returned title has incorrect title, wanted %v, got %v", title, item.Title)
 		}
 	})
 	t.Run("should return an item with done == false", func(t *testing.T) {
-		title := "added item"
-		item, err := store.AddItem(title)
-		if err != nil {
-			t.Fatalf("error adding item %q", err.Error())
-		}
+		item := addItemHelper(t, store)
 		if item.Done != false {
 			t.Fatalf("returned 'done' has incorrect value, wanted %v, got %v", item.Done, false)
 		}
 	})
 	t.Run("should return an item with archived == false", func(t *testing.T) {
-		title := "added item"
-		item, err := store.AddItem(title)
-		if err != nil {
-			t.Fatalf("error adding item %q", err.Error())
-		}
+		item := addItemHelper(t, store)
 		if item.Done != false {
 			t.Fatalf("returned 'archived' has incorrect value, wanted %v, got %v", item.Archived, false)
 		}
 	})
+}
+
+func addItemHelper(t testing.TB, store *item_store.ItemStoreImpl) item_store.Item {
+	t.Helper()
+	title := "added item"
+	item, err := store.AddItem(title)
+	if err != nil {
+		t.Fatalf("error adding item %q", err.Error())
+	}
+	return item
 }
 
 func TestGetBackendE2ETestString(t *testing.T) {
