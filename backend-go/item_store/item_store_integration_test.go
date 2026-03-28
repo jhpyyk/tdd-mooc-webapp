@@ -42,13 +42,16 @@ func setupStore(t testing.TB) (*item_store.ItemStoreImpl, []item_store.Item) {
 	return store, items
 }
 
-func TestItemStoreIntegrationSetup(t *testing.T) {
-	helpers.IntegrationTest(t)
-	store, initialItems := setupStore(t)
-
+func storeTearDown(t testing.TB, store *item_store.ItemStoreImpl) {
 	t.Cleanup(func() {
 		_, _ = store.DB.Exec(`TRUNCATE TABLE todo_items RESTART IDENTITY`)
 	})
+}
+
+func TestItemStoreIntegrationSetup(t *testing.T) {
+	helpers.IntegrationTest(t)
+	store, initialItems := setupStore(t)
+	storeTearDown(t, store)
 
 	t.Run("Test ItemStoreImpl health check", func(t *testing.T) {
 		dbHealthString := store.GetDbHealthString()
@@ -105,6 +108,23 @@ func TestItemStoreIntegrationGetItems(t *testing.T) {
 		}
 		want := []item_store.Item{initialItems[1]}
 		helpers.AssertItemsEqual(t, want, items)
+	})
+}
+
+func TestItemStoreIntegrationAddItem(t *testing.T) {
+	helpers.IntegrationTest(t)
+	store, _ := setupStore(t)
+	storeTearDown(t, store)
+
+	t.Run("should return an item with the title", func(t *testing.T) {
+		title := "added item"
+		item, err := store.AddItem(title)
+		if err != nil {
+			t.Fatalf("error adding item %q", err.Error())
+		}
+		if item.Title != title {
+			t.Fatalf("returned title has incorrect title, wanted %v, got %v", title, item.Title)
+		}
 	})
 }
 

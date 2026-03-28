@@ -101,7 +101,16 @@ func (store *ItemStoreImpl) GetAllArchivedItems() ([]Item, error) {
 }
 
 func (store *ItemStoreImpl) AddItem(title string) (Item, error) {
-	panic("not implemented")
+	row := store.DB.QueryRow(
+		`
+		insert into todo_items (title)
+		values ($1)
+		returning id, title, done, archived
+		`,
+		title,
+	)
+	item, err := ScanRowToItem(row)
+	return item, err
 }
 
 func (store *ItemStoreImpl) EditItem(item Item) (Item, error) {
@@ -127,4 +136,13 @@ func ScanRowsToItems(rows *sql.Rows) ([]Item, error) {
 		items = append(items, item)
 	}
 	return items, nil
+}
+
+func ScanRowToItem(row *sql.Row) (Item, error) {
+	var item Item
+	err := row.Scan(&item.ID, &item.Title, &item.Done, &item.Archived)
+	if err != nil {
+		return Item{}, nil
+	}
+	return item, nil
 }
