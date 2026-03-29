@@ -62,7 +62,7 @@ func assertItemsEndpointReturnsCorrectItems(t testing.TB, todoServer *todo_serve
 	if len(returnedItems) != len(wanted) {
 		t.Fatalf("%q did not return correct items, wanted %v, got %v", endpoint, wanted, returnedItems)
 	}
-	test_helpers.AssertItemsEqual(t, wanted, returnedItems)
+	test_helpers.AssertItemSlicesEqual(t, wanted, returnedItems)
 }
 
 func TestGetItemsItemStoreError(t *testing.T) {

@@ -113,8 +113,18 @@ func (store *ItemStoreImpl) AddItem(title string) (Item, error) {
 	return item, err
 }
 
-func (store *ItemStoreImpl) EditItem(item Item) (Item, error) {
-	panic("not implemented")
+func (store *ItemStoreImpl) EditItem(editedItem Item) (Item, error) {
+	row := store.DB.QueryRow(
+		`
+		update todo_items
+			set title = ($2), done = ($3), archived = ($4)
+			where id = ($1)
+			returning id, title, done, archived
+		`,
+		editedItem.ID, editedItem.Title, editedItem.Done, editedItem.Archived,
+	)
+	item, err := ScanRowToItem(row)
+	return item, err
 }
 
 func (store *ItemStoreImpl) ArchiveDoneItems() error {

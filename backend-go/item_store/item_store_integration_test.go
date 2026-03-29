@@ -75,7 +75,7 @@ func TestItemStoreIntegrationSetup(t *testing.T) {
 			t.Fatalf("error in item store test setup, %q", err.Error())
 		}
 
-		helpers.AssertItemsEqual(t, initialItems, items)
+		helpers.AssertItemSlicesEqual(t, initialItems, items)
 
 	})
 }
@@ -89,7 +89,7 @@ func TestItemStoreIntegrationGetItems(t *testing.T) {
 		if err != nil {
 			t.Fatalf("error getting all items %q", err)
 		}
-		helpers.AssertItemsEqual(t, initialItems, items)
+		helpers.AssertItemSlicesEqual(t, initialItems, items)
 	})
 
 	t.Run("Test get all active items should return all items that are not archived", func(t *testing.T) {
@@ -98,7 +98,7 @@ func TestItemStoreIntegrationGetItems(t *testing.T) {
 			t.Fatalf("error getting all active items %q", err)
 		}
 		want := []item_store.Item{initialItems[0]}
-		helpers.AssertItemsEqual(t, want, items)
+		helpers.AssertItemSlicesEqual(t, want, items)
 	})
 
 	t.Run("Test get all archived items should return all items that are archived", func(t *testing.T) {
@@ -107,7 +107,7 @@ func TestItemStoreIntegrationGetItems(t *testing.T) {
 			t.Fatalf("error getting all archived items %q", err)
 		}
 		want := []item_store.Item{initialItems[1]}
-		helpers.AssertItemsEqual(t, want, items)
+		helpers.AssertItemSlicesEqual(t, want, items)
 	})
 }
 
@@ -145,7 +145,7 @@ func TestItemStoreIntegrationAddItem(t *testing.T) {
 	t.Run("added item in db should have correct id", func(t *testing.T) {
 		clearTodoItemTable(store)
 		addItemHelper(t, store, title)
-		item := addItemQueryHelper(t, store, title)
+		item := itemQueryHelper(t, store, title)
 		if item.ID == 0 {
 			t.Fatalf("invalid id for added item, got %v", item.ID)
 		}
@@ -153,7 +153,7 @@ func TestItemStoreIntegrationAddItem(t *testing.T) {
 	t.Run("added item in db should have correct title", func(t *testing.T) {
 		clearTodoItemTable(store)
 		addItemHelper(t, store, title)
-		item := addItemQueryHelper(t, store, title)
+		item := itemQueryHelper(t, store, title)
 		if item.Title != title {
 			t.Fatalf("add item returned wrong title, wanted %v, got %v", title, item.Title)
 		}
@@ -161,7 +161,7 @@ func TestItemStoreIntegrationAddItem(t *testing.T) {
 	t.Run("added item in db should have done == false", func(t *testing.T) {
 		clearTodoItemTable(store)
 		addItemHelper(t, store, title)
-		item := addItemQueryHelper(t, store, title)
+		item := itemQueryHelper(t, store, title)
 		if item.Done != false {
 			t.Fatalf("add item returned wrong done value, wanted %v, got %v", false, item.Done)
 		}
@@ -169,7 +169,7 @@ func TestItemStoreIntegrationAddItem(t *testing.T) {
 	t.Run("added item in db should have archived == false", func(t *testing.T) {
 		clearTodoItemTable(store)
 		addItemHelper(t, store, title)
-		item := addItemQueryHelper(t, store, title)
+		item := itemQueryHelper(t, store, title)
 		if item.Archived != false {
 			t.Fatalf("add item returned wrong archived value, wanted %v, got %v", false, item.Archived)
 		}
@@ -185,7 +185,7 @@ func addItemHelper(t testing.TB, store *item_store.ItemStoreImpl, title string) 
 	return item
 }
 
-func addItemQueryHelper(t testing.TB, store *item_store.ItemStoreImpl, title string) item_store.Item {
+func itemQueryHelper(t testing.TB, store *item_store.ItemStoreImpl, title string) item_store.Item {
 	t.Helper()
 	row := store.DB.QueryRow(
 		`
@@ -199,6 +199,25 @@ func addItemQueryHelper(t testing.TB, store *item_store.ItemStoreImpl, title str
 		t.Fatalf("error adding item to db %q", err.Error())
 	}
 	return item
+}
+
+func TestEditItem(t *testing.T) {
+	store, initialItems := setupStore(t)
+	itemToEdit := initialItems[0]
+	editedItem := item_store.Item{
+		ID:       itemToEdit.ID,
+		Title:    "edited title",
+		Done:     !itemToEdit.Done,
+		Archived: !itemToEdit.Archived,
+	}
+	t.Run("item in db should change values when edited", func(t *testing.T) {
+		_, err := store.EditItem(editedItem)
+		if err != nil {
+			t.Fatalf("error editing item in db %q", err.Error())
+		}
+		itemInDB := itemQueryHelper(t, store, editedItem.Title)
+		helpers.AssertItemsEqual(t, editedItem, itemInDB)
+	})
 }
 
 func TestGetBackendE2ETestString(t *testing.T) {

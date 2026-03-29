@@ -14,7 +14,14 @@ func AssertItemsLength(t testing.TB, items []item_store.Item, wantedLength int) 
 	}
 }
 
-func AssertItemsEqual(t testing.TB, wanted, got []item_store.Item) {
+func AssertItemSlicesEqual(t testing.TB, wanted, got []item_store.Item) {
+	t.Helper()
+	if !reflect.DeepEqual(wanted, got) {
+		t.Fatalf("items are not equal wanted %v, got %v", wanted, got)
+	}
+}
+
+func AssertItemsEqual(t testing.TB, wanted, got item_store.Item) {
 	t.Helper()
 	if !reflect.DeepEqual(wanted, got) {
 		t.Fatalf("items are not equal wanted %v, got %v", wanted, got)
