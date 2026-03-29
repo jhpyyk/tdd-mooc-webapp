@@ -212,6 +212,14 @@ func TestEditItem(t *testing.T) {
 		itemInDB := itemQueryHelper(t, store, editedItem.Title)
 		helpers.AssertItemsEqual(t, editedItem, itemInDB)
 	})
+	t.Run("should return the edited item", func(t *testing.T) {
+		resetStore(t, store)
+		returnedItem, err := store.EditItem(editedItem)
+		if err != nil {
+			t.Fatalf("error editing item in db %q", err.Error())
+		}
+		helpers.AssertItemsEqual(t, editedItem, returnedItem)
+	})
 }
 
 func TestGetBackendE2ETestString(t *testing.T) {
