@@ -142,34 +142,19 @@ func TestItemStoreIntegrationAddItem(t *testing.T) {
 		}
 	})
 
-	t.Run("added item in db should have correct id", func(t *testing.T) {
+	t.Run("added item in db should have correct values", func(t *testing.T) {
 		clearTodoItemTable(store)
 		addItemHelper(t, store, title)
 		item := itemQueryHelper(t, store, title)
-		if item.ID == 0 {
+		if item.ID <= 0 {
 			t.Fatalf("invalid id for added item, got %v", item.ID)
 		}
-	})
-	t.Run("added item in db should have correct title", func(t *testing.T) {
-		clearTodoItemTable(store)
-		addItemHelper(t, store, title)
-		item := itemQueryHelper(t, store, title)
 		if item.Title != title {
 			t.Fatalf("add item returned wrong title, wanted %v, got %v", title, item.Title)
 		}
-	})
-	t.Run("added item in db should have done == false", func(t *testing.T) {
-		clearTodoItemTable(store)
-		addItemHelper(t, store, title)
-		item := itemQueryHelper(t, store, title)
 		if item.Done != false {
 			t.Fatalf("add item returned wrong done value, wanted %v, got %v", false, item.Done)
 		}
-	})
-	t.Run("added item in db should have archived == false", func(t *testing.T) {
-		clearTodoItemTable(store)
-		addItemHelper(t, store, title)
-		item := itemQueryHelper(t, store, title)
 		if item.Archived != false {
 			t.Fatalf("add item returned wrong archived value, wanted %v, got %v", false, item.Archived)
 		}
