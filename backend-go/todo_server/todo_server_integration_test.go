@@ -6,14 +6,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	store "github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
+	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
 	helpers "github.com/jhpyyk/tdd-mooc-webapp/backend-go/test_helpers"
-	server "github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
+	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/todo_server"
 )
 
 func TestGetBackendE2ETestStringIntegration(t *testing.T) {
-	itemStore := store.ItemStoreImpl{}
-	todoServer := server.NewTodoServer(&itemStore)
+	dsn := helpers.GetTestDBDsnString()
+	itemStore := item_store.NewItemStore(dsn)
+	todoServer := todo_server.NewTodoServer(itemStore)
 
 	t.Run("should return DB health-check string", func(t *testing.T) {
 		helpers.IntegrationTest(t)

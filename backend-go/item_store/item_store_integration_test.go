@@ -3,10 +3,8 @@ package item_store_test
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
@@ -15,10 +13,7 @@ import (
 )
 
 func setupStore(t testing.TB) (*item_store.ItemStoreImpl, []item_store.Item) {
-	dsn := os.Getenv("TEST_DATABASE_URL")
-	if dsn == "" {
-		log.Fatal("TEST_DATABASE_URL not set")
-	}
+	dsn := helpers.GetTestDBDsnString()
 	store := item_store.NewItemStore(dsn)
 	items := resetStore(t, store)
 	return store, items
