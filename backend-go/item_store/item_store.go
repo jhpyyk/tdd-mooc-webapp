@@ -124,6 +124,9 @@ func (store *ItemStoreImpl) EditItem(editedItem Item) (Item, error) {
 		editedItem.ID, editedItem.Title, editedItem.Done, editedItem.Archived,
 	)
 	item, err := ScanRowToItem(row)
+	if errors.Is(err, sql.ErrNoRows) {
+		return item, ErrItemNotFound
+	}
 	return item, err
 }
 
@@ -151,8 +154,5 @@ func ScanRowsToItems(rows *sql.Rows) ([]Item, error) {
 func ScanRowToItem(row *sql.Row) (Item, error) {
 	var item Item
 	err := row.Scan(&item.ID, &item.Title, &item.Done, &item.Archived)
-	if err != nil {
-		return Item{}, nil
-	}
-	return item, nil
+	return item, err
 }

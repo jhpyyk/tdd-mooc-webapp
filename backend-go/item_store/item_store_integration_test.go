@@ -2,6 +2,7 @@ package item_store_test
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -192,6 +193,7 @@ func itemQueryHelper(t testing.TB, store *item_store.ItemStoreImpl, title string
 }
 
 func TestEditItem(t *testing.T) {
+	helpers.IntegrationTest(t)
 	store, initialItems := setupStore(t)
 	t.Cleanup(func() {
 		clearTodoItemTable(store)
@@ -219,6 +221,19 @@ func TestEditItem(t *testing.T) {
 			t.Fatalf("error editing item in db %q", err.Error())
 		}
 		helpers.AssertItemsEqual(t, editedItem, returnedItem)
+	})
+	t.Run("should return ErrItemNotFound when trying to edit nonexistent item", func(t *testing.T) {
+		resetStore(t, store)
+		nonexistentItem := item_store.Item{
+			ID:       999,
+			Title:    "title",
+			Done:     false,
+			Archived: false,
+		}
+		_, err := store.EditItem(nonexistentItem)
+		if !errors.Is(err, item_store.ErrItemNotFound) {
+			t.Fatalf("edit item returned a wrong error, wanted %v, got %v", item_store.ErrItemNotFound, err)
+		}
 	})
 }
 
