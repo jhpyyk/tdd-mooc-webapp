@@ -124,11 +124,22 @@ func (store *ItemStoreImpl) EditItem(editedItem Item) (Item, error) {
 	return item, err
 }
 
-func (store *ItemStoreImpl) ArchiveDoneItems() error {
-	panic("not implemented")
+func (store *ItemStoreImpl) DeleteItem(id int) error {
+	result, err := store.DB.Exec(
+		`
+		delete from todo_items
+		where id = ($1)
+		`,
+		id,
+	)
+	numOfRows, err := result.RowsAffected()
+	if numOfRows == 0 {
+		return ErrItemNotFound
+	}
+	return err
 }
 
-func (store *ItemStoreImpl) DeleteItem(id int) error {
+func (store *ItemStoreImpl) ArchiveDoneItems() error {
 	panic("not implemented")
 }
 

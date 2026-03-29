@@ -27,4 +27,4 @@ fi
 export INTEGRATION_TEST=true
 export TEST_DATABASE_URL="postgres://user:password@localhost:5433/test_db?sslmode=disable"
 
-go test ./... -v
+go test ./...

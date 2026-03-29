@@ -1,6 +1,7 @@
 package item_store_test
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -188,7 +189,7 @@ func itemQueryHelper(t testing.TB, store *item_store.ItemStoreImpl, title string
 	)
 	item, err := item_store.ScanRowToItem(row)
 	if err != nil {
-		t.Fatalf("error adding item to db %q", err.Error())
+		t.Fatalf("error querying the item in db %q", err.Error())
 	}
 	return item
 }
@@ -234,6 +235,49 @@ func TestEditItem(t *testing.T) {
 		_, err := store.EditItem(nonexistentItem)
 		if !errors.Is(err, item_store.ErrItemNotFound) {
 			t.Fatalf("edit item returned a wrong error, wanted %v, got %v", item_store.ErrItemNotFound, err)
+		}
+	})
+}
+
+func TestDeleteItemIntegration(t *testing.T) {
+	helpers.IntegrationTest(t)
+	store, initialItems := setupStore(t)
+	t.Cleanup(func() {
+		clearTodoItemTable(store)
+	})
+
+	t.Run("should delete the item in db", func(t *testing.T) {
+		resetStore(t, store)
+		id := initialItems[1].ID
+		err := store.DeleteItem(id)
+		if err != nil {
+			t.Fatalf("Error deleting item from db")
+		}
+		row := store.DB.QueryRow(
+			`
+			select id from todo_items
+			where id = ($1)
+			`,
+			id,
+		)
+		item, err := item_store.ScanRowToItem(row)
+		if item.ID != 0 {
+			t.Fatalf("item was not deleted")
+		}
+		if !errors.Is(err, sql.ErrNoRows) {
+			t.Fatalf("Error in db when deleting item")
+		}
+	})
+
+	t.Run("should throw item not found error with invalid id", func(t *testing.T) {
+		resetStore(t, store)
+		id := 999
+		err := store.DeleteItem(id)
+		if err == nil {
+			t.Fatalf("DB did not throw error, wanted %v", item_store.ErrItemNotFound)
+		}
+		if !errors.Is(err, item_store.ErrItemNotFound) {
+			t.Fatalf("DB threw the wrong error, wanted %v, got %v", item_store.ErrItemNotFound, err)
 		}
 	})
 }
