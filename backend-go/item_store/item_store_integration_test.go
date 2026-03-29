@@ -13,6 +13,11 @@ import (
 
 func setupStore(t testing.TB) (*item_store.ItemStoreImpl, []item_store.Item) {
 	store := item_store.NewItemStore()
+	items := resetStore(t, store)
+	return store, items
+}
+
+func resetStore(t testing.TB, store *item_store.ItemStoreImpl) []item_store.Item {
 	items := []item_store.Item{
 		{
 			ID:       1,
@@ -30,16 +35,16 @@ func setupStore(t testing.TB) (*item_store.ItemStoreImpl, []item_store.Item) {
 	for _, item := range items {
 		_, err := store.DB.Exec(
 			`
-				insert into todo_items (title, done, archived)
-				values ($1, $2, $3)
-				`,
+					insert into todo_items (title, done, archived)
+					values ($1, $2, $3)
+					`,
 			item.Title, item.Done, item.Archived,
 		)
 		if err != nil {
 			t.Fatalf("setup insert failed %v", err)
 		}
 	}
-	return store, items
+	return items
 }
 
 func clearTodoItemTable(store *item_store.ItemStoreImpl) {
@@ -188,6 +193,9 @@ func itemQueryHelper(t testing.TB, store *item_store.ItemStoreImpl, title string
 
 func TestEditItem(t *testing.T) {
 	store, initialItems := setupStore(t)
+	t.Cleanup(func() {
+		clearTodoItemTable(store)
+	})
 	itemToEdit := initialItems[0]
 	editedItem := item_store.Item{
 		ID:       itemToEdit.ID,
@@ -196,6 +204,7 @@ func TestEditItem(t *testing.T) {
 		Archived: !itemToEdit.Archived,
 	}
 	t.Run("item in db should change values when edited", func(t *testing.T) {
+		resetStore(t, store)
 		_, err := store.EditItem(editedItem)
 		if err != nil {
 			t.Fatalf("error editing item in db %q", err.Error())
