@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"log"
-	"os"
 
 	_ "github.com/lib/pq"
 )
@@ -34,13 +33,8 @@ type ItemStoreImpl struct {
 	DB    *sql.DB
 }
 
-func NewItemStore() *ItemStoreImpl {
+func NewItemStore(dsn string) *ItemStoreImpl {
 	store := ItemStoreImpl{}
-
-	dsn := os.Getenv("TEST_DATABASE_URL")
-	if dsn == "" {
-		log.Fatal("TEST_DATABASE_URL not set")
-	}
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("Error opening db connectio %v", err)

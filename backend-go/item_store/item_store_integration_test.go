@@ -3,8 +3,10 @@ package item_store_test
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/jhpyyk/tdd-mooc-webapp/backend-go/item_store"
@@ -13,7 +15,11 @@ import (
 )
 
 func setupStore(t testing.TB) (*item_store.ItemStoreImpl, []item_store.Item) {
-	store := item_store.NewItemStore()
+	dsn := os.Getenv("TEST_DATABASE_URL")
+	if dsn == "" {
+		log.Fatal("TEST_DATABASE_URL not set")
+	}
+	store := item_store.NewItemStore(dsn)
 	items := resetStore(t, store)
 	return store, items
 }
@@ -239,7 +245,7 @@ func TestEditItem(t *testing.T) {
 
 func TestGetBackendE2ETestString(t *testing.T) {
 	helpers.IntegrationTest(t)
-	itemStore := item_store.NewItemStore()
+	itemStore, _ := setupStore(t)
 	todoServer := todo_server.NewTodoServer(itemStore)
 	t.Run("should return backend e2e test string", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/test", nil)
