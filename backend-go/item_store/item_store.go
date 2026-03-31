@@ -140,7 +140,14 @@ func (store *ItemStoreImpl) DeleteItem(id int) error {
 }
 
 func (store *ItemStoreImpl) ArchiveDoneItems() error {
-	panic("not implemented")
+	_, err := store.DB.Exec(
+		`
+		update todo_items
+			set archived = true
+			where done = true
+		`,
+	)
+	return err
 }
 
 func ScanRowsToItems(rows *sql.Rows) ([]Item, error) {

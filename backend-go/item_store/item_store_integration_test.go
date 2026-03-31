@@ -165,7 +165,7 @@ func TestItemStoreIntegrationAddItem(t *testing.T) {
 	t.Run("added item in db should have correct values", func(t *testing.T) {
 		clearTodoItemTable(store)
 		addItemHelper(t, store, title)
-		item := itemQueryHelper(t, store, title)
+		item := queryItemByTitle(t, store, title)
 		if item.ID <= 0 {
 			t.Fatalf("invalid id for added item, got %v", item.ID)
 		}
@@ -190,7 +190,23 @@ func addItemHelper(t testing.TB, store *item_store.ItemStoreImpl, title string) 
 	return item
 }
 
-func itemQueryHelper(t testing.TB, store *item_store.ItemStoreImpl, title string) item_store.Item {
+func queryItemById(t testing.TB, store *item_store.ItemStoreImpl, id int) item_store.Item {
+	t.Helper()
+	row := store.DB.QueryRow(
+		`
+		select id, title, done, archived from todo_items
+		where id = $1
+		`,
+		id,
+	)
+	item, err := item_store.ScanRowToItem(row)
+	if err != nil {
+		t.Fatalf("error querying the item in db %q", err.Error())
+	}
+	return item
+}
+
+func queryItemByTitle(t testing.TB, store *item_store.ItemStoreImpl, title string) item_store.Item {
 	t.Helper()
 	row := store.DB.QueryRow(
 		`
@@ -225,7 +241,7 @@ func TestEditItem(t *testing.T) {
 		if err != nil {
 			t.Fatalf("error editing item in db %q", err.Error())
 		}
-		itemInDB := itemQueryHelper(t, store, editedItem.Title)
+		itemInDB := queryItemById(t, store, editedItem.ID)
 		helpers.AssertItemsEqual(t, editedItem, itemInDB)
 	})
 	t.Run("should return the edited item", func(t *testing.T) {
@@ -300,7 +316,29 @@ func TestArchiveDoneItems(t *testing.T) {
 	t.Cleanup(func() {
 		clearTodoItemTable(store)
 	})
-	t.Run("should ", func(t *testing.T) {})
+	t.Run("should change archived to true on done items", func(t *testing.T) {
+		err := store.ArchiveDoneItems()
+		if err != nil {
+			t.Fatalf("Error archiving done items %q", err.Error())
+		}
+		rows, err := store.DB.Query(
+			`
+			select * from todo_items
+			`,
+		)
+		if err != nil {
+			t.Fatalf("Error querying all items %q", err.Error())
+		}
+		items, err := item_store.ScanRowsToItems(rows)
+		if err != nil {
+			t.Fatalf("Error scanning rows %q", err.Error())
+		}
+		for _, item := range items {
+			if item.Done && !item.Archived {
+				t.Fatalf("Done item was not archived item: %v", item)
+			}
+		}
+	})
 }
 
 func TestGetBackendE2ETestString(t *testing.T) {
