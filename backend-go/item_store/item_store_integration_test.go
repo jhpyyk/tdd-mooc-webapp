@@ -30,8 +30,20 @@ func resetStore(t testing.TB, store *item_store.ItemStoreImpl) []item_store.Item
 		},
 		{
 			ID:       2,
-			Title:    "title1",
+			Title:    "title2",
+			Done:     true,
+			Archived: false,
+		},
+		{
+			ID:       3,
+			Title:    "title3",
 			Done:     false,
+			Archived: true,
+		},
+		{
+			ID:       4,
+			Title:    "title4",
+			Done:     true,
 			Archived: true,
 		},
 	}
@@ -105,7 +117,7 @@ func TestItemStoreIntegrationGetItems(t *testing.T) {
 		if err != nil {
 			t.Fatalf("error getting all active items %q", err)
 		}
-		want := []item_store.Item{initialItems[0]}
+		want := []item_store.Item{initialItems[0], initialItems[1]}
 		helpers.AssertItemSlicesEqual(t, want, items)
 	})
 
@@ -114,7 +126,7 @@ func TestItemStoreIntegrationGetItems(t *testing.T) {
 		if err != nil {
 			t.Fatalf("error getting all archived items %q", err)
 		}
-		want := []item_store.Item{initialItems[1]}
+		want := []item_store.Item{initialItems[2], initialItems[3]}
 		helpers.AssertItemSlicesEqual(t, want, items)
 	})
 }
@@ -280,6 +292,15 @@ func TestDeleteItemIntegration(t *testing.T) {
 			t.Fatalf("DB threw the wrong error, wanted %v, got %v", item_store.ErrItemNotFound, err)
 		}
 	})
+}
+
+func TestArchiveDoneItems(t *testing.T) {
+	helpers.IntegrationTest(t)
+	store, _ := setupStore(t)
+	t.Cleanup(func() {
+		clearTodoItemTable(store)
+	})
+	t.Run("should ", func(t *testing.T) {})
 }
 
 func TestGetBackendE2ETestString(t *testing.T) {
