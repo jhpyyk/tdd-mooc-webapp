@@ -2,7 +2,7 @@ import { useEffect, useOptimistic, useState, useTransition } from "react";
 import AddItemForm from "../AddItemForm/AddItemForm";
 import ItemList from "../items/ItemList/ItemList";
 import type { TodoItemData, TodoItemDataNoId } from "../../types";
-import { type ItemDAO } from "../../ItemDAO";
+import { type ItemDAO } from "../../ItemDAO/ItemDAO";
 import { Link } from "wouter";
 
 interface TodoPageProps {

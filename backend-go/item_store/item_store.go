@@ -9,10 +9,10 @@ import (
 )
 
 type Item struct {
-	ID       int
-	Title    string
-	Done     bool
-	Archived bool
+	ID       int    `json:"id"`
+	Title    string `json:"title"`
+	Done     bool   `json:"done"`
+	Archived bool   `json:"archived"`
 }
 
 var ErrItemNotFound = errors.New("item not found")

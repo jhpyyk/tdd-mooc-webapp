@@ -1,7 +1,7 @@
 import TodoPage from "./components/TodoPage/TodoPage";
 import "./App.css";
-import { type ItemDAO } from "./ItemDAO";
-import { LocalItemDAO } from "./LocalItemDAO";
+import { type ItemDAO } from "./ItemDAO/ItemDAO";
+import { LocalItemDAO } from "./ItemDAO/LocalItemDAO";
 import ArchivePage from "./components/Archive/ArchivePage";
 import { Route, Router, type BaseLocationHook } from "wouter";
 import E2EPage from "./components/E2EPage";

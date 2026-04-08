@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import type { ItemDAO } from "./ItemDAO";
+import type { ItemDAO } from "./ItemDAO/ItemDAO";
 import type { TodoItemData } from "./types";
 
 export class MockDAO implements ItemDAO {

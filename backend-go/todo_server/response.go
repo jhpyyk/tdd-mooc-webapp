@@ -15,6 +15,7 @@ func writeTestMessageResponse(w http.ResponseWriter, message string) {
 		Message: message,
 	}
 	json.NewEncoder(w).Encode(response)
+
 }
 
 func writeItemResponse(w http.ResponseWriter, item item_store.Item) {
@@ -22,6 +23,10 @@ func writeItemResponse(w http.ResponseWriter, item item_store.Item) {
 	w.WriteHeader(http.StatusOK)
 
 	json.NewEncoder(w).Encode(item)
+	if err := json.NewEncoder(w).Encode(item); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func writeItemSliceResponse(w http.ResponseWriter, items []item_store.Item) {
@@ -29,4 +34,8 @@ func writeItemSliceResponse(w http.ResponseWriter, items []item_store.Item) {
 	w.WriteHeader(http.StatusOK)
 
 	json.NewEncoder(w).Encode(items)
+	if err := json.NewEncoder(w).Encode(items); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }

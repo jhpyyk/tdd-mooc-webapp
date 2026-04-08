@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import type { TodoItemData } from "./types";
 import App from "./App";
-import { LocalItemDAO } from "./LocalItemDAO";
+import { LocalItemDAO } from "./ItemDAO/LocalItemDAO";
 import { memoryLocation } from "wouter/memory-location";
 
 describe("App ", () => {

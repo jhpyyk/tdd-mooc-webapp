@@ -1,5 +1,5 @@
 import { startTransition, useEffect, useOptimistic, useState } from "react";
-import type { ItemDAO } from "../../ItemDAO";
+import type { ItemDAO } from "../../ItemDAO/ItemDAO";
 import ItemList from "../items/ItemList/ItemList";
 import type { TodoItemData } from "../../types";
 import { Link } from "wouter";
