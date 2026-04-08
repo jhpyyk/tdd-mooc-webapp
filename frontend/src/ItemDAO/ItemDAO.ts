@@ -19,6 +19,9 @@ export class ItemDAOImpl implements ItemDAO {
 
     getAllItems = async () => {
         const res = await fetch(`${this.baseUrl}/items`);
+        if (res.status != 200) {
+            throw new Error(res.statusText);
+        }
         const data = await res.json();
         return data;
     };

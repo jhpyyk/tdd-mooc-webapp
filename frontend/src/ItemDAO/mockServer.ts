@@ -2,7 +2,7 @@ import { setupServer, type SetupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import type { TodoItemData } from "../types";
 
-export const createMockServer = (
+export const createMockServerSuccess = (
     baseUrl: string,
     initialItems: TodoItemData[]
 ): SetupServer => {
@@ -17,6 +17,17 @@ export const createMockServer = (
                 return HttpResponse.json([initialItems[2], initialItems[3]]);
             }
             return HttpResponse.json(initialItems);
+        })
+    );
+};
+
+export const createMockServerThrowsError = (baseUrl: string): SetupServer => {
+    return setupServer(
+        http.get(`${baseUrl}/items`, () => {
+            return HttpResponse.json(
+                { message: "error getting items" },
+                { status: 500 }
+            );
         })
     );
 };

@@ -1,6 +1,9 @@
 import type { TodoItemData } from "../types";
 import { ItemDAOImpl } from "./ItemDAO";
-import { createMockServer as createMockServerSuccess } from "./mockServer";
+import {
+    createMockServerSuccess,
+    createMockServerThrowsError,
+} from "./mockServer";
 
 describe("Test item DAO success", () => {
     const baseUrl = "http://localhost:3000";
@@ -51,5 +54,18 @@ describe("Test item DAO success", () => {
         const dao = new ItemDAOImpl(baseUrl);
         const items = await dao.getArchivedItems();
         expect(items).toEqual([initialItems[2], initialItems[3]]);
+    });
+});
+
+describe("Test item DAO error", () => {
+    const baseUrl = "http://localhost:3000";
+    const mockServer = createMockServerThrowsError(baseUrl);
+
+    beforeAll(() => mockServer.listen());
+    afterEach(() => mockServer.resetHandlers());
+    afterAll(() => mockServer.close());
+    test("test get all items", async () => {
+        const dao = new ItemDAOImpl(baseUrl);
+        await expect(dao.getAllItems()).rejects.toThrow();
     });
 });
