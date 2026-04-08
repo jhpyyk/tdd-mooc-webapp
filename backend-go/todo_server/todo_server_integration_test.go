@@ -12,12 +12,12 @@ import (
 )
 
 func TestGetBackendE2ETestStringIntegration(t *testing.T) {
+	helpers.IntegrationTest(t)
 	dsn := helpers.GetTestDBDsnString()
 	itemStore := item_store.NewItemStore(dsn)
 	todoServer := todo_server.NewTodoServer(itemStore)
 
 	t.Run("should return DB health-check string", func(t *testing.T) {
-		helpers.IntegrationTest(t)
 		request, _ := http.NewRequest(http.MethodGet, "/db-health", nil)
 		response := httptest.NewRecorder()
 		todoServer.ServeHTTP(response, request)
