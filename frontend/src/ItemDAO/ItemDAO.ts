@@ -28,8 +28,10 @@ export class ItemDAOImpl implements ItemDAO {
         return data;
     };
 
-    getArchivedItems = () => {
-        throw new Error("not implemented");
+    getArchivedItems = async () => {
+        const res = await fetch(`${this.baseUrl}/items?archived=true`);
+        const data = await res.json();
+        return data;
     };
     addItem = () => {
         throw new Error("not implemented");
