@@ -37,7 +37,7 @@ const ArchivePage = ({ itemDAO }: ArchivePageProps) => {
         startTransition(async () => {
             optimisticDeleteReducer(itemToDelete);
             try {
-                await itemDAO.deleteItem(itemToDelete);
+                await itemDAO.deleteItem(itemToDelete.id);
                 const newItems = deleteReducer(itemData, itemToDelete);
                 setItemData(newItems);
             } catch (error) {
