@@ -6,16 +6,17 @@ export const createMockServer = (
     baseUrl: string,
     initialItems: TodoItemData[]
 ): SetupServer => {
-    const mockServer = setupServer(
-        http.get(`${baseUrl}/items`, () => {
+    return setupServer(
+        http.get(`${baseUrl}/items`, ({ request }) => {
+            const archived = new URL(request.url).searchParams.get("archived");
+
+            if (archived === "false") {
+                return HttpResponse.json([initialItems[0], initialItems[1]]);
+            }
+            if (archived === "true") {
+                return HttpResponse.json([initialItems[2], initialItems[3]]);
+            }
             return HttpResponse.json(initialItems);
-        }),
-        http.get(`${baseUrl}/items/items?archived=false`, () => {
-            return HttpResponse.json([initialItems[0], initialItems[1]]);
-        }),
-        http.get(`${baseUrl}/items/items?archived=false`, () => {
-            return HttpResponse.json([initialItems[2], initialItems[3]]);
         })
     );
-    return mockServer;
 };

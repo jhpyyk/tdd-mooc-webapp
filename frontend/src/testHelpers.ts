@@ -10,8 +10,10 @@ export class MockDAO implements ItemDAO {
         this.itemData = initialItems;
         this.delay = delay;
     }
+    getAllItems = vi.fn();
     addItem = vi.fn();
     editItem = vi.fn();
+
     archiveDoneItems = vi.fn();
     deleteItem = vi.fn();
 
