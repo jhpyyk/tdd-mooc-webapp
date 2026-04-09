@@ -44,7 +44,7 @@ export class ItemDAOImpl implements ItemDAO {
     };
 
     getArchivedItems = async () => {
-        const res = await fetch(`${this.baseUrl}/items?archived=true`);
+        const res = await this.doFetch("/items?archived=true");
         const data = await res.json();
         return data;
     };
