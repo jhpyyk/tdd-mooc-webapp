@@ -57,7 +57,7 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
             const withId: TodoItemData = { ...itemToAdd, id: -1 };
             optimisticItemsReducer({ item: withId, type: "add" });
             try {
-                const returnedItem = await itemDAO.addItem(itemToAdd);
+                const returnedItem = await itemDAO.addItem(itemToAdd.title);
                 startTransition(async () => {
                     const newItems = itemReducer(itemData, {
                         item: returnedItem,

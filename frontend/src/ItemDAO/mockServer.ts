@@ -17,6 +17,18 @@ export const createMockServerSuccess = (
                 return HttpResponse.json([initialItems[2], initialItems[3]]);
             }
             return HttpResponse.json(initialItems);
+        }),
+        http.post(`${baseUrl}/items`, async ({ request }) => {
+            const body = (await request.json()) as { title: string };
+
+            const item = {
+                id: 5,
+                title: body.title,
+                done: false,
+                archived: false,
+            };
+
+            return HttpResponse.json(item);
         })
     );
 };

@@ -1,4 +1,4 @@
-import type { TodoItemData } from "../types";
+import type { TodoItemData, TodoItemDataNoId } from "../types";
 import { ItemDAOImpl } from "./ItemDAO";
 import {
     createMockServerSuccess,
@@ -54,6 +54,15 @@ describe("Test item DAO success", () => {
         const dao = new ItemDAOImpl(baseUrl);
         const items = await dao.getArchivedItems();
         expect(items).toEqual([initialItems[2], initialItems[3]]);
+    });
+
+    test("test add item", async () => {
+        const title = "new item";
+        const dao = new ItemDAOImpl(baseUrl);
+        const addedItem = await dao.addItem(title);
+        expect(addedItem.title).toEqual(title);
+        expect(addedItem.done).toEqual(false);
+        expect(addedItem.archived).toEqual(false);
     });
 });
 

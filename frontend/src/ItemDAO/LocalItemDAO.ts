@@ -49,12 +49,14 @@ export class LocalItemDAO implements ItemDAO {
         return items;
     };
 
-    addItem = async (newItem: TodoItemDataNoId) => {
+    addItem = async (newItemTitle: string) => {
         await new Promise((r) => setTimeout(r, this.delay));
         const id = nextId();
         const itemWithId: TodoItemData = {
-            ...newItem,
             id: id,
+            title: newItemTitle,
+            done: false,
+            archived: false,
         };
         this.itemData = this.itemData.concat(itemWithId);
         return itemWithId;

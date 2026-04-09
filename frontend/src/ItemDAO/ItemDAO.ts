@@ -1,10 +1,10 @@
-import type { TodoItemData, TodoItemDataNoId } from "../types";
+import type { TodoItemData } from "../types";
 
 export interface ItemDAO {
     getAllItems: () => Promise<TodoItemData[]>;
     getActiveItems: () => Promise<TodoItemData[]>;
     getArchivedItems: () => Promise<TodoItemData[]>;
-    addItem: (itemNoId: TodoItemDataNoId) => Promise<TodoItemData>;
+    addItem: (title: string) => Promise<TodoItemData>;
     editItem: (item: TodoItemData) => Promise<TodoItemData>;
     archiveDoneItems: () => Promise<void>;
     deleteItem: (itemId: number) => Promise<void>;
@@ -17,40 +17,55 @@ export class ItemDAOImpl implements ItemDAO {
         this.baseUrl = baseUrl;
     }
 
-    doFetch = async (endpoint: string) => {
-        const res = await fetch(`${this.baseUrl}${endpoint}`);
+    doGet = async (endpoint: string) => {
+        const res = await fetch(`${this.baseUrl}${endpoint}`, {
+            method: "GET",
+        });
+
         if (res.status != 200) {
-            console.error(
-                "error fetching all items",
-                res.url,
-                res.status,
-                res.statusText
-            );
+            console.error(res.url, res.status, res.statusText);
+            throw new Error(res.statusText);
+        }
+        return res;
+    };
+
+    doPost = async (endpoint: string, body: object) => {
+        const res = await fetch(`${this.baseUrl}${endpoint}`, {
+            method: "POST",
+            body: JSON.stringify(body),
+        });
+
+        if (res.status != 200) {
+            console.error(res.url, res.status, res.statusText);
             throw new Error(res.statusText);
         }
         return res;
     };
 
     getAllItems = async () => {
-        const res = await this.doFetch("/items");
+        const res = await this.doGet("/items");
         const data = await res.json();
         return data;
     };
 
     getActiveItems = async () => {
-        const res = await this.doFetch("/items?archived=false");
+        const res = await this.doGet("/items?archived=false");
         const data = await res.json();
         return data;
     };
 
     getArchivedItems = async () => {
-        const res = await this.doFetch("/items?archived=true");
+        const res = await this.doGet("/items?archived=true");
         const data = await res.json();
         return data;
     };
-    addItem = () => {
-        throw new Error("not implemented");
+
+    addItem = async (title: string) => {
+        const res = await this.doPost("/items", { title: title });
+        const data = await res.json();
+        return data;
     };
+
     editItem = () => {
         throw new Error("not implemented");
     };
