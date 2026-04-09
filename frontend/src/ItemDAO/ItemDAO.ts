@@ -17,16 +17,28 @@ export class ItemDAOImpl implements ItemDAO {
         this.baseUrl = baseUrl;
     }
 
-    getAllItems = async () => {
-        const res = await fetch(`${this.baseUrl}/items`);
+    doFetch = async (endpoint: string) => {
+        const res = await fetch(`${this.baseUrl}${endpoint}`);
         if (res.status != 200) {
+            console.error(
+                "error fetching all items",
+                res.url,
+                res.status,
+                res.statusText
+            );
             throw new Error(res.statusText);
         }
+        return res;
+    };
+
+    getAllItems = async () => {
+        const res = await this.doFetch("/items");
         const data = await res.json();
         return data;
     };
+
     getActiveItems = async () => {
-        const res = await fetch(`${this.baseUrl}/items?archived=false`);
+        const res = await this.doFetch("/items?archived=false");
         const data = await res.json();
         return data;
     };

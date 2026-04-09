@@ -68,4 +68,9 @@ describe("Test item DAO error", () => {
         const dao = new ItemDAOImpl(baseUrl);
         await expect(dao.getAllItems()).rejects.toThrow();
     });
+
+    test("test get active items", async () => {
+        const dao = new ItemDAOImpl(baseUrl);
+        await expect(dao.getActiveItems()).rejects.toThrow();
+    });
 });
