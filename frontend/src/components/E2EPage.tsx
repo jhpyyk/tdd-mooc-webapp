@@ -8,12 +8,6 @@ console.log("API_URL", api_url);
 interface TestResponse {
     message: string;
 }
-const fetchTest = async (): Promise<TestResponse> => {
-    const res: Response = await fetch(`${api_url}/test`);
-    console.log(res);
-    const data = await res.json();
-    return data;
-};
 
 const fetchGoAPITest = async (): Promise<TestResponse> => {
     const res = await fetch(`http://${api_host}:5000/test`);
@@ -21,13 +15,7 @@ const fetchGoAPITest = async (): Promise<TestResponse> => {
     const data = await res.json();
     return data;
 };
-const fetchDbHealth = async (): Promise<TestResponse> => {
-    console.log("fetching db-health");
-    const res = await fetch(`${api_url}/db-health`);
-    console.log(res);
-    const data = await res.json();
-    return data;
-};
+
 const fetchGoAPIDbHealth = async (): Promise<TestResponse> => {
     console.log("fetching db-health");
     const res = await fetch(`http://${api_host}:5000/db-health`);
@@ -37,21 +25,9 @@ const fetchGoAPIDbHealth = async (): Promise<TestResponse> => {
 };
 const E2EPage = () => {
     const [backendTestResponse, setBackendTestResponse] = useState<string>();
-    const [goBackendTestResponse, setGoBackendTestResponse] =
-        useState<string>();
-    const [dbHealthResponse, setDbHealthResponse] = useState<string>();
+    useState<string>();
     const [goApidbHealthResponse, setGoApiDbHealthResponse] =
         useState<string>();
-
-    useEffect(() => {
-        const fetchBackendResponse = async () => {
-            const testResponse = await fetchTest();
-            console.log(testResponse);
-
-            setGoBackendTestResponse(testResponse.message);
-        };
-        fetchBackendResponse();
-    }, []);
 
     useEffect(() => {
         const fetchBackendResponse = async () => {
@@ -61,16 +37,6 @@ const E2EPage = () => {
             setBackendTestResponse(testResponse.message);
         };
         fetchBackendResponse();
-    }, []);
-
-    useEffect(() => {
-        const fetchDbHealthResponse = async () => {
-            const testResponse = await fetchDbHealth();
-            console.log(testResponse);
-
-            setDbHealthResponse(testResponse.message);
-        };
-        fetchDbHealthResponse();
     }, []);
 
     useEffect(() => {
@@ -88,8 +54,6 @@ const E2EPage = () => {
             <h2>e2e stuff:</h2>
             <p>Hello from frontend</p>
             <p>{backendTestResponse}</p>
-            <p>{goBackendTestResponse}</p>
-            <p>{dbHealthResponse}</p>
             <p>{goApidbHealthResponse}</p>
         </div>
     );
