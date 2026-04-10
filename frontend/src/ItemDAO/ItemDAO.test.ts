@@ -78,8 +78,13 @@ describe("Test item DAO success", () => {
         expect(editedItem.done).toEqual(newDone);
         expect(editedItem.archived).toEqual(newArchived);
     });
-    test("archive done items", async () => {
+
+    test("test archive done items", async () => {
         await expect(dao.archiveDoneItems()).resolves.toBe(undefined);
+    });
+
+    test("test delete item", async () => {
+        await expect(dao.deleteItem(1)).resolves.toBe(undefined);
     });
 });
 
@@ -125,6 +130,14 @@ describe("Test item DAO error", () => {
             archived: true,
         };
         await expect(dao.editItem(item)).rejects.toThrow("404");
+    });
+
+    test("test delete item internal error", async () => {
+        await expect(dao.deleteItem(1)).rejects.toThrow("500");
+    });
+
+    test("test delete item not found", async () => {
+        await expect(dao.deleteItem(5)).rejects.toThrow("404");
     });
 
     test("archive done items", async () => {

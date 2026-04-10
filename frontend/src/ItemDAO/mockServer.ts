@@ -32,10 +32,12 @@ export const createMockServerSuccess = (
         }),
         http.post(`${baseUrl}/items/:id`, async ({ request }) => {
             const item = (await request.json()) as TodoItemData;
-
             return HttpResponse.json(item);
         }),
         http.post(`${baseUrl}/archive-done`, async () => {
+            return new HttpResponse(null, { status: 200 });
+        }),
+        http.delete(`${baseUrl}/items/:id`, async () => {
             return new HttpResponse(null, { status: 200 });
         })
     );
@@ -56,6 +58,19 @@ export const createMockServerThrowsError = (baseUrl: string): SetupServer => {
             );
         }),
         http.post(`${baseUrl}/items/:id`, async ({ params }) => {
+            const id = Number(params.id);
+            if (id == 5) {
+                return HttpResponse.json(
+                    { message: "item not found" },
+                    { status: 404 }
+                );
+            }
+            return HttpResponse.json(
+                { message: "error editing item" },
+                { status: 500 }
+            );
+        }),
+        http.delete(`${baseUrl}/items/:id`, async ({ params }) => {
             const id = Number(params.id);
             if (id == 5) {
                 return HttpResponse.json(

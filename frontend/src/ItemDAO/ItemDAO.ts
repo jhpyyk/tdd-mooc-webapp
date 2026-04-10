@@ -79,7 +79,15 @@ export class ItemDAOImpl implements ItemDAO {
     archiveDoneItems = async () => {
         await this.doPost(`/archive-done`, {});
     };
-    deleteItem = () => {
-        throw new Error("not implemented");
+
+    deleteItem = async (itemId: number) => {
+        const res = await fetch(`${this.baseUrl}/items/${itemId}`, {
+            method: "DELETE",
+        });
+
+        if (!res.ok) {
+            console.error(res.url, res.status, res.statusText);
+            throw new Error(`${res.url}  ${res.status} ${res.statusText}`);
+        }
     };
 }
