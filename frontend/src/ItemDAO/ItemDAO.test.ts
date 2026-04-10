@@ -35,30 +35,28 @@ describe("Test item DAO success", () => {
     ];
     const mockServer = createMockServerSuccess(baseUrl, initialItems);
 
+    const dao = new ItemDAOImpl(baseUrl);
+
     beforeAll(() => mockServer.listen());
     afterEach(() => mockServer.resetHandlers());
     afterAll(() => mockServer.close());
 
     test("test get all items", async () => {
-        const dao = new ItemDAOImpl(baseUrl);
         const items = await dao.getAllItems();
         expect(items).toEqual(initialItems);
     });
     test("test get active items", async () => {
-        const dao = new ItemDAOImpl(baseUrl);
         const items = await dao.getActiveItems();
         expect(items).toEqual([initialItems[0], initialItems[1]]);
     });
 
     test("test get archived items", async () => {
-        const dao = new ItemDAOImpl(baseUrl);
         const items = await dao.getArchivedItems();
         expect(items).toEqual([initialItems[2], initialItems[3]]);
     });
 
     test("test add item", async () => {
         const title = "new item";
-        const dao = new ItemDAOImpl(baseUrl);
         const addedItem = await dao.addItem(title);
         expect(addedItem.title).toEqual(title);
         expect(addedItem.done).toEqual(false);
@@ -69,27 +67,24 @@ describe("Test item DAO success", () => {
 describe("Test item DAO error", () => {
     const baseUrl = "http://localhost:3000";
     const mockServer = createMockServerThrowsError(baseUrl);
+    const dao = new ItemDAOImpl(baseUrl);
 
     beforeAll(() => mockServer.listen());
     afterEach(() => mockServer.resetHandlers());
     afterAll(() => mockServer.close());
     test("test get all items", async () => {
-        const dao = new ItemDAOImpl(baseUrl);
         await expect(dao.getAllItems()).rejects.toThrow("500");
     });
 
     test("test get active items", async () => {
-        const dao = new ItemDAOImpl(baseUrl);
         await expect(dao.getActiveItems()).rejects.toThrow("500");
     });
 
     test("test get active items", async () => {
-        const dao = new ItemDAOImpl(baseUrl);
         await expect(dao.getArchivedItems()).rejects.toThrow("500");
     });
 
     test("test add item", async () => {
-        const dao = new ItemDAOImpl(baseUrl);
         await expect(dao.addItem("title")).rejects.toThrow("500");
     });
 });
