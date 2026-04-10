@@ -75,21 +75,21 @@ describe("Test item DAO error", () => {
     afterAll(() => mockServer.close());
     test("test get all items", async () => {
         const dao = new ItemDAOImpl(baseUrl);
-        await expect(dao.getAllItems()).rejects.toThrow();
+        await expect(dao.getAllItems()).rejects.toThrow("500");
     });
 
     test("test get active items", async () => {
         const dao = new ItemDAOImpl(baseUrl);
-        await expect(dao.getActiveItems()).rejects.toThrow();
+        await expect(dao.getActiveItems()).rejects.toThrow("500");
     });
 
     test("test get active items", async () => {
         const dao = new ItemDAOImpl(baseUrl);
-        await expect(dao.getArchivedItems()).rejects.toThrow();
+        await expect(dao.getArchivedItems()).rejects.toThrow("500");
     });
 
     test("test add item", async () => {
         const dao = new ItemDAOImpl(baseUrl);
-        await expect(dao.addItem("title")).rejects.toThrow();
+        await expect(dao.addItem("title")).rejects.toThrow("500");
     });
 });

@@ -22,9 +22,9 @@ export class ItemDAOImpl implements ItemDAO {
             method: "GET",
         });
 
-        if (res.status != 200) {
+        if (!res.ok) {
             console.error(res.url, res.status, res.statusText);
-            throw new Error(res.statusText);
+            throw new Error(res.url + res.status + res.statusText);
         }
         return res;
     };
@@ -35,9 +35,9 @@ export class ItemDAOImpl implements ItemDAO {
             body: JSON.stringify(body),
         });
 
-        if (res.status != 200) {
+        if (!res.ok) {
             console.error(res.url, res.status, res.statusText);
-            throw new Error(res.statusText);
+            throw new Error(res.url + res.status + res.statusText);
         }
         return res;
     };

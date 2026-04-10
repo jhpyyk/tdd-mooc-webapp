@@ -40,6 +40,12 @@ export const createMockServerThrowsError = (baseUrl: string): SetupServer => {
                 { message: "error getting items" },
                 { status: 500 }
             );
+        }),
+        http.post(`${baseUrl}/items`, () => {
+            return HttpResponse.json(
+                { message: "error adding item" },
+                { status: 500 }
+            );
         })
     );
 };
