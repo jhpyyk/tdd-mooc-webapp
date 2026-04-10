@@ -87,4 +87,9 @@ describe("Test item DAO error", () => {
         const dao = new ItemDAOImpl(baseUrl);
         await expect(dao.getArchivedItems()).rejects.toThrow();
     });
+
+    test("test add item", async () => {
+        const dao = new ItemDAOImpl(baseUrl);
+        await expect(dao.addItem("title")).rejects.toThrow();
+    });
 });
