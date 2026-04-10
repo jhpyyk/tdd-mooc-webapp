@@ -1,6 +1,7 @@
 import { setupServer, type SetupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import type { TodoItemData } from "../types";
+import type TodoItem from "../components/items/TodoItem/TodoItem";
 
 export const createMockServerSuccess = (
     baseUrl: string,
@@ -27,6 +28,11 @@ export const createMockServerSuccess = (
                 done: false,
                 archived: false,
             };
+
+            return HttpResponse.json(item);
+        }),
+        http.post(`${baseUrl}/items/:id`, async ({ request }) => {
+            const item = (await request.json()) as TodoItemData;
 
             return HttpResponse.json(item);
         })

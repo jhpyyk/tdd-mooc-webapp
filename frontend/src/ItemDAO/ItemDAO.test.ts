@@ -62,6 +62,22 @@ describe("Test item DAO success", () => {
         expect(addedItem.done).toEqual(false);
         expect(addedItem.archived).toEqual(false);
     });
+
+    test("test edit item returns edited item", async () => {
+        const newTitle = "new title";
+        const newDone = !initialItems[0].done;
+        const newArchived = !initialItems[0].archived;
+        const itemToEdit = {
+            ...initialItems[0],
+            title: newTitle,
+            done: newDone,
+            archived: newArchived,
+        };
+        const editedItem = await dao.editItem(itemToEdit);
+        expect(editedItem.title).toEqual(newTitle);
+        expect(editedItem.done).toEqual(newDone);
+        expect(editedItem.archived).toEqual(newArchived);
+    });
 });
 
 describe("Test item DAO error", () => {

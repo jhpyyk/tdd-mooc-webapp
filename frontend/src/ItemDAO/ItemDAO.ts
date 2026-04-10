@@ -1,4 +1,4 @@
-import type { TodoItemData } from "../types";
+import type { TodoItemData, TodoItemDataNoId } from "../types";
 
 export interface ItemDAO {
     getAllItems: () => Promise<TodoItemData[]>;
@@ -66,8 +66,15 @@ export class ItemDAOImpl implements ItemDAO {
         return data;
     };
 
-    editItem = () => {
-        throw new Error("not implemented");
+    editItem = async (editedItem: TodoItemData) => {
+        const item: TodoItemDataNoId = {
+            title: editedItem.title,
+            done: editedItem.done,
+            archived: editedItem.archived,
+        };
+        const res = await this.doPost(`/items/${editedItem.id}`, item);
+        const data = await res.json();
+        return data;
     };
     archiveDoneItems = () => {
         throw new Error("not implemented");
