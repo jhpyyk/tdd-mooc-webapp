@@ -52,6 +52,19 @@ export const createMockServerThrowsError = (baseUrl: string): SetupServer => {
                 { message: "error adding item" },
                 { status: 500 }
             );
+        }),
+        http.post(`${baseUrl}/items/:id`, async ({ params }) => {
+            const id = Number(params.id);
+            if (id == 5) {
+                return HttpResponse.json(
+                    { message: "item not found" },
+                    { status: 404 }
+                );
+            }
+            return HttpResponse.json(
+                { message: "error editing item" },
+                { status: 500 }
+            );
         })
     );
 };

@@ -37,7 +37,7 @@ export class ItemDAOImpl implements ItemDAO {
 
         if (!res.ok) {
             console.error(res.url, res.status, res.statusText);
-            throw new Error(res.url + res.status + res.statusText);
+            throw new Error(`${res.url}  ${res.status} ${res.statusText}`);
         }
         return res;
     };

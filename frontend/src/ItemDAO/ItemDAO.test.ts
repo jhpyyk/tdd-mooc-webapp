@@ -103,4 +103,24 @@ describe("Test item DAO error", () => {
     test("test add item", async () => {
         await expect(dao.addItem("title")).rejects.toThrow("500");
     });
+
+    test("test edit item internal error", async () => {
+        const item = {
+            id: 1,
+            title: "some title",
+            done: false,
+            archived: true,
+        };
+        await expect(dao.editItem(item)).rejects.toThrow("500");
+    });
+
+    test("test edit item item not found", async () => {
+        const item = {
+            id: 5,
+            title: "some title",
+            done: false,
+            archived: true,
+        };
+        await expect(dao.editItem(item)).rejects.toThrow("404");
+    });
 });
