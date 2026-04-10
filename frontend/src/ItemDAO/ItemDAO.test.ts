@@ -1,4 +1,4 @@
-import type { TodoItemData, TodoItemDataNoId } from "../types";
+import type { TodoItemData } from "../types";
 import { ItemDAOImpl } from "./ItemDAO";
 import {
     createMockServerSuccess,
@@ -78,6 +78,9 @@ describe("Test item DAO success", () => {
         expect(editedItem.done).toEqual(newDone);
         expect(editedItem.archived).toEqual(newArchived);
     });
+    test("archive done items", async () => {
+        await expect(dao.archiveDoneItems()).resolves.toBe(undefined);
+    });
 });
 
 describe("Test item DAO error", () => {
@@ -122,5 +125,9 @@ describe("Test item DAO error", () => {
             archived: true,
         };
         await expect(dao.editItem(item)).rejects.toThrow("404");
+    });
+
+    test("archive done items", async () => {
+        await expect(dao.archiveDoneItems()).rejects.toThrow("500");
     });
 });

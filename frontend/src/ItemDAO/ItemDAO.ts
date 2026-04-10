@@ -76,8 +76,8 @@ export class ItemDAOImpl implements ItemDAO {
         const data = await res.json();
         return data;
     };
-    archiveDoneItems = () => {
-        throw new Error("not implemented");
+    archiveDoneItems = async () => {
+        await this.doPost(`/archive-done`, {});
     };
     deleteItem = () => {
         throw new Error("not implemented");

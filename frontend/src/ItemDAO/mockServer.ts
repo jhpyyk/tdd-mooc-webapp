@@ -1,7 +1,6 @@
 import { setupServer, type SetupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import type { TodoItemData } from "../types";
-import type TodoItem from "../components/items/TodoItem/TodoItem";
 
 export const createMockServerSuccess = (
     baseUrl: string,
@@ -35,6 +34,9 @@ export const createMockServerSuccess = (
             const item = (await request.json()) as TodoItemData;
 
             return HttpResponse.json(item);
+        }),
+        http.post(`${baseUrl}/archive-done`, async () => {
+            return new HttpResponse(null, { status: 200 });
         })
     );
 };
@@ -63,6 +65,12 @@ export const createMockServerThrowsError = (baseUrl: string): SetupServer => {
             }
             return HttpResponse.json(
                 { message: "error editing item" },
+                { status: 500 }
+            );
+        }),
+        http.post(`${baseUrl}/archive-done`, async () => {
+            return HttpResponse.json(
+                { message: "error archiving done items" },
                 { status: 500 }
             );
         })
