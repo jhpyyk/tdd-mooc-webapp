@@ -24,7 +24,7 @@ describe("App ", () => {
             ];
 
             const { hook } = memoryLocation({
-                path: "/todo",
+                path: "/",
             });
 
             render(

@@ -47,7 +47,7 @@ const ArchivePage = ({ itemDAO }: ArchivePageProps) => {
     };
     return (
         <div>
-            <Link href="/todo">Todo</Link>
+            <Link href="/">Todo</Link>
             <h2>Archive</h2>
             <ItemList
                 itemData={optimisticItems}
