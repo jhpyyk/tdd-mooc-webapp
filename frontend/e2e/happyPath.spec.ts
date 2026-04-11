@@ -47,7 +47,7 @@ test("happy path", async ({ page }) => {
     });
 
     await test.step("archive done items", async () => {
-        await page.getByRole("button", { name: /archive/i }).click();
+        await page.getByRole("button", { name: /archive done/i }).click();
 
         await expect(
             page.getByRole("listitem", { name: editedTddTitle })
@@ -55,5 +55,27 @@ test("happy path", async ({ page }) => {
         await expect(
             page.getByRole("listitem", { name: itemTitleAnother })
         ).toBeVisible();
+    });
+
+    await test.step("go to archive page", async () => {
+        await page.getByRole("link", { name: /archive/i }).click();
+
+        await expect(page.getByText(/archive/i)).toBeVisible();
+    });
+
+    await test.step("archive page should contain the archived item", async () => {
+        await expect(page.getByText(editedTddTitle)).toBeVisible();
+    });
+
+    await test.step("delete item", async () => {
+        const itemTdd = page.getByRole("listitem", { name: editedTddTitle });
+        await itemTdd.getByRole("button", { name: /delete/i }).click();
+
+        await expect(page.getByText(editedTddTitle)).not.toBeVisible();
+    });
+
+    await test.step("go back to todo page", async () => {
+        await page.getByRole("link", { name: /todo/i }).click();
+        await expect(page.getByText(/add an item/i)).toBeVisible();
     });
 });
