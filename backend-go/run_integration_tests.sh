@@ -2,11 +2,11 @@
 set -euo pipefail
 
 cleanup() {
-  docker compose -f ../docker-compose.yaml down goapi test_db dev_db
+  docker compose -f ../docker-compose-test.yaml down goapi test_db
 }
 trap cleanup EXIT
 
-docker compose -f ../docker-compose.yaml up -d goapi
+docker compose -f ../docker-compose-test.yaml up -d goapi
 
 echo "Waiting for test DB to become healthy..."
 for i in {1..15}; do

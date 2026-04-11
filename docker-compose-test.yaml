@@ -24,26 +24,26 @@ services:
     volumes:
       - ./backend-go:/usr/src/backend-go
     depends_on:
-      dev_db:
+      test_db:
         condition: service_healthy
     environment:
-      - DEV_DATABASE_URL=postgres://user:password@dev_db:5432/dev_db?sslmode=disable
+      - TEST_DATABASE_URL=postgres://user:password@test_db:5432/test_db?sslmode=disable
       - CGO_ENABLED=0
 
-  dev_db:
-    container_name: postgres_dev
+  test_db:
+    container_name: postgres_test
+    restart: no
     image: postgres:16
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - ./sql/create-dev-tables.sql:/docker-entrypoint-initdb.d/create-dev-tables.sql:ro
-      - data:/var/lib/postgresql/data
+      - ./sql/create-test-tables.sql:/docker-entrypoint-initdb.d/create-test-tables.sql:ro
     environment:
       - POSTGRES_USER=user
-      - POSTGRES_DB=dev_db
+      - POSTGRES_DB=test_db
       - POSTGRES_PASSWORD=password
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d dev_db"]
+      test: ["CMD-SHELL", "pg_isready -U user -d test_db"]
       interval: 2s
       timeout: 2s
       retries: 10
