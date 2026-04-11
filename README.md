@@ -9,7 +9,9 @@ cd frontend
 ```
 
 ### Unit tests
+```
 npm run test
+```
 
 ### E2E test
 ```
@@ -24,7 +26,9 @@ cd backend-go
 ```
 
 ### Unit tests
+```
 go test ./...
+```
 
 ### Integration tests  
 ```
