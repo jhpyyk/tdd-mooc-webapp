@@ -68,7 +68,7 @@ export class ItemDAOImpl implements ItemDAO {
 
     addItem = async (title: string): Promise<TodoItemData> => {
         const res = await this.doFetch("/items", "POST", { title: title });
-        const data = await res.json();
+        const data = await this.validateItemResponse(res);
         return data;
     };
 

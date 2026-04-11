@@ -1,5 +1,5 @@
 import type { TodoItemData } from "../types";
-import { ItemDAOImpl } from "./ItemDAO";
+import { InvalidResponseDataError, ItemDAOImpl } from "./ItemDAO";
 import {
     createMockServerSuccess,
     createMockServerThrowsError,
@@ -100,10 +100,6 @@ describe("Test item DAO error", () => {
         await expect(dao.getAllItems()).rejects.toThrow("500");
     });
 
-    test("test get all items invalid data", async () => {
-        await expect(dao.getAllItems()).rejects.toThrow("500");
-    });
-
     test("test get active items internal error", async () => {
         await expect(dao.getActiveItems()).rejects.toThrow("500");
     });
@@ -116,6 +112,11 @@ describe("Test item DAO error", () => {
         await expect(dao.addItem("title")).rejects.toThrow("500");
     });
 
+    test("test add item invalid response data", async () => {
+        await expect(dao.addItem("invaliddata")).rejects.toThrow(
+            InvalidResponseDataError
+        );
+    });
     test("test edit item internal error", async () => {
         const item = {
             id: 1,
@@ -134,6 +135,18 @@ describe("Test item DAO error", () => {
             archived: true,
         };
         await expect(dao.editItem(item)).rejects.toThrow("404");
+    });
+
+    test("test edit item invalid response data", async () => {
+        const item = {
+            id: 999, // returns invalid response
+            title: "some title",
+            done: false,
+            archived: true,
+        };
+        await expect(dao.editItem(item)).rejects.toThrow(
+            InvalidResponseDataError
+        );
     });
 
     test("test delete item internal error", async () => {

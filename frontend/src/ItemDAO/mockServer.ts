@@ -55,7 +55,11 @@ export const createMockServerThrowsError = (baseUrl: string): SetupServer => {
                 { status: 500 }
             );
         }),
-        http.post(`${baseUrl}/items`, () => {
+        http.post(`${baseUrl}/items`, async ({ request }) => {
+            const body = (await request.json()) as { title: string };
+            if (body.title == "invaliddata") {
+                return HttpResponse.json({ invalidData: true });
+            }
             return HttpResponse.json(
                 { message: "error adding item" },
                 { status: 500 }
@@ -68,6 +72,9 @@ export const createMockServerThrowsError = (baseUrl: string): SetupServer => {
                     { message: "item not found" },
                     { status: 404 }
                 );
+            }
+            if (id == 999) {
+                return HttpResponse.json({ invalidData: true });
             }
             return HttpResponse.json(
                 { message: "error editing item" },
