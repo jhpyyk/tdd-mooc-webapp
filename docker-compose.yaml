@@ -27,7 +27,7 @@ services:
       dev_db:
         condition: service_healthy
     environment:
-      - DEV_DATABASE_URL=postgres://user:password@dev_db:5432/dev_db?sslmode=disable
+      - DATABASE_URL=postgres://user:password@dev_db:5432/dev_db?sslmode=disable
       - CGO_ENABLED=0
 
   dev_db:

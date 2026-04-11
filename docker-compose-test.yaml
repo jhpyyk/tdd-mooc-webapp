@@ -27,7 +27,7 @@ services:
       test_db:
         condition: service_healthy
     environment:
-      - TEST_DATABASE_URL=postgres://user:password@test_db:5432/test_db?sslmode=disable
+      - DATABASE_URL=postgres://user:password@test_db:5432/test_db?sslmode=disable
       - CGO_ENABLED=0
 
   test_db:
@@ -48,6 +48,3 @@ services:
       timeout: 2s
       retries: 10
       start_period: 5s
-
-volumes:
-  data: {}

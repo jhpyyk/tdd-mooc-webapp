@@ -10,9 +10,9 @@ import (
 )
 
 func main() {
-	dsn := os.Getenv("DEV_DATABASE_URL")
+	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		log.Fatal("DEV_DATABASE_URL not set")
+		log.Fatal("DATABASE_URL not set")
 	}
 	itemStore := item_store.NewItemStore(dsn)
 	todoServer := server.NewTodoServer(itemStore)
