@@ -30,10 +30,14 @@ export const createMockServerSuccess = (
 
             return HttpResponse.json(item);
         }),
-        http.post(`${baseUrl}/items/:id`, async ({ request }) => {
+
+        http.put(`${baseUrl}/items/:id`, async ({ params, request }) => {
             const item = (await request.json()) as TodoItemData;
-            return HttpResponse.json(item);
+            const id = Number(params.id);
+
+            return HttpResponse.json({ ...item, id: id });
         }),
+
         http.post(`${baseUrl}/archive-done`, async () => {
             return new HttpResponse(null, { status: 200 });
         }),
@@ -57,7 +61,7 @@ export const createMockServerThrowsError = (baseUrl: string): SetupServer => {
                 { status: 500 }
             );
         }),
-        http.post(`${baseUrl}/items/:id`, async ({ params }) => {
+        http.put(`${baseUrl}/items/:id`, async ({ params }) => {
             const id = Number(params.id);
             if (id == 5) {
                 return HttpResponse.json(

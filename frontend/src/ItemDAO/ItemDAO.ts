@@ -1,4 +1,10 @@
-import type { TodoItemData, TodoItemDataNoId } from "../types";
+import {
+    validateTodoItemData,
+    type TodoItemData,
+    type TodoItemDataNoId,
+} from "../types";
+
+export class InvalidResponseDataError extends Error {}
 
 export interface ItemDAO {
     getAllItems: () => Promise<TodoItemData[]>;
@@ -29,9 +35,9 @@ export class ItemDAOImpl implements ItemDAO {
         return res;
     };
 
-    doPost = async (endpoint: string, body: object) => {
+    doFetch = async (endpoint: string, method: string, body: object) => {
         const res = await fetch(`${this.baseUrl}${endpoint}`, {
-            method: "POST",
+            method: method,
             body: JSON.stringify(body),
         });
 
@@ -42,45 +48,45 @@ export class ItemDAOImpl implements ItemDAO {
         return res;
     };
 
-    getAllItems = async () => {
+    getAllItems = async (): Promise<TodoItemData[]> => {
         const res = await this.doGet("/items");
         const data = await res.json();
         return data;
     };
 
-    getActiveItems = async () => {
+    getActiveItems = async (): Promise<TodoItemData[]> => {
         const res = await this.doGet("/items?archived=false");
         const data = await res.json();
         return data;
     };
 
-    getArchivedItems = async () => {
+    getArchivedItems = async (): Promise<TodoItemData[]> => {
         const res = await this.doGet("/items?archived=true");
         const data = await res.json();
         return data;
     };
 
-    addItem = async (title: string) => {
-        const res = await this.doPost("/items", { title: title });
+    addItem = async (title: string): Promise<TodoItemData> => {
+        const res = await this.doFetch("/items", "POST", { title: title });
         const data = await res.json();
         return data;
     };
 
-    editItem = async (editedItem: TodoItemData) => {
+    editItem = async (editedItem: TodoItemData): Promise<TodoItemData> => {
         const item: TodoItemDataNoId = {
             title: editedItem.title,
             done: editedItem.done,
             archived: editedItem.archived,
         };
-        const res = await this.doPost(`/items/${editedItem.id}`, item);
-        const data = await res.json();
+        const res = await this.doFetch(`/items/${editedItem.id}`, "PUT", item);
+        const data = await this.validateItemResponse(res);
         return data;
     };
-    archiveDoneItems = async () => {
-        await this.doPost(`/archive-done`, {});
+    archiveDoneItems = async (): Promise<void> => {
+        await this.doFetch(`/archive-done`, "POST", {});
     };
 
-    deleteItem = async (itemId: number) => {
+    deleteItem = async (itemId: number): Promise<void> => {
         const res = await fetch(`${this.baseUrl}/items/${itemId}`, {
             method: "DELETE",
         });
@@ -89,5 +95,19 @@ export class ItemDAOImpl implements ItemDAO {
             console.error(res.url, res.status, res.statusText);
             throw new Error(`${res.url}  ${res.status} ${res.statusText}`);
         }
+    };
+
+    validateItemResponse = async (res: Response): Promise<TodoItemData> => {
+        const data = await res.json();
+        const validationErrors = validateTodoItemData(data);
+
+        if (validationErrors.length > 0) {
+            throw new InvalidResponseDataError(
+                `Error parsing edit item response: ${validationErrors.join("; ")}`,
+                data
+            );
+        }
+
+        return data as TodoItemData;
     };
 }

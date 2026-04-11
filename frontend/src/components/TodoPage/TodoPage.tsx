@@ -66,7 +66,7 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
                     setItemData(newItems);
                 });
             } catch (error) {
-                console.log("Error adding an item");
+                console.error("Error adding an item", error);
             }
         });
     };
@@ -82,7 +82,7 @@ const TodoPage = ({ itemDAO }: TodoPageProps) => {
                 });
                 setItemData(newItems);
             } catch (error) {
-                console.log("Error editing item");
+                console.log("Error editing item", error);
             }
         });
     };

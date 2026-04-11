@@ -73,7 +73,7 @@ describe("Test item DAO success", () => {
             done: newDone,
             archived: newArchived,
         };
-        const editedItem = await dao.editItem(itemToEdit);
+        const editedItem: TodoItemData = await dao.editItem(itemToEdit);
         expect(editedItem.title).toEqual(newTitle);
         expect(editedItem.done).toEqual(newDone);
         expect(editedItem.archived).toEqual(newArchived);
@@ -96,19 +96,23 @@ describe("Test item DAO error", () => {
     beforeAll(() => mockServer.listen());
     afterEach(() => mockServer.resetHandlers());
     afterAll(() => mockServer.close());
-    test("test get all items", async () => {
+    test("test get all items internal error", async () => {
         await expect(dao.getAllItems()).rejects.toThrow("500");
     });
 
-    test("test get active items", async () => {
+    test("test get all items invalid data", async () => {
+        await expect(dao.getAllItems()).rejects.toThrow("500");
+    });
+
+    test("test get active items internal error", async () => {
         await expect(dao.getActiveItems()).rejects.toThrow("500");
     });
 
-    test("test get active items", async () => {
+    test("test get archived items internal error", async () => {
         await expect(dao.getArchivedItems()).rejects.toThrow("500");
     });
 
-    test("test add item", async () => {
+    test("test add item internal error", async () => {
         await expect(dao.addItem("title")).rejects.toThrow("500");
     });
 
@@ -140,7 +144,7 @@ describe("Test item DAO error", () => {
         await expect(dao.deleteItem(5)).rejects.toThrow("404");
     });
 
-    test("archive done items", async () => {
+    test("archive done items internal error", async () => {
         await expect(dao.archiveDoneItems()).rejects.toThrow("500");
     });
 });

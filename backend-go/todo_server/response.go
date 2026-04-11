@@ -22,7 +22,6 @@ func writeItemResponse(w http.ResponseWriter, item item_store.Item) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(item)
 	if err := json.NewEncoder(w).Encode(item); err != nil {
 		http.Error(w, "failed to encode response", http.StatusInternalServerError)
 		return
@@ -33,7 +32,6 @@ func writeItemSliceResponse(w http.ResponseWriter, items []item_store.Item) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(items)
 	if err := json.NewEncoder(w).Encode(items); err != nil {
 		http.Error(w, "failed to encode response", http.StatusInternalServerError)
 		return
